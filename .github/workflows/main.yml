@@ -13,7 +13,7 @@ jobs:
     steps:
     - name: Move to "In Progress" when issue is assigned
       if: ${{ github.event.action == 'assigned' || github.event.action == 'edited' }}
-      uses: actions/add-to-project@v1
+      uses: actions/add-to-project@v1.0.2
       with:
         project-url: https://github.com/users/juanppdev/projects/15
         column-name: "In Progress"
@@ -21,7 +21,7 @@ jobs:
 
     - name: Move to "In Review" when PR is opened
       if: ${{ github.event_name == 'pull_request' && github.event.action == 'opened' }}
-      uses: actions/add-to-project@v1
+      uses: actions/add-to-project@v1.0.2
       with:
         project-url: https://github.com/users/juanppdev/projects/15
         column-name: "In Review"
@@ -29,7 +29,7 @@ jobs:
 
     - name: Move to "Done" when PR is merged
       if: ${{ github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged == true }}
-      uses: actions/add-to-project@v1
+      uses: actions/add-to-project@v1.0.2
       with:
         project-url: https://github.com/users/juanppdev/projects/15
         column-name: "Done"
