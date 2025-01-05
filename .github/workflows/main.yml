@@ -1,0 +1,36 @@
+name: Project Automation
+
+on:
+  issues:
+    types: [assigned, edited]
+  pull_request:
+    types: [opened, closed]
+
+jobs:
+  update-project:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Move to "In Progress" when issue is assigned
+      if: ${{ github.event.action == 'assigned' || github.event.action == 'edited' }}
+      uses: actions/add-to-project@v1
+      with:
+        project-url: https://github.com/users/juanppdev/projects/15
+        column-name: "In Progress"
+        github-token: ${{ secrets.SECRET_TOKEN }}
+
+    - name: Move to "In Review" when PR is opened
+      if: ${{ github.event_name == 'pull_request' && github.event.action == 'opened' }}
+      uses: actions/add-to-project@v1
+      with:
+        project-url: https://github.com/users/juanppdev/projects/15
+        column-name: "In Review"
+        github-token: ${{ secrets.SECRET_TOKEN }}
+
+    - name: Move to "Done" when PR is merged
+      if: ${{ github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged == true }}
+      uses: actions/add-to-project@v1
+      with:
+        project-url: https://github.com/users/juanppdev/projects/15
+        column-name: "Done"
+        github-token: ${{ secrets.SECRET_TOKEN }}
