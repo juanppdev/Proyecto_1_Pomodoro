@@ -45,6 +45,4 @@ Este proyecto está licenciado bajo la [MIT License](LICENSE).
 
 ---
 
-Modo de Ejemplo
-
 ¡Gracias por contribuir y formar parte de este proyecto! 💪
