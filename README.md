@@ -44,6 +44,6 @@ Este proyecto está licenciado bajo la [MIT License](LICENSE).
 3. Comenzar con el primer sprint.
 
 ---
----
+Modo de prueba
 
 ¡Gracias por contribuir y formar parte de este proyecto! 💪
