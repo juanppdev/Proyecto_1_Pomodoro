@@ -36,7 +36,7 @@ Este proyecto está licenciado bajo la [MIT License](LICENSE).
 
 ## 👥 Equipo
 - **Gestor de Kotlin**: Juanppdev  
-- **Colaboradores**: Rick, mo_22, Rusalka, AndroidZen.
+- **Colaboradores**: Rick, mo_22, Rusalka, AndroidZen, xj4v1x.
 
 ## 🎯 Próximos Pasos
 1. Completar el diseño en Figma.
