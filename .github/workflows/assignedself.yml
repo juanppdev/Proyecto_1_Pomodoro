@@ -18,5 +18,5 @@ jobs:
         if: ${{ github.event.issue.assignee.login == github.event.issue.user.login }}
         uses: peter-evans/remove-assignees@v3
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.SECRET_TOKEN }}
           assignees: ${{ github.event.issue.assignee.login }}
