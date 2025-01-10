@@ -1,0 +1,22 @@
+name: Evitar autoasignación
+
+on:
+  issues:
+    types:
+      - assigned
+
+jobs:
+  prevent_self_assignment:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Comprobar asignación
+        if: ${{ github.event.issue.assignee.login == github.event.issue.user.login }}
+        run: |
+          echo "El creador de la issue no puede asignarse a sí mismo."
+          exit 1
+      - name: Eliminar autoasignación
+        if: ${{ github.event.issue.assignee.login == github.event.issue.user.login }}
+        uses: peter-evans/remove-assignees@v3
+        with:
+          token: ${{ secrets.SECRET_TOKEN }}
+          assignees: ${{ github.event.issue.assignee.login }}
