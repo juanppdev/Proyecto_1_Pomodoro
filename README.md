@@ -25,12 +25,6 @@ Utilizamos la pestaña de **Projects** en GitHub para gestionar el avance del pr
 3. **In Review**: Pull Requests abiertos.
 4. **Done**: Tareas completadas.
 
-## 🏗️ Contribuir
-1. Crea una rama desde `develop` para trabajar en tu tarea.
-2. Sigue el formato de nombres para las ramas: `feature/nombre-de-la-tarea`.
-3. Abre un Pull Request (PR) cuando completes la tarea.
-4. Espera la revisión del gestor antes de fusionar.
-
 ## 📜 Licencia
 Este proyecto está licenciado bajo la [MIT License](LICENSE).
 
