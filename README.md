@@ -43,6 +43,7 @@ Este proyecto está licenciado bajo la [MIT License](LICENSE).
     * [MOTHINK (mo_22)](https://github.com/MOTHINK),
     * [Rusalka](https://github.com/rcellas),
     * [AndroidZen](https://github.com/hgarciaalberto),
+    * [xj4v1x](https://github.com/xj4v1x),
     * [jaennova](https://github.com/jaennova),
     * [aromeros1992](https://github.com/aromeros1992).
 
