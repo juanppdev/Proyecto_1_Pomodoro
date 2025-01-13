@@ -40,20 +40,20 @@ fun SetupSessionScreen() {
             TopAppBar(
                 title = { Text("Configurar Sesión Pomodoro") },
                 colors =
-                    TopAppBarDefaults.topAppBarColors(
-                        containerColor = Color(0xFFD9D9D9),
-                        titleContentColor = Color.Black,
-                    ),
+                TopAppBarDefaults.topAppBarColors(
+                    containerColor = Color(0xFFD9D9D9),
+                    titleContentColor = Color.Black,
+                ),
             )
         },
     ) { padding ->
         Column(
             modifier =
-                Modifier
-                    .fillMaxSize()
-                    .padding(padding)
-                    .padding(16.dp)
-                    .background(Color(0xFFF7F7F7)),
+            Modifier
+                .fillMaxSize()
+                .padding(padding)
+                .padding(16.dp)
+                .background(Color(0xFFF7F7F7)),
             verticalArrangement = Arrangement.spacedBy(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
@@ -85,9 +85,9 @@ fun SetupSessionScreen() {
                         onClick = { /* Handle click */ },
                         shape = RoundedCornerShape(50),
                         colors =
-                            ButtonDefaults.buttonColors(
-                                containerColor = Color(0xFF192229),
-                            ),
+                        ButtonDefaults.buttonColors(
+                            containerColor = Color(0xFF192229),
+                        ),
                         modifier = Modifier.weight(1f),
                     ) {
                         Text(
@@ -125,14 +125,14 @@ fun SetupSessionScreen() {
             Button(
                 onClick = { /* Start session */ },
                 modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .height(50.dp),
+                Modifier
+                    .fillMaxWidth()
+                    .height(50.dp),
                 shape = RoundedCornerShape(12.dp),
                 colors =
-                    ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFFB51C1C),
-                    ),
+                ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFFB51C1C),
+                ),
             ) {
                 Text(
                     text = "Iniciar Sesión",
