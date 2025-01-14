@@ -11,37 +11,25 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import com.mundocode.proyecto_1_pomodoro.ui.screens.timer.TimerScreen
 import com.mundocode.proyecto_1_pomodoro.ui.theme.Proyecto_1_PomodoroTheme
+import com.mundocode.proyecto_1_pomodoro.ui.viewmodel.TimeViewModel
 
 class MainActivity : ComponentActivity() {
+    private val timeViewModel = TimeViewModel()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
             Proyecto_1_PomodoroTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
+                    TimerScreen(
+                       viewModel = timeViewModel,
                         modifier = Modifier.padding(innerPadding)
                     )
+
                 }
             }
         }
-    }
-}
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    Proyecto_1_PomodoroTheme {
-        Greeting("Android")
     }
 }
