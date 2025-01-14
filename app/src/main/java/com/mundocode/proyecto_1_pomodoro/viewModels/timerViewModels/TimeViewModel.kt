@@ -34,6 +34,16 @@ class TimeViewModel : ViewModel() {
 
     fun resetTimer() {
         stopTimer()
-        _timeState.value = TimeState()
+        _timeState.value = _timeState.value.copy(
+            remainingTime = _timeState.value.workDuration
+        )
+    }
+
+    fun updateWorkDuration(durationMinutes: Int) {
+        val newDuration = durationMinutes * 60 * 1000L
+        _timeState.value = _timeState.value.copy(
+            workDuration = newDuration,
+            remainingTime = newDuration
+        )
     }
 }
