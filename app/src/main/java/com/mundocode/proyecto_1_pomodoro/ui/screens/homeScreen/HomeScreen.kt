@@ -1,4 +1,4 @@
-package com.mundocode.proyecto_1_pomodoro.Screens
+package com.mundocode.proyecto_1_pomodoro.ui.screens.homeScreen
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
