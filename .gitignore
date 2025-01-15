@@ -1,5 +1,7 @@
 # Created by https://www.toptal.com/developers/gitignore/api/android,androidstudio,macos,windows,gradle,maven,firebase,kotlin,git,jenv
 # Edit at https://www.toptal.com/developers/gitignore?templates=android,androidstudio,macos,windows,gradle,maven,firebase,kotlin,git,jenv
+# Created by https://www.toptal.com/developers/gitignore/api/android,androidstudio,macos,windows,gradle,maven,firebase,kotlin,git,jenv
+# Edit at https://www.toptal.com/developers/gitignore?templates=android,androidstudio,macos,windows,gradle,maven,firebase,kotlin,git,jenv
 
 ### Android ###
 # Gradle files
@@ -42,6 +44,65 @@ gen-external-apklibs
 # Replacement of .externalNativeBuild directories introduced
 # with Android Studio 3.5.
 
+### Firebase ###
+.idea
+**/node_modules/*
+**/.firebaserc
+
+### Firebase Patch ###
+.runtimeconfig.json
+.firebase/
+
+### Git ###
+# Created by git for backups. To disable backups in Git:
+# $ git config --global mergetool.keepBackup false
+*.orig
+
+# Created by git when using merge tools for conflicts
+*.BACKUP.*
+*.BASE.*
+*.LOCAL.*
+*.REMOTE.*
+*_BACKUP_*.txt
+*_BASE_*.txt
+*_LOCAL_*.txt
+*_REMOTE_*.txt
+
+### JEnv ###
+# JEnv local Java version configuration file
+.java-version
+
+# Used by previous versions of JEnv
+.jenv-version
+
+*.msp
+
+# Windows shortcuts
+*.lnk
+
+### Gradle ###
+.gradle
+**/build/
+!src/**/build/
+
+# Ignore Gradle GUI config
+gradle-app.setting
+
+# Avoid ignoring Gradle wrapper jar file (.jar files are usually ignored)
+!gradle-wrapper.jar
+
+# Avoid ignore Gradle wrappper properties
+!gradle-wrapper.properties
+
+# Cache of project
+.gradletasknamecache
+
+# Eclipse Gradle plugin generated files
+# Eclipse Core
+# JDT-specific (Eclipse Java Development Tools)
+
+### Gradle Patch ###
+# Java heap dump
 ### Firebase ###
 .idea
 **/node_modules/*

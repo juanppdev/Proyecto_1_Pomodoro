@@ -20,9 +20,15 @@ class MainActivity : ComponentActivity() {
         setContent {
             Proyecto_1_PomodoroTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+<<<<<<< HEAD
                     TimerScreen(
                        viewModel = timerViewModel,
                         modifier = Modifier.padding(innerPadding)
+=======
+                    Greeting(
+                        name = "Android",
+                        modifier = Modifier.padding(innerPadding),
+>>>>>>> origin/develop
                     )
 
                 }
@@ -30,3 +36,22 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
+<<<<<<< HEAD
+=======
+
+@Composable
+fun Greeting(name: String, modifier: Modifier = Modifier) {
+    Text(
+        text = "Hello $name!",
+        modifier = modifier,
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun GreetingPreview() {
+    Proyecto_1_PomodoroTheme {
+        Greeting("Android")
+    }
+}
+>>>>>>> origin/develop
