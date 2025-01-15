@@ -33,12 +33,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.mundocode.pomodoro.R
 import com.mundocode.pomodoro.ui.viewmodel.TimerViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TimerScreen(viewModel: TimerViewModel, modifier: Modifier) {
+fun TimerScreen(viewModel: TimerViewModel = hiltViewModel()) {
     val timeState = viewModel.timerState.value
     val progress = timeState.remainingTime / (25 * 60 * 1000f)
 
@@ -143,5 +144,5 @@ fun TimerScreen(viewModel: TimerViewModel, modifier: Modifier) {
 @Preview(showBackground = true)
 @Composable
 fun TimerScreenPreview() {
-    TimerScreen(viewModel = TimerViewModel(), modifier = Modifier)
+    TimerScreen(viewModel = TimerViewModel())
 }
