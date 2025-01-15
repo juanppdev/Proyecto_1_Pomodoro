@@ -39,26 +39,32 @@ fun HomeScreen() {
             .padding(16.dp),
     ) {
         Column(modifier = Modifier.padding(8.dp)) {
-            Text(text = "Bienvenido <nombre>",
+            Text(
+                text = "Bienvenido <nombre>",
                 fontSize = 24.sp,
-                modifier = Modifier.padding(8.dp)
+                modifier = Modifier.padding(8.dp),
             )
-            Text(text = "¿Qué quieres hacer hoy?",
+            Text(
+                text = "¿Qué quieres hacer hoy?",
                 fontSize = 32.sp,
                 fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(8.dp)
+                modifier = Modifier.padding(8.dp),
             )
         }
 
         Column(modifier = Modifier.padding(8.dp)) {
-            Text(text = "Tus favoritos",
+            Text(
+                text = "Tus favoritos",
                 fontSize = 24.sp,
-                modifier = Modifier.padding(8.dp))
+                modifier = Modifier.padding(8.dp),
+            )
 
             Spacer(modifier = Modifier.padding(4.dp))
 
-            Row(modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceEvenly) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceEvenly,
+            ) {
                 FavouritesButtons(0xFFFF4E21)
                 FavouritesButtons(0xFF6366F1)
                 FavouritesButtons(0xFF900300)
@@ -68,56 +74,65 @@ fun HomeScreen() {
         Spacer(modifier = Modifier.padding(16.dp))
 
         Column(modifier = Modifier.padding(8.dp)) {
-            OptionButtons(0xFFB51C1C,
+            OptionButtons(
+                0xFFB51C1C,
                 "Empezar\nPomodoro",
                 R.drawable.timer_icon,
-                "botón de Empezar Pomodoro")
+                "botón de Empezar Pomodoro",
+            )
 
-
-            OptionButtons(0xFF06B6D4,
+            OptionButtons(
+                0xFF06B6D4,
                 "Ver\nHábitos",
                 R.drawable.habit_icon,
-                "botón Ver Hábitos")
+                "botón Ver Hábitos",
+            )
 
-            OptionButtons(0xFF6366F1,
+            OptionButtons(
+                0xFF6366F1,
                 "Ver\nTareas",
                 R.drawable.checklist_icon,
-                "botón Ver Tareas")
+                "botón Ver Tareas",
+            )
         }
 
-        Row(modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp),
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
         ) {
-            Text(text = "Estadísticas",
+            Text(
+                text = "Estadísticas",
                 fontSize = 24.sp,
-                modifier = Modifier.padding(8.dp))
+                modifier = Modifier.padding(8.dp),
+            )
             Button(
                 onClick = {},
                 shape = RoundedCornerShape(12.dp),
                 modifier = Modifier.padding(8.dp),
                 border = BorderStroke(2.dp, color = Color.Black),
-                colors = ButtonDefaults.buttonColors(Color.Transparent)
+                colors = ButtonDefaults.buttonColors(Color.Transparent),
             ) {
-                Row(modifier = Modifier.size(
-                            width = 64.dp,
-                            height = 32.dp
-                        ),
+                Row(
+                    modifier = Modifier.size(
+                        width = 64.dp,
+                        height = 32.dp,
+                    ),
                     horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically) {
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
                     Text(
                         text = "Weekly",
-                        color = Color.Black
+                        color = Color.Black,
                     )
                     Icon(
                         imageVector = Icons.Rounded.KeyboardArrowDown,
                         contentDescription = "",
-                        tint = Color.Black
+                        tint = Color.Black,
                     )
                 }
-
             }
         }
     }
@@ -125,43 +140,46 @@ fun HomeScreen() {
 
 @Composable
 fun FavouritesButtons(color: Long) {
-    Button(onClick = {},
+    Button(
+        onClick = {},
         modifier = Modifier.size(120.dp),
         shape = RoundedCornerShape(24.dp),
-        colors = ButtonDefaults.buttonColors(Color(color))
+        colors = ButtonDefaults.buttonColors(Color(color)),
     ) { }
 }
 
 @Composable
-fun OptionButtons(color: Long, textButton: String,
-                  icon: Int, descriptionIcon: String) {
-    Button(onClick = {},
+fun OptionButtons(color: Long, textButton: String, icon: Int, descriptionIcon: String) {
+    Button(
+        onClick = {},
         shape = RoundedCornerShape(24.dp),
         colors = ButtonDefaults.buttonColors(Color(color)),
-        modifier = Modifier.padding(8.dp)
+        modifier = Modifier.padding(8.dp),
     ) {
-        Row(modifier = Modifier
-            .fillMaxWidth()
-            .size(80.dp)
-            .clip(RoundedCornerShape(24.dp))
-            .padding(
-                start = 72.dp,
-                end = 72.dp
-            ),
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .size(80.dp)
+                .clip(RoundedCornerShape(24.dp))
+                .padding(
+                    start = 72.dp,
+                    end = 72.dp,
+                ),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
+            horizontalArrangement = Arrangement.SpaceBetween,
         ) {
-            Text(text = textButton,
+            Text(
+                text = textButton,
                 fontSize = 24.sp,
                 fontWeight = FontWeight.Black,
                 color = Color.White,
-                lineHeight = 24.sp
+                lineHeight = 24.sp,
             )
             Icon(
                 painterResource(id = icon),
                 contentDescription = descriptionIcon,
                 modifier = Modifier
-                    .size(58.dp)
+                    .size(58.dp),
             )
         }
     }
