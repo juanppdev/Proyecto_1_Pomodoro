@@ -1,4 +1,4 @@
-package com.mundocode.proyecto_1_pomodoro
+package com.mundocode.pomodoro
 
 import android.app.Application
 import dagger.hilt.android.HiltAndroidApp

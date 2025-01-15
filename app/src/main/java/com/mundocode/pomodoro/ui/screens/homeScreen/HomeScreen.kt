@@ -1,4 +1,4 @@
-package com.mundocode.proyecto_1_pomodoro.ui.screens.homeScreen
+package com.mundocode.pomodoro.ui.screens.homeScreen
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -27,7 +27,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.mundocode.proyecto_1_pomodoro.R
+import com.mundocode.pomodoro.R
 
 @Preview
 @Composable

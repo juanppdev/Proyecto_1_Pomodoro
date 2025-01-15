@@ -1,10 +1,10 @@
-package com.mundocode.proyecto_1_pomodoro.ui.viewmodel
+package com.mundocode.pomodoro.ui.viewmodel
 
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.mundocode.proyecto_1_pomodoro.ui.state.TimerState
+import com.mundocode.pomodoro.viewModels.timerViewModels.TimerState
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch

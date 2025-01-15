@@ -1,4 +1,4 @@
-package com.mundocode.proyecto_1_pomodoro.ui.theme
+package com.mundocode.pomodoro.ui.theme
 
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -33,7 +33,7 @@ private val LightColorScheme = lightColorScheme(
 )
 
 @Composable
-fun Proyecto_1_PomodoroTheme(
+fun PomodoroTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     // Dynamic color is available on Android 12+
     dynamicColor: Boolean = true,

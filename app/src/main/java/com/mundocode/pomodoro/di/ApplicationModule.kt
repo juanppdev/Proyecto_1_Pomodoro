@@ -1,4 +1,4 @@
-package com.mundocode.proyecto_1_pomodoro.di
+package com.mundocode.pomodoro.di
 
 import android.content.Context
 import dagger.Module

@@ -8,11 +8,11 @@ plugins {
 }
 
 android {
-    namespace = "com.mundocode.proyecto_1_pomodoro"
+    namespace = "com.mundocode.pomodoro"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.mundocode.proyecto_1_pomodoro"
+        applicationId = "com.mundocode.pomodoro"
         minSdk = 25
         targetSdk = 35
         versionCode = 1

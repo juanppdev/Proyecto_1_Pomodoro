@@ -1,10 +1,27 @@
-package com.mundocode.proyecto_1_pomodoro.ui.screens.timer
+package com.mundocode.pomodoro.ui.screens.timer
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Refresh
-import androidx.compose.material3.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -16,8 +33,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.mundocode.proyecto_1_pomodoro.R
-import com.mundocode.proyecto_1_pomodoro.ui.viewmodel.TimerViewModel
+import com.mundocode.pomodoro.R
+import com.mundocode.pomodoro.ui.viewmodel.TimerViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -58,10 +75,13 @@ fun TimerScreen(viewModel: TimerViewModel, modifier: Modifier) {
                     strokeWidth = 10.dp,
                 )
                 Text(
-                    text = "${timeState.remainingTime / 1000 / 60}:${(timeState.remainingTime / 1000 % 60).toString().padStart(
-                        2,
-                        '0',
-                    )}",
+                    text = "${timeState.remainingTime / 1000 / 60}:${
+                        (timeState.remainingTime / 1000 % 60).toString()
+                            .padStart(
+                                2,
+                                '0',
+                            )
+                    }",
                     textAlign = TextAlign.Center,
                     fontSize = 36.sp,
                     color = Color(0xFF0000FF),
@@ -104,7 +124,7 @@ fun TimerScreen(viewModel: TimerViewModel, modifier: Modifier) {
                 onValueChange = { newValue ->
                     if (newValue.all { it.isDigit() }) {
                         workDurationInput.value = newValue
-                        val newDuration = newValue.toLongOrNull() ?: timeState.workDuration / (60 * 1000)
+                        val newDuration = newValue.toLongOrNull() ?: (timeState.workDuration / (60 * 1000))
                         viewModel.updateWorkDuration(newDuration * 60 * 1000L) // Convertir a milisegundos
                     }
                 },

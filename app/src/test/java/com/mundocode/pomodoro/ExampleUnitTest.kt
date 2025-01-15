@@ -1,4 +1,4 @@
-package com.mundocode.proyecto_1_pomodoro
+package com.mundocode.pomodoro
 
 import junit.framework.TestCase.assertEquals
 import org.junit.Test

@@ -1,4 +1,4 @@
-package com.mundocode.proyecto_1_pomodoro.ui.screens.setupSessionScreen
+package com.mundocode.pomodoro.ui.screens.setupSessionScreen
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -30,7 +30,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.mundocode.proyecto_1_pomodoro.R
+import com.mundocode.pomodoro.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
