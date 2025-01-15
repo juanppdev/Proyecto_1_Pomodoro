@@ -12,7 +12,6 @@ import com.mundocode.pomodoro.ui.screens.timer.TimerScreen
 
 @Composable
 fun NavigationRoot(modifier: Modifier = Modifier) {
-
     val navController = rememberNavController()
 
     NavHost(
@@ -21,7 +20,11 @@ fun NavigationRoot(modifier: Modifier = Modifier) {
         modifier = modifier.fillMaxSize(),
     ) {
         composable<Destinations.Home> {
-            HomeScreen()
+            HomeScreen(
+                navigateTo = { destination ->
+                    navController.navigate(destination)
+                },
+            )
         }
         composable<Destinations.SetupSession> {
             SetupSessionScreen()

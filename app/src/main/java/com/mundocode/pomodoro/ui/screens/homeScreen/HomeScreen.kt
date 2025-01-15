@@ -1,5 +1,6 @@
 package com.mundocode.pomodoro.ui.screens.homeScreen
 
+import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -22,16 +23,20 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mundocode.pomodoro.R
+import com.mundocode.pomodoro.core.navigation.Destinations
 
 @Preview
 @Composable
-fun HomeScreen() {
+fun HomeScreen(navigateTo: (Destinations) -> Unit = {}) {
+    val context = LocalContext.current
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -75,24 +80,33 @@ fun HomeScreen() {
 
         Column(modifier = Modifier.padding(8.dp)) {
             OptionButtons(
-                0xFFB51C1C,
-                "Empezar\nPomodoro",
-                R.drawable.timer_icon,
-                "botón de Empezar Pomodoro",
+                color = 0xFFB51C1C,
+                textButton = "Empezar\nPomodoro",
+                icon = R.drawable.timer_icon,
+                descriptionIcon = "botón de Empezar Pomodoro",
+                onClick = {
+                    navigateTo(Destinations.Timer)
+                },
             )
 
             OptionButtons(
-                0xFF06B6D4,
-                "Ver\nHábitos",
-                R.drawable.habit_icon,
-                "botón Ver Hábitos",
+                color = 0xFF06B6D4,
+                textButton = "Ver\nHábitos",
+                icon = R.drawable.habit_icon,
+                descriptionIcon = "botón Ver Hábitos",
+                onClick = {
+                    Toast.makeText(context, "TODO: Ver Hábitos", Toast.LENGTH_SHORT).show()
+                },
             )
 
             OptionButtons(
-                0xFF6366F1,
-                "Ver\nTareas",
-                R.drawable.checklist_icon,
-                "botón Ver Tareas",
+                color = 0xFF6366F1,
+                textButton = "Ver\nTareas",
+                icon = R.drawable.checklist_icon,
+                descriptionIcon = "botón Ver Tareas",
+                onClick = {
+                    Toast.makeText(context, "TODO: Ver Tareas", Toast.LENGTH_SHORT).show()
+                },
             )
         }
 
@@ -149,9 +163,9 @@ fun FavouritesButtons(color: Long) {
 }
 
 @Composable
-fun OptionButtons(color: Long, textButton: String, icon: Int, descriptionIcon: String) {
+fun OptionButtons(color: Long, textButton: String, icon: Int, descriptionIcon: String, onClick: () -> Unit = {}) {
     Button(
-        onClick = {},
+        onClick = onClick,
         shape = RoundedCornerShape(24.dp),
         colors = ButtonDefaults.buttonColors(Color(color)),
         modifier = Modifier.padding(8.dp),
