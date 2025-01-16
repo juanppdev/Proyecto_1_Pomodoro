@@ -1,4 +1,4 @@
-package com.mundocode.proyecto_1_pomodoro.ui.state
+package com.mundocode.pomodoro.viewModels.timerViewModels
 
 data class TimerState(
     val remainingTime: Long = 25 * 60 * 1000L,

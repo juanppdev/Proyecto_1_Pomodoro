@@ -1,16 +1,19 @@
-package com.mundocode.proyecto_1_pomodoro.ui.viewmodel
+package com.mundocode.pomodoro.ui.viewmodel
 
+import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.mundocode.proyecto_1_pomodoro.ui.state.TimerState
+import com.mundocode.pomodoro.viewModels.timerViewModels.TimerState
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 class TimerViewModel : ViewModel() {
-    private val _timerState = androidx.compose.runtime.mutableStateOf(TimerState())
-    val timerState: androidx.compose.runtime.State<TimerState> get() = _timerState
+    private val _timerState = mutableStateOf(TimerState())
+    val timerState: State<TimerState> get() = _timerState
 
-    private var timerJob: kotlinx.coroutines.Job? = null
+    private var timerJob: Job? = null
 
     fun startTimer() {
         if (_timerState.value.isRunning) return
@@ -20,7 +23,7 @@ class TimerViewModel : ViewModel() {
             while (_timerState.value.remainingTime > 0) {
                 delay(1000L)
                 _timerState.value = _timerState.value.copy(
-                    remainingTime = _timerState.value.remainingTime - 1000L
+                    remainingTime = _timerState.value.remainingTime - 1000L,
                 )
             }
             stopTimer()
@@ -35,14 +38,14 @@ class TimerViewModel : ViewModel() {
     fun resetTimer() {
         stopTimer()
         _timerState.value = _timerState.value.copy(
-            remainingTime = _timerState.value.workDuration
+            remainingTime = _timerState.value.workDuration,
         )
     }
 
     fun updateWorkDuration(newDuration: Long) {
         _timerState.value = _timerState.value.copy(
             workDuration = newDuration,
-            remainingTime = newDuration
+            remainingTime = newDuration,
         )
     }
 }
