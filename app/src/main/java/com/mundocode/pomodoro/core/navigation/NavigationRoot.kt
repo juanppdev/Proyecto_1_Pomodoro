@@ -30,7 +30,7 @@ fun NavigationRoot(modifier: Modifier = Modifier) {
             SetupSessionScreen()
         }
         composable<Destinations.Timer> {
-            TimerScreen()
+            TimerScreen(navController = navController)
         }
     }
 }
