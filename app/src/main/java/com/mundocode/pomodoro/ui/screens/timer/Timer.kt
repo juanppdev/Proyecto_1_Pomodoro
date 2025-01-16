@@ -1,33 +1,11 @@
 package com.mundocode.pomodoro.ui.screens.timer
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Refresh
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.CenterAlignedTopAppBar
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextFieldDefaults
-import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -45,11 +23,15 @@ import com.mundocode.pomodoro.ui.viewmodel.TimerViewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TimerScreen(viewModel: TimerViewModel = hiltViewModel(), navController: NavController) {
+    // Usamos .value directamente, ya que timerState es un State, no un Flow
     val timeState = viewModel.timerState.value
     val progress = timeState.remainingTime / (25 * 60 * 1000f)
 
     val workDurationInput = remember {
         mutableStateOf((timeState.workDuration / (60 * 1000)).toString())
+    }
+    val restDurationInput = remember {
+        mutableStateOf((timeState.breakDuration / (60 * 1000)).toString())
     }
 
     Scaffold(
@@ -74,6 +56,7 @@ fun TimerScreen(viewModel: TimerViewModel = hiltViewModel(), navController: NavC
             )
         },
     ) { paddingValues ->
+        // El resto del código sigue igual, solo se modifica la forma de obtener el estado
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -92,10 +75,7 @@ fun TimerScreen(viewModel: TimerViewModel = hiltViewModel(), navController: NavC
                 Text(
                     text = "${timeState.remainingTime / 1000 / 60}:${
                         (timeState.remainingTime / 1000 % 60).toString()
-                            .padStart(
-                                2,
-                                '0',
-                            )
+                            .padStart(2, '0')
                     }",
                     textAlign = TextAlign.Center,
                     fontSize = 36.sp,
@@ -117,21 +97,15 @@ fun TimerScreen(viewModel: TimerViewModel = hiltViewModel(), navController: NavC
             ) {
                 Button(
                     onClick = { viewModel.startTimer() },
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFFC107)),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFFC107))
                 ) {
-                    Text(text = "Iniciar", color = Color.White)
+                    Text(text = if (timeState.isRunning) "Pausar" else "Reanudar", color = Color.White)
                 }
                 Button(
                     onClick = { viewModel.stopTimer() },
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF03A9F4)),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF03A9F4))
                 ) {
                     Text(text = "Detener", color = Color.White)
-                }
-                Button(
-                    onClick = { viewModel.resetTimer() },
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE91E63)),
-                ) {
-                    Icon(Icons.Filled.Refresh, contentDescription = "Reiniciar", tint = Color.White)
                 }
             }
             OutlinedTextField(
@@ -140,7 +114,7 @@ fun TimerScreen(viewModel: TimerViewModel = hiltViewModel(), navController: NavC
                     if (newValue.all { it.isDigit() }) {
                         workDurationInput.value = newValue
                         val newDuration = newValue.toLongOrNull() ?: (timeState.workDuration / (60 * 1000))
-                        viewModel.updateWorkDuration(newDuration * 60 * 1000L) // Convertir a milisegundos
+                        viewModel.updateWorkDuration(newDuration * 60 * 1000L)
                     }
                 },
                 label = { Text("Duración Trabajo (min)") },
@@ -151,12 +125,24 @@ fun TimerScreen(viewModel: TimerViewModel = hiltViewModel(), navController: NavC
                     unfocusedPlaceholderColor = Color(0xFF03A9F4),
                 ),
             )
+            OutlinedTextField(
+                value = restDurationInput.value,
+                onValueChange = { newValue ->
+                    if (newValue.all { it.isDigit() }) {
+                        restDurationInput.value = newValue
+                        val newDuration = newValue.toLongOrNull() ?: timeState.breakDuration / (60 * 1000)
+                        viewModel.updateBreakDuration(newDuration * 60 * 1000L) // Convertir a milisegundos
+                    }
+                },
+                label = { Text("Duración Descanso (min)") },
+                singleLine = true,
+                modifier = Modifier.padding(horizontal = 16.dp),
+                colors = TextFieldDefaults.colors(
+                    focusedPlaceholderColor = Color(0xFF03A9F4),
+                    unfocusedPlaceholderColor = Color(0xFF03A9F4)
+                )
+            )
         }
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun TimerScreenPreview() {
-    TimerScreen(viewModel = TimerViewModel(), navController = NavController(LocalContext.current))
-}
