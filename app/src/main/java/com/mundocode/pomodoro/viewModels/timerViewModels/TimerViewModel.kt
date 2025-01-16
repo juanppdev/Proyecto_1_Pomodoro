@@ -26,7 +26,9 @@ class TimerViewModel : ViewModel() {
                     remainingTime = _timerState.value.remainingTime - 1000L,
                 )
             }
-            onTimerFinished()
+            if (_timerState.value.remainingTime <= 0) {
+                onTimerFinished()
+            }
         }
     }
 

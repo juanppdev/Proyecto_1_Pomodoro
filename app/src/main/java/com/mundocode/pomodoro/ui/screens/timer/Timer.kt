@@ -4,13 +4,16 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -23,7 +26,6 @@ import com.mundocode.pomodoro.ui.viewmodel.TimerViewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TimerScreen(viewModel: TimerViewModel = hiltViewModel(), navController: NavController) {
-    // Usamos .value directamente, ya que timerState es un State, no un Flow
     val timeState = viewModel.timerState.value
     val progress = timeState.remainingTime / (25 * 60 * 1000f)
 
@@ -56,21 +58,31 @@ fun TimerScreen(viewModel: TimerViewModel = hiltViewModel(), navController: NavC
             )
         },
     ) { paddingValues ->
-        // El resto del código sigue igual, solo se modifica la forma de obtener el estado
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues),
+                .padding(paddingValues)
+                .background(color = Color(0xFFEFEFEF)),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically),
         ) {
+            Column(modifier = Modifier.padding(8.dp)) {
+
+                Text(
+                    text = "Nombre de la sesión",
+                    fontSize = 32.sp,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(8.dp),
+                )
+            }
             Box(contentAlignment = Alignment.Center) {
                 CircularProgressIndicator(
+                    progress = { progress },
                     modifier = Modifier
                         .size(200.dp),
-                    progress = progress,
-                    color = if (timeState.isWorking) Color(0xFFFFC107) else Color(0xFF03A9F4),
+                    color = if (timeState.isWorking) Color(0xFFB51C1C) else Color(0xFF03A9F4),
                     strokeWidth = 10.dp,
+                    trackColor = ProgressIndicatorDefaults.circularTrackColor,
                 )
                 Text(
                     text = "${timeState.remainingTime / 1000 / 60}:${
@@ -79,11 +91,15 @@ fun TimerScreen(viewModel: TimerViewModel = hiltViewModel(), navController: NavC
                     }",
                     textAlign = TextAlign.Center,
                     fontSize = 36.sp,
-                    color = Color(0xFF0000FF),
+                    fontWeight = FontWeight.Bold,
                 )
             }
             Text(
-                text = if (timeState.isRunning) "Trabajando" else "Detenido",
+                text = when {
+                    timeState.isRunning -> "Trabajando"
+                    timeState.isWorking -> "Descanso"
+                    else -> "Detenido"
+                },
                 fontSize = 24.sp,
                 color = MaterialTheme.colorScheme.primary,
                 modifier = Modifier
@@ -96,16 +112,42 @@ fun TimerScreen(viewModel: TimerViewModel = hiltViewModel(), navController: NavC
                 modifier = Modifier.padding(vertical = 16.dp),
             ) {
                 Button(
-                    onClick = { viewModel.startTimer() },
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFFC107))
+                    onClick = {
+                        if (timeState.isRunning) {
+                        viewModel.stopTimer()
+                    } else {
+                        viewModel.startTimer()
+                    } },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFF4E21))
                 ) {
-                    Text(text = if (timeState.isRunning) "Pausar" else "Reanudar", color = Color.White)
+                    Icon(
+                        painter = painterResource(
+                            id = if (timeState.isRunning) R.drawable.pause else R.drawable.timer_play
+                        ),
+                        contentDescription = if (timeState.isRunning) "Pausar" else "Reanudar",
+                        tint = Color.White,
+                        modifier = Modifier.size(24.dp)
+                    )
+
                 }
                 Button(
                     onClick = { viewModel.stopTimer() },
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF03A9F4))
                 ) {
-                    Text(text = "Detener", color = Color.White)
+                    Icon(
+                        painter = painterResource(
+                            id = R.drawable.timer_stop
+                        ),
+                        contentDescription = "Detener",
+                        tint = Color.White,
+                        modifier = Modifier.size(24.dp)
+                    )
+                }
+                Button(
+                    onClick = { viewModel.resetTimer() },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE91E63)),
+                ) {
+                    Icon(Icons.Filled.Refresh, contentDescription = "Reiniciar", tint = Color.White)
                 }
             }
             OutlinedTextField(
