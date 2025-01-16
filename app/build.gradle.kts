@@ -2,15 +2,19 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.kotlin.parcelize)
+    alias(libs.plugins.kotlin.serialize)
     alias(libs.plugins.ktlint.jlleitschuh)
+    alias(libs.plugins.ksp)
+    alias(libs.plugins.google.dagger.hilt)
 }
 
 android {
-    namespace = "com.mundocode.proyecto_1_pomodoro"
+    namespace = "com.mundocode.pomodoro"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.mundocode.proyecto_1_pomodoro"
+        applicationId = "com.mundocode.pomodoro"
         minSdk = 25
         targetSdk = 35
         versionCode = 1
@@ -41,6 +45,7 @@ android {
 }
 
 dependencies {
+    implementation(libs.kotlinx.serialization.core)
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
@@ -50,6 +55,13 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+    implementation(libs.androidx.navigation.compose)
+
+    // Dagger Hilt
+    implementation(libs.hilt.android)
+    implementation(libs.hilt.android.navigation.compose)
+    ksp(libs.hilt.android.compiler)
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
