@@ -26,7 +26,9 @@ class TimerViewModel : ViewModel() {
                     remainingTime = _timerState.value.remainingTime - 1000L,
                 )
             }
-            stopTimer()
+            if (_timerState.value.remainingTime <= 0) {
+                onTimerFinished()
+            }
         }
     }
 
@@ -48,4 +50,35 @@ class TimerViewModel : ViewModel() {
             remainingTime = newDuration,
         )
     }
+
+    fun updateBreakDuration(newDuration: Long) {
+        _timerState.value = _timerState.value.copy(
+            breakDuration = newDuration,
+        )
+    }
+
+    private fun onTimerFinished() {
+        stopTimer()
+
+        if (_timerState.value.isWorking) {
+            // Cambiamos el estado a descanso
+            _timerState.value = _timerState.value.copy(
+                isWorking = false,
+                remainingTime = _timerState.value.breakDuration,
+                isRunning = false
+            )
+            // Iniciar automáticamente el descanso si es necesario
+            startTimer()
+        } else {
+            // Volver al trabajo
+            _timerState.value = _timerState.value.copy(
+                isWorking = true,
+                remainingTime = _timerState.value.workDuration,
+                isRunning = false
+            )
+            // Iniciar automáticamente el trabajo
+            startTimer()
+        }
+    }
 }
+

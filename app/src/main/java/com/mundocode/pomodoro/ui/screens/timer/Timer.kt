@@ -1,38 +1,19 @@
 package com.mundocode.pomodoro.ui.screens.timer
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Refresh
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.CenterAlignedTopAppBar
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextFieldDefaults
-import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -50,6 +31,9 @@ fun TimerScreen(viewModel: TimerViewModel = hiltViewModel(), navController: NavC
 
     val workDurationInput = remember {
         mutableStateOf((timeState.workDuration / (60 * 1000)).toString())
+    }
+    val restDurationInput = remember {
+        mutableStateOf((timeState.breakDuration / (60 * 1000)).toString())
     }
 
     Scaffold(
@@ -77,33 +61,45 @@ fun TimerScreen(viewModel: TimerViewModel = hiltViewModel(), navController: NavC
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues),
+                .padding(paddingValues)
+                .background(color = Color(0xFFEFEFEF)),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically),
         ) {
+            Column(modifier = Modifier.padding(8.dp)) {
+
+                Text(
+                    text = "Nombre de la sesión",
+                    fontSize = 32.sp,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(8.dp),
+                )
+            }
             Box(contentAlignment = Alignment.Center) {
                 CircularProgressIndicator(
+                    progress = { progress },
                     modifier = Modifier
                         .size(200.dp),
-                    progress = progress,
-                    color = if (timeState.isWorking) Color(0xFFFFC107) else Color(0xFF03A9F4),
+                    color = if (timeState.isWorking) Color(0xFFB51C1C) else Color(0xFF03A9F4),
                     strokeWidth = 10.dp,
+                    trackColor = ProgressIndicatorDefaults.circularTrackColor,
                 )
                 Text(
                     text = "${timeState.remainingTime / 1000 / 60}:${
                         (timeState.remainingTime / 1000 % 60).toString()
-                            .padStart(
-                                2,
-                                '0',
-                            )
+                            .padStart(2, '0')
                     }",
                     textAlign = TextAlign.Center,
                     fontSize = 36.sp,
-                    color = Color(0xFF0000FF),
+                    fontWeight = FontWeight.Bold,
                 )
             }
             Text(
-                text = if (timeState.isRunning) "Trabajando" else "Detenido",
+                text = when {
+                    timeState.isRunning -> "Trabajando"
+                    timeState.isWorking -> "Descanso"
+                    else -> "Detenido"
+                },
                 fontSize = 24.sp,
                 color = MaterialTheme.colorScheme.primary,
                 modifier = Modifier
@@ -116,16 +112,36 @@ fun TimerScreen(viewModel: TimerViewModel = hiltViewModel(), navController: NavC
                 modifier = Modifier.padding(vertical = 16.dp),
             ) {
                 Button(
-                    onClick = { viewModel.startTimer() },
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFFC107)),
+                    onClick = {
+                        if (timeState.isRunning) {
+                        viewModel.stopTimer()
+                    } else {
+                        viewModel.startTimer()
+                    } },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFF4E21))
                 ) {
-                    Text(text = "Iniciar", color = Color.White)
+                    Icon(
+                        painter = painterResource(
+                            id = if (timeState.isRunning) R.drawable.pause else R.drawable.timer_play
+                        ),
+                        contentDescription = if (timeState.isRunning) "Pausar" else "Reanudar",
+                        tint = Color.White,
+                        modifier = Modifier.size(24.dp)
+                    )
+
                 }
                 Button(
                     onClick = { viewModel.stopTimer() },
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF03A9F4)),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF03A9F4))
                 ) {
-                    Text(text = "Detener", color = Color.White)
+                    Icon(
+                        painter = painterResource(
+                            id = R.drawable.timer_stop
+                        ),
+                        contentDescription = "Detener",
+                        tint = Color.White,
+                        modifier = Modifier.size(24.dp)
+                    )
                 }
                 Button(
                     onClick = { viewModel.resetTimer() },
@@ -140,7 +156,7 @@ fun TimerScreen(viewModel: TimerViewModel = hiltViewModel(), navController: NavC
                     if (newValue.all { it.isDigit() }) {
                         workDurationInput.value = newValue
                         val newDuration = newValue.toLongOrNull() ?: (timeState.workDuration / (60 * 1000))
-                        viewModel.updateWorkDuration(newDuration * 60 * 1000L) // Convertir a milisegundos
+                        viewModel.updateWorkDuration(newDuration * 60 * 1000L)
                     }
                 },
                 label = { Text("Duración Trabajo (min)") },
@@ -151,12 +167,24 @@ fun TimerScreen(viewModel: TimerViewModel = hiltViewModel(), navController: NavC
                     unfocusedPlaceholderColor = Color(0xFF03A9F4),
                 ),
             )
+            OutlinedTextField(
+                value = restDurationInput.value,
+                onValueChange = { newValue ->
+                    if (newValue.all { it.isDigit() }) {
+                        restDurationInput.value = newValue
+                        val newDuration = newValue.toLongOrNull() ?: timeState.breakDuration / (60 * 1000)
+                        viewModel.updateBreakDuration(newDuration * 60 * 1000L) // Convertir a milisegundos
+                    }
+                },
+                label = { Text("Duración Descanso (min)") },
+                singleLine = true,
+                modifier = Modifier.padding(horizontal = 16.dp),
+                colors = TextFieldDefaults.colors(
+                    focusedPlaceholderColor = Color(0xFF03A9F4),
+                    unfocusedPlaceholderColor = Color(0xFF03A9F4)
+                )
+            )
         }
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun TimerScreenPreview() {
-    TimerScreen(viewModel = TimerViewModel(), navController = NavController(LocalContext.current))
-}

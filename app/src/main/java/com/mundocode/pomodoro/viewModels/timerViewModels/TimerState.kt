@@ -5,4 +5,5 @@ data class TimerState(
     val isRunning: Boolean = false,
     val isWorking: Boolean = true,
     val workDuration: Long = 25 * 60 * 1000L,
+    val breakDuration: Long = 5 * 60 * 1000L,
 )
