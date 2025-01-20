@@ -1,5 +1,3 @@
-@file:OptIn(ExperimentalMaterial3Api::class)
-
 package com.mundocode.pomodoro.ui.screens.tasks
 
 import android.widget.Toast
@@ -30,8 +28,9 @@ import com.mundocode.pomodoro.R
 fun TaskScreen(navController: NavController) {
     val context = LocalContext.current
 
+    // cuando tengamos las tareas eliminar estas dos listas???
     var tasks by remember { mutableStateOf(listOf("Modo actual", "Modo actual 2")) }
-    var newTask by remember { mutableStateOf("") }
+    var completedTasks by remember { mutableStateOf(listOf<String>()) }
 
     Scaffold(
         topBar = {
@@ -63,8 +62,9 @@ fun TaskScreen(navController: NavController) {
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.Start
         ) {
+            // Not finished tasks
             Text(
-                text = "Lista de tareas",
+                text = "Tareas no finalizadas",
                 fontSize = 24.sp,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.padding(bottom = 16.dp)
@@ -76,6 +76,7 @@ fun TaskScreen(navController: NavController) {
                     onTaskChecked = { isChecked ->
                         if (isChecked) {
                             tasks = tasks.toMutableList().apply { removeAt(index) }
+                            completedTasks = completedTasks + task
                             Toast.makeText(context, "Tarea completada", Toast.LENGTH_SHORT).show()
                         }
                     }
@@ -85,56 +86,19 @@ fun TaskScreen(navController: NavController) {
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                BasicTextField(
-                    value = newTask,
-                    onValueChange = { newTask = it },
-                    modifier = Modifier
-                        .weight(1f)
-                        .padding(8.dp)
-                        .background(Color.White, shape = MaterialTheme.shapes.small)
-                        .padding(horizontal = 16.dp, vertical = 8.dp),
-                    keyboardActions = KeyboardActions(onDone = {
-                        if (newTask.isNotBlank()) {
-                            tasks = tasks + newTask
-                            newTask = ""
-                        }
-                    })
-                )
-                IconButton(
-                    onClick = {
-                        if (newTask.isNotBlank()) {
-                            tasks = tasks + newTask
-                            newTask = ""
-                        }
-                    },
-                    modifier = Modifier.size(48.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Rounded.Add,
-                        contentDescription = "Añadir tarea",
-                        tint = Color(0xFF4CAF50)
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Button(
-                onClick = {
-                    Toast.makeText(context, "TODO: Implementar vista de todas las tareas", Toast.LENGTH_SHORT).show()
-                },
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF6366F1))
-            ) {
+            // completed tasks
+            if (completedTasks.isNotEmpty()) {
                 Text(
-                    text = "Ver todas las tareas",
-                    fontSize = 18.sp,
-                    color = Color.White,
-                    fontWeight = FontWeight.Bold
+                    text = "Tareas realizadas",
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(vertical = 16.dp)
                 )
+
+                completedTasks.forEach { task ->
+                    CompletedTaskItem(task = task)
+                    Spacer(modifier = Modifier.height(8.dp))
+                }
             }
         }
     }
@@ -155,6 +119,24 @@ fun TaskItem(task: String, onTaskChecked: (Boolean) -> Unit) {
             colors = CheckboxDefaults.colors(checkedColor = Color(0xFF4CAF50))
         )
         Spacer(modifier = Modifier.width(8.dp))
+        Text(
+            text = task,
+            fontSize = 16.sp,
+            fontWeight = FontWeight.Normal,
+            modifier = Modifier.weight(1f)
+        )
+    }
+}
+
+@Composable
+fun CompletedTaskItem(task: String) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(Color.LightGray, shape = RoundedCornerShape(8.dp))
+            .padding(12.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
         Text(
             text = task,
             fontSize = 16.sp,
