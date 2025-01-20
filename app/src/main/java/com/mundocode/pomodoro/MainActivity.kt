@@ -6,7 +6,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import com.mundocode.pomodoro.core.navigation.NavigationRoot
 import com.mundocode.pomodoro.ui.theme.PomodoroTheme
-import com.mundocode.pomodoro.ui.viewmodel.TimerViewModel
+import com.mundocode.pomodoro.ui.screens.timer.TimerViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint

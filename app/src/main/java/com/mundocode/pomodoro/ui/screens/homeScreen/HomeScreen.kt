@@ -39,7 +39,7 @@ fun HomeScreen(navigateTo: (Destinations) -> Unit = {}) {
     val context = LocalContext.current
 
     Scaffold(
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier.fillMaxSize(),
     ) { padding ->
         Column(
             modifier = Modifier
@@ -89,7 +89,7 @@ fun HomeScreen(navigateTo: (Destinations) -> Unit = {}) {
                     icon = R.drawable.timer_icon,
                     descriptionIcon = "botón de Empezar Pomodoro",
                     onClick = {
-                        navigateTo(Destinations.Timer)
+                        navigateTo(Destinations.SetupSessionScreen)
                     },
                 )
 

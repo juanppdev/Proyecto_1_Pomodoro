@@ -1,3 +1,0 @@
-package com.mundocode.pomodoro.viewModels.SetupSessionViewModel
-
-class SetupSessionViewModel
