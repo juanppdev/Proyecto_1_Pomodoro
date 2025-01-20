@@ -109,7 +109,7 @@ fun HomeScreen(navigateTo: (Destinations) -> Unit = {}) {
                     icon = R.drawable.checklist_icon,
                     descriptionIcon = "botón Ver Tareas",
                     onClick = {
-                        Toast.makeText(context, "TODO: Ver Tareas", Toast.LENGTH_SHORT).show()
+                        navigateTo(Destinations.Task)
                     },
                 )
             }

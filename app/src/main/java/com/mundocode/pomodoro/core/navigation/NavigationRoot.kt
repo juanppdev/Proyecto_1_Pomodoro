@@ -8,6 +8,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.mundocode.pomodoro.ui.screens.homeScreen.HomeScreen
 import com.mundocode.pomodoro.ui.screens.setupSessionScreen.SetupSessionScreen
+import com.mundocode.pomodoro.ui.screens.tasks.TaskScreen
 import com.mundocode.pomodoro.ui.screens.timer.TimerScreen
 
 @Composable
@@ -31,6 +32,9 @@ fun NavigationRoot(modifier: Modifier = Modifier) {
         }
         composable<Destinations.Timer> {
             TimerScreen(navController = navController)
+        }
+        composable<Destinations.Task> {
+            TaskScreen(navController = navController)
         }
     }
 }
