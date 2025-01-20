@@ -17,18 +17,55 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.mundocode.pomodoro.R
 
+@Composable
+fun TaskItem(
+    task: String,
+    isCompleted: Boolean = false,
+    onTaskChecked: (Boolean) -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(
+                if (isCompleted) Color.LightGray else Color.White,
+                shape = RoundedCornerShape(8.dp)
+            )
+            .padding(12.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Checkbox(
+            checked = isCompleted,
+            onCheckedChange = { onTaskChecked(it) },
+            colors = CheckboxDefaults.colors(
+                checkedColor = Color(0xFFD32F2F),
+                uncheckedColor = Color(0xFF000000),
+                checkmarkColor = Color.White
+            )
+        )
+        Spacer(modifier = Modifier.width(8.dp))
+        Text(
+            text = task,
+            fontSize = 16.sp,
+            fontWeight = FontWeight.Normal,
+            color = if (isCompleted) Color(0xFF1E1E1E) else Color.Black,
+            textDecoration = if (isCompleted) TextDecoration.LineThrough else TextDecoration.None,
+            modifier = Modifier.weight(1f)
+        )
+    }
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TaskScreen(navController: NavController) {
     val context = LocalContext.current
 
-    // cuando tengamos las tareas eliminar estas dos listas???
     var tasks by remember { mutableStateOf(listOf("Modo actual", "Modo actual 2")) }
     var completedTasks by remember { mutableStateOf(listOf<String>()) }
 
@@ -62,7 +99,7 @@ fun TaskScreen(navController: NavController) {
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.Start
         ) {
-            // Not finished tasks
+            // not finished tasks
             Text(
                 text = "Tareas no finalizadas",
                 fontSize = 24.sp,
@@ -73,6 +110,7 @@ fun TaskScreen(navController: NavController) {
             tasks.forEachIndexed { index, task ->
                 TaskItem(
                     task = task,
+                    isCompleted = false,
                     onTaskChecked = { isChecked ->
                         if (isChecked) {
                             tasks = tasks.toMutableList().apply { removeAt(index) }
@@ -86,7 +124,8 @@ fun TaskScreen(navController: NavController) {
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // completed tasks
+
+            // Tareas realizadas
             if (completedTasks.isNotEmpty()) {
                 Text(
                     text = "Tareas realizadas",
@@ -95,8 +134,18 @@ fun TaskScreen(navController: NavController) {
                     modifier = Modifier.padding(vertical = 16.dp)
                 )
 
-                completedTasks.forEach { task ->
-                    CompletedTaskItem(task = task)
+                completedTasks.forEachIndexed { index, task ->
+                    TaskItem(
+                        task = task,
+                        isCompleted = true,
+                        onTaskChecked = { isChecked ->
+                            if (!isChecked) {
+                                completedTasks = completedTasks.toMutableList().apply { removeAt(index) }
+                                tasks = tasks + task
+                                Toast.makeText(context, "Tarea movida a no finalizadas", Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                    )
                     Spacer(modifier = Modifier.height(8.dp))
                 }
             }
@@ -104,47 +153,6 @@ fun TaskScreen(navController: NavController) {
     }
 }
 
-@Composable
-fun TaskItem(task: String, onTaskChecked: (Boolean) -> Unit) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(Color.White, shape = RoundedCornerShape(8.dp))
-            .padding(12.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Checkbox(
-            checked = false,
-            onCheckedChange = { onTaskChecked(it) },
-            colors = CheckboxDefaults.colors(checkedColor = Color(0xFF4CAF50))
-        )
-        Spacer(modifier = Modifier.width(8.dp))
-        Text(
-            text = task,
-            fontSize = 16.sp,
-            fontWeight = FontWeight.Normal,
-            modifier = Modifier.weight(1f)
-        )
-    }
-}
-
-@Composable
-fun CompletedTaskItem(task: String) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(Color.LightGray, shape = RoundedCornerShape(8.dp))
-            .padding(12.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Text(
-            text = task,
-            fontSize = 16.sp,
-            fontWeight = FontWeight.Normal,
-            modifier = Modifier.weight(1f)
-        )
-    }
-}
 
 @Composable
 @Preview
