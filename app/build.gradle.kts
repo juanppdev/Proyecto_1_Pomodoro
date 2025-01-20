@@ -57,6 +57,8 @@ dependencies {
     implementation(libs.androidx.material3)
     implementation(libs.androidx.navigation.compose)
 
+    implementation(libs.kiwi.navigation)
+
     // Dagger Hilt
     implementation(libs.hilt.android)
     implementation(libs.hilt.android.navigation.compose)
@@ -89,5 +91,11 @@ ktlint {
     filter {
         exclude("**/generated/**")
         include("**/kotlin/**")
+    }
+}
+
+kotlin {
+    sourceSets.configureEach {
+        languageSettings.enableLanguageFeature("ExplicitBackingFields")
     }
 }
