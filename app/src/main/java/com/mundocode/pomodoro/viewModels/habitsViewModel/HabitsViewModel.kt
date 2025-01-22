@@ -25,16 +25,17 @@ class HabitsViewModel : ViewModel() {
         _description.value = newText
     }
 
+    //Obtención de textos del popup
     fun onAddClick() {
-        // Aquí puedes manejar la lógica para guardar o procesar los textos
+
         val currentText1 = _tittle.value
         val currentText2 = _description.value
 
-        // Lógica para guardar los textos, por ejemplo:
         println("Titulo: $currentText1")
         println("Descripción: $currentText2")
     }
 
+    //Mostrar el popup
     fun togglePopup() {
         _showPopup.value = !_showPopup.value
     }

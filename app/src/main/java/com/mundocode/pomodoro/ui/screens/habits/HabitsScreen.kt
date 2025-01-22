@@ -87,7 +87,6 @@ fun HabitsScreen(viewModel: HabitsViewModel = hiltViewModel(), navController: Na
                 }
             },
         ) { innerPadding ->
-            // Contenido principal de la pantalla
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -96,7 +95,6 @@ fun HabitsScreen(viewModel: HabitsViewModel = hiltViewModel(), navController: Na
                 verticalArrangement = Arrangement.Top,
                 horizontalAlignment = Alignment.Start,
             ) {
-                // TextView
                 Text(
                     text = "Mis Hábitos",
                     style = MaterialTheme.typography.titleLarge,
@@ -104,10 +102,9 @@ fun HabitsScreen(viewModel: HabitsViewModel = hiltViewModel(), navController: Na
                     fontWeight = FontWeight.Bold,
                 )
 
-                // Espacio entre el buscador y la lista
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Buscador (TextField)
+                // Buscador de hábitos
                 var searchQuery by remember { mutableStateOf("") }
                 TextField(
                     value = searchQuery,
@@ -119,11 +116,10 @@ fun HabitsScreen(viewModel: HabitsViewModel = hiltViewModel(), navController: Na
                     modifier = Modifier.fillMaxWidth(),
                 )
 
-                // Espacio entre el buscador y la lista
                 Spacer(modifier = Modifier.height(16.dp))
 
                 // RecyclerView (LazyColumn)
-                val items = listOf("Elemento 1", "Elemento 2", "Elemento 3", "Elemento 4", "Elemento 5")
+                val items = listOf("Elemento 1", "Elemento 2", "Elemento 3", "Elemento 4", "Elemento 5", "Elemento 6", "Elemento 7")
                 LazyColumn {
                     items(items) { item ->
                         MyCard(item)
@@ -154,7 +150,7 @@ fun MyCard(item: String) {
             Spacer(modifier = Modifier.height(8.dp))
             // Título
             Text(
-                text = item, // Muestra el elemento de la lista
+                text = item,
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color.Black,
@@ -164,7 +160,7 @@ fun MyCard(item: String) {
 
             // Descripción
             Text(
-                text = "Esta es una descripción de ejemplo para la tarjeta. Aquí puedes agregar más información.",
+                text = "Descripción que se quiera insertar para mostrar en el listado",
                 fontSize = 16.sp,
                 color = Color.Gray,
             )
@@ -203,7 +199,7 @@ fun TextInputPopup(viewModel: HabitsViewModel, onDismiss: () -> Unit) {
                     horizontalArrangement = Arrangement.Center,
                 ) {
                     Column(
-                        modifier = Modifier.weight(1f).padding(8.dp), // Usar weight para que ocupe el mismo espacio
+                        modifier = Modifier.weight(1f).padding(8.dp),
                         verticalArrangement = Arrangement.Center,
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
@@ -212,14 +208,14 @@ fun TextInputPopup(viewModel: HabitsViewModel, onDismiss: () -> Unit) {
                                 viewModel.onAddClick()
                                 onDismiss()
                             },
-                            modifier = Modifier.padding(end = 8.dp), // Espaciado entre botones
+                            modifier = Modifier.padding(end = 8.dp),
                         ) {
                             Text("Guardar")
                         }
 
                     }
                     Column(
-                        modifier = Modifier.weight(1f).padding(8.dp), // Usar weight para que ocupe el mismo espacio
+                        modifier = Modifier.weight(1f).padding(8.dp),
                         verticalArrangement = Arrangement.Center,
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
