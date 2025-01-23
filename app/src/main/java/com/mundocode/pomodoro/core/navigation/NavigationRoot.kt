@@ -7,8 +7,10 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
 import com.kiwi.navigationcompose.typed.composable
 import com.kiwi.navigationcompose.typed.createRoutePattern
+import com.mundocode.pomodoro.ui.screens.habits.HabitsScreen
 import com.mundocode.pomodoro.ui.screens.homeScreen.HomeScreen
 import com.mundocode.pomodoro.ui.screens.setupSessionScreen.SetupSessionScreen
+import com.mundocode.pomodoro.ui.screens.tasks.TaskScreen
 import com.mundocode.pomodoro.ui.screens.timer.TimerScreen
 import kotlinx.serialization.ExperimentalSerializationApi
 import com.kiwi.navigationcompose.typed.navigate as kiwiNavigate
@@ -39,6 +41,12 @@ fun NavigationRoot(modifier: Modifier = Modifier) {
         }
         composable<Destinations.TimerScreen> {
             TimerScreen(navController = navController, timer = timer)
+        }
+        composable<Destinations.Task> {
+            TaskScreen(navController = navController)
+        }
+        composable<Destinations.Habits> {
+            HabitsScreen(navController = navController)
         }
     }
 }
