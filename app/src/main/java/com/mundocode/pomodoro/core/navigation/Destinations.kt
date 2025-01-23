@@ -14,5 +14,8 @@ sealed interface Destinations {
     data object Timer : Destinations
 
     @Serializable
+    data object Task : Destinations
+  
+    @Serializable
     data object Habits : Destinations
 }
