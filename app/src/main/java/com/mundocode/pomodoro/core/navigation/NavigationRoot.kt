@@ -6,6 +6,7 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.mundocode.pomodoro.ui.screens.habits.HabitsScreen
 import com.mundocode.pomodoro.ui.screens.homeScreen.HomeScreen
 import com.mundocode.pomodoro.ui.screens.setupSessionScreen.SetupSessionScreen
 import com.mundocode.pomodoro.ui.screens.tasks.TaskScreen
@@ -35,6 +36,9 @@ fun NavigationRoot(modifier: Modifier = Modifier) {
         }
         composable<Destinations.Task> {
             TaskScreen(navController = navController)
+        }
+        composable<Destinations.Habits> {
+            HabitsScreen(navController = navController)
         }
     }
 }

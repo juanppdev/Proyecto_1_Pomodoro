@@ -99,8 +99,7 @@ fun HomeScreen(navigateTo: (Destinations) -> Unit = {}) {
                     icon = R.drawable.habit_icon,
                     descriptionIcon = "botón Ver Hábitos",
                     onClick = {
-                        Toast.makeText(context, "TODO: Ver Hábitos", Toast.LENGTH_SHORT).show()
-                    },
+                        navigateTo(Destinations.Habits)                    },
                 )
 
                 OptionButtons(
