@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.mundocode.pomodoro.R
+import com.mundocode.pomodoro.ui.components.CustomTopAppBar
 
 @Composable
 fun TaskItem(
@@ -71,23 +72,18 @@ fun TaskScreen(navController: NavController) {
 
     Scaffold(
         topBar = {
-            CenterAlignedTopAppBar(
-                title = {
-                    Text(text = stringResource(id = R.string.app_name))
-                },
+            CustomTopAppBar(
+                navController = navController,
+                title = stringResource(id = R.string.app_name),
                 navigationIcon = {
                     IconButton(onClick = { navController.navigateUp() }) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             tint = MaterialTheme.colorScheme.onSurface,
-                            contentDescription = "Localized description"
+                            contentDescription = "Localized description",
                         )
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    titleContentColor = MaterialTheme.colorScheme.primary,
-                ),
             )
         },
     ) { padding ->
