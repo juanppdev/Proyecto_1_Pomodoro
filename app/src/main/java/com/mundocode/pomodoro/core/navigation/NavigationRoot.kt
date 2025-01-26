@@ -27,6 +27,7 @@ fun NavigationRoot(modifier: Modifier = Modifier) {
     ) {
         composable<Destinations.HomeScreen> {
             HomeScreen(
+                navController = navController,
                 navigateTo = { destination ->
                     navController.kiwiNavigate(destination)
                 },
@@ -34,6 +35,7 @@ fun NavigationRoot(modifier: Modifier = Modifier) {
         }
         composable<Destinations.SetupSessionScreen> {
             SetupSessionScreen(
+                navController = navController,
                 navigateTo = { destination ->
                     navController.kiwiNavigate(destination)
                 },

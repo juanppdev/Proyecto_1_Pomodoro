@@ -1,6 +1,5 @@
 package com.mundocode.pomodoro.ui.screens.homeScreen
 
-import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -30,15 +29,22 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.mundocode.pomodoro.R
 import com.mundocode.pomodoro.core.navigation.Destinations
+import com.mundocode.pomodoro.ui.components.CustomTopAppBar
 
-@Preview
 @Composable
-fun HomeScreen(navigateTo: (Destinations) -> Unit = {}) {
+fun HomeScreen(navigateTo: (Destinations) -> Unit = {}, navController: NavController) {
     val context = LocalContext.current
 
     Scaffold(
+        topBar = {
+            CustomTopAppBar(
+                navController = navController,
+                title = "Pomodoro",
+            )
+        },
         modifier = Modifier.fillMaxSize(),
     ) { padding ->
         Column(
@@ -99,7 +105,8 @@ fun HomeScreen(navigateTo: (Destinations) -> Unit = {}) {
                     icon = R.drawable.habit_icon,
                     descriptionIcon = "botón Ver Hábitos",
                     onClick = {
-                        navigateTo(Destinations.Habits)                    },
+                        navigateTo(Destinations.Habits)
+                    },
                 )
 
                 OptionButtons(
@@ -201,4 +208,13 @@ fun OptionButtons(color: Long, textButton: String, icon: Int, descriptionIcon: S
             )
         }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun HomeScreenPreview() {
+    HomeScreen(
+        navigateTo = {},
+        navController = NavController(LocalContext.current),
+    )
 }

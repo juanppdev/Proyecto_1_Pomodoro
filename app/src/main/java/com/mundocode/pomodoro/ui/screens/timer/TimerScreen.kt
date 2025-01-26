@@ -13,7 +13,6 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -22,13 +21,13 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ProgressIndicatorDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -40,6 +39,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.mundocode.pomodoro.R
 import com.mundocode.pomodoro.model.local.Timer
+import com.mundocode.pomodoro.ui.components.CustomTopAppBar
 import com.mundocode.pomodoro.ui.theme.PomodoroTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -61,10 +61,9 @@ fun TimerScreen(timer: Timer, navController: NavController, viewModel: TimerView
 
     Scaffold(
         topBar = {
-            CenterAlignedTopAppBar(
-                title = {
-                    Text(text = timer.sessionName)
-                },
+            CustomTopAppBar(
+                navController = navController,
+                title = timer.sessionName,
                 navigationIcon = {
                     IconButton(onClick = { navController.navigateUp() }) {
                         Icon(
@@ -74,10 +73,6 @@ fun TimerScreen(timer: Timer, navController: NavController, viewModel: TimerView
                         )
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    titleContentColor = MaterialTheme.colorScheme.primary,
-                ),
             )
         },
     ) { paddingValues ->
@@ -224,10 +219,18 @@ fun TimerContent(
     }
 }
 
-@Preview(showBackground = true)
+@Preview
 @Composable
-fun TimerContentPreview() {
+fun TimerScreenPreview() {
     PomodoroTheme {
-        TimerContent(timerState = TimerState())
+        TimerScreen(
+            timer = Timer(
+                sessionName = "Sesión 1",
+                mode = "Trabajo",
+                timer = "1:00",
+                pause = "1:00",
+            ),
+            navController = NavController(LocalContext.current),
+        )
     }
 }
