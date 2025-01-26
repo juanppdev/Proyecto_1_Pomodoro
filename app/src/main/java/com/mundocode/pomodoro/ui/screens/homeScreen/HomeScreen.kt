@@ -1,6 +1,5 @@
 package com.mundocode.pomodoro.ui.screens.homeScreen
 
-import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -13,13 +12,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.rounded.KeyboardArrowDown
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -39,10 +35,7 @@ import com.mundocode.pomodoro.core.navigation.Destinations
 import com.mundocode.pomodoro.ui.components.CustomTopAppBar
 
 @Composable
-fun HomeScreen(
-    navigateTo: (Destinations) -> Unit = {},
-    navController: NavController,
-) {
+fun HomeScreen(navigateTo: (Destinations) -> Unit = {}, navController: NavController) {
     val context = LocalContext.current
 
     Scaffold(
@@ -50,15 +43,6 @@ fun HomeScreen(
             CustomTopAppBar(
                 navController = navController,
                 title = "Pomodoro",
-                navigationIcon = {
-                    IconButton(onClick = { navController.navigateUp() }) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            tint = MaterialTheme.colorScheme.onSurface,
-                            contentDescription = "Localized description",
-                        )
-                    }
-                },
             )
         },
         modifier = Modifier.fillMaxSize(),
@@ -121,7 +105,8 @@ fun HomeScreen(
                     icon = R.drawable.habit_icon,
                     descriptionIcon = "botón Ver Hábitos",
                     onClick = {
-                        navigateTo(Destinations.Habits)                    },
+                        navigateTo(Destinations.Habits)
+                    },
                 )
 
                 OptionButtons(
