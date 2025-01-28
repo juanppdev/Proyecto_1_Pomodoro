@@ -17,6 +17,7 @@ import androidx.compose.material.icons.rounded.KeyboardArrowDown
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -44,7 +45,7 @@ fun HomeScreen(navigateTo: (Destinations) -> Unit = {}) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(color = Color(0xFFEFEFEF))
+                .background(color = MaterialTheme.colorScheme.background)
                 .padding(padding),
         ) {
             Column(modifier = Modifier.padding(8.dp)) {
@@ -52,12 +53,14 @@ fun HomeScreen(navigateTo: (Destinations) -> Unit = {}) {
                     text = "Bienvenido <nombre>",
                     fontSize = 24.sp,
                     modifier = Modifier.padding(8.dp),
+                    color = MaterialTheme.colorScheme.onSecondary,
                 )
                 Text(
                     text = "¿Qué quieres hacer hoy?",
                     fontSize = 32.sp,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.padding(8.dp),
+                    color = MaterialTheme.colorScheme.onSecondary,
                 )
             }
 
@@ -66,6 +69,8 @@ fun HomeScreen(navigateTo: (Destinations) -> Unit = {}) {
                     text = "Tus favoritos",
                     fontSize = 24.sp,
                     modifier = Modifier.padding(8.dp),
+                    color = MaterialTheme.colorScheme.onSecondary,
+
                 )
 
                 Spacer(modifier = Modifier.padding(4.dp))
@@ -124,13 +129,14 @@ fun HomeScreen(navigateTo: (Destinations) -> Unit = {}) {
                     text = "Estadísticas",
                     fontSize = 24.sp,
                     modifier = Modifier.padding(8.dp),
+                    color = MaterialTheme.colorScheme.onSecondary,
                 )
                 Button(
                     onClick = {},
                     shape = RoundedCornerShape(12.dp),
                     modifier = Modifier.padding(8.dp),
-                    border = BorderStroke(2.dp, color = Color.Black),
-                    colors = ButtonDefaults.buttonColors(Color.Transparent),
+                    border = BorderStroke(2.dp, color = MaterialTheme.colorScheme.onSecondary),
+                    colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.onTertiary),
                 ) {
                     Row(
                         modifier = Modifier.size(
@@ -142,12 +148,12 @@ fun HomeScreen(navigateTo: (Destinations) -> Unit = {}) {
                     ) {
                         Text(
                             text = "Weekly",
-                            color = Color.Black,
+                            color = MaterialTheme.colorScheme.onSecondary,
                         )
                         Icon(
                             imageVector = Icons.Rounded.KeyboardArrowDown,
                             contentDescription = "",
-                            tint = Color.Black,
+                            tint = MaterialTheme.colorScheme.onSecondary,
                         )
                     }
                 }
