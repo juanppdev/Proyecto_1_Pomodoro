@@ -53,7 +53,7 @@ fun TimerScreen(viewModel: TimerViewModel = hiltViewModel(), navController: NavC
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    titleContentColor = MaterialTheme.colorScheme.primary,
+                    titleContentColor = MaterialTheme.colorScheme.onSecondary,
                 ),
             )
         },
@@ -62,7 +62,7 @@ fun TimerScreen(viewModel: TimerViewModel = hiltViewModel(), navController: NavC
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .background(color = Color(0xFFEFEFEF)),
+                .background(color = MaterialTheme.colorScheme.background),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically),
         ) {
@@ -73,6 +73,7 @@ fun TimerScreen(viewModel: TimerViewModel = hiltViewModel(), navController: NavC
                     fontSize = 32.sp,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.padding(8.dp),
+                    color = MaterialTheme.colorScheme.onSecondary,
                 )
             }
             Box(contentAlignment = Alignment.Center) {
@@ -92,6 +93,7 @@ fun TimerScreen(viewModel: TimerViewModel = hiltViewModel(), navController: NavC
                     textAlign = TextAlign.Center,
                     fontSize = 36.sp,
                     fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSecondary,
                 )
             }
             Text(
@@ -101,10 +103,10 @@ fun TimerScreen(viewModel: TimerViewModel = hiltViewModel(), navController: NavC
                     else -> "Detenido"
                 },
                 fontSize = 24.sp,
-                color = MaterialTheme.colorScheme.primary,
+                color = MaterialTheme.colorScheme.onSecondary,
                 modifier = Modifier
                     .padding(8.dp)
-                    .background(MaterialTheme.colorScheme.primaryContainer)
+                    .background(MaterialTheme.colorScheme.onTertiary)
                     .padding(horizontal = 16.dp, vertical = 8.dp),
             )
             Row(
@@ -118,7 +120,7 @@ fun TimerScreen(viewModel: TimerViewModel = hiltViewModel(), navController: NavC
                     } else {
                         viewModel.startTimer()
                     } },
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFF4E21))
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.onPrimary)
                 ) {
                     Icon(
                         painter = painterResource(
