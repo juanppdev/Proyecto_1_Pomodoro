@@ -21,9 +21,19 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        android.buildFeatures.buildConfig = true
     }
 
     buildTypes {
+
+        forEach { buildType ->
+            buildType.buildConfigField(
+                "String",
+                "WEB_CLIENT_ID",
+                "\"${providers.gradleProperty("web_client_id").get()}\"",
+            )
+        }
+
         release {
             isMinifyEnabled = false
             proguardFiles(
@@ -57,10 +67,31 @@ dependencies {
     implementation(libs.androidx.material3)
     implementation(libs.androidx.navigation.compose)
 
+    implementation(libs.core)
+
     // Dagger Hilt
     implementation(libs.hilt.android)
     implementation(libs.hilt.android.navigation.compose)
     ksp(libs.hilt.android.compiler)
+
+    // Firebase
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.auth.ktx)
+    implementation(libs.play.services.auth)
+    // Declare the dependency for the Cloud Firestore library
+    // When using the BoM, you don't specify versions in Firebase library dependencies
+    implementation(libs.firebase.firestore)
+
+    // Add the dependency for the Firebase Authentication library
+    // When using the BoM, you don't specify versions in Firebase library dependencies
+    implementation(libs.google.firebase.auth.ktx)
+    implementation(libs.androidx.credentials)
+
+    implementation(libs.credentials)
+    implementation(libs.googleid)
+
+    implementation("com.google.firebase:firebase-auth-ktx")
+    implementation("com.google.firebase:firebase-firestore-ktx")
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
