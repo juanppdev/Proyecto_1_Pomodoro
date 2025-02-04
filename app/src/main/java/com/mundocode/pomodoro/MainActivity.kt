@@ -9,7 +9,6 @@ import com.google.android.gms.auth.api.identity.SignInClient
 import com.mundocode.pomodoro.core.navigation.NavigationRoot
 import com.mundocode.pomodoro.ui.theme.PomodoroTheme
 import dagger.hilt.android.AndroidEntryPoint
-import kotlin.getValue
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
