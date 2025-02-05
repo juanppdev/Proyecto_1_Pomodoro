@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -33,7 +34,10 @@ import com.kiwi.navigationcompose.typed.navigate as kiwiNavigation
 
 @OptIn(ExperimentalSerializationApi::class)
 @Composable
-fun LoginScreen(navController: NavController, viewModel: LoginViewModel = hiltViewModel()) {
+fun LoginScreen(
+    navController: NavController,
+    viewModel: LoginViewModel = hiltViewModel()
+) {
     val context = LocalContext.current
     val loginSuccess by viewModel.loginSuccess.collectAsState()
 
@@ -43,11 +47,14 @@ fun LoginScreen(navController: NavController, viewModel: LoginViewModel = hiltVi
         }
     }
 
-    LoginContent(
-        loginGoogleClicked = {
-            viewModel.handleGoogleSignIn(context)
-        },
-    )
+    Scaffold { padding ->
+        LoginContent(
+            modifier = Modifier.padding(padding),
+            loginGoogleClicked = {
+                viewModel.handleGoogleSignIn(context)
+            },
+        )
+    }
 }
 
 @Composable
