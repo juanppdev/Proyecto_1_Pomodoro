@@ -5,19 +5,20 @@ import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.navigation.NavHostController
 import com.google.firebase.auth.FirebaseAuth
 import com.mundocode.pomodoro.core.navigation.NavigationRoot
 import com.mundocode.pomodoro.ui.theme.PomodoroTheme
 import com.mundocode.pomodoro.ui.viewmodel.TimerViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
     private val timerViewModel = TimerViewModel()
 
-    private lateinit var auth: FirebaseAuth
+    @Inject
+    lateinit var auth: FirebaseAuth
 
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()

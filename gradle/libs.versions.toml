@@ -17,7 +17,7 @@ kotlinxSerializationCore = "1.7.3"
 firebaseBom = "33.8.0"
 services = "4.4.2"
 crashlytics = "3.0.2"
-navigationVersion = "2.8.5"
+navigationVersion = "2.8.6"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -43,7 +43,7 @@ firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "fir
 firebase-crashlytics = { module = "com.google.firebase:firebase-crashlytics" }
 firebase-auth = { module = "com.google.firebase:firebase-auth-ktx" }
 
-androidx-navigation = { module = "androidx.navigattion:navigation-compose", version.ref = "navigationVersion" }
+androidx-navigation = { module = "androidx.navigation:navigation-compose", version.ref = "navigationVersion" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
