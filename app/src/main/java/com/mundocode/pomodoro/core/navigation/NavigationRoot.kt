@@ -2,7 +2,6 @@ package com.mundocode.pomodoro.core.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.kiwi.navigationcompose.typed.composable
 import com.kiwi.navigationcompose.typed.createRoutePattern

@@ -1,6 +1,5 @@
 package com.mundocode.pomodoro.ui.screens.loginScreen
 
-import android.app.Activity
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
