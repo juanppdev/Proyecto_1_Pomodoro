@@ -27,16 +27,17 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.mundocode.pomodoro.R
 import com.mundocode.pomodoro.core.navigation.Destinations
-import com.mundocode.pomodoro.ui.components.CustomTopAppBar
+import kotlinx.serialization.ExperimentalSerializationApi
+import com.kiwi.navigationcompose.typed.navigate as kiwiNavigation
 
+@OptIn(ExperimentalSerializationApi::class)
 @Composable
-fun HomeScreen(navigateTo: (Destinations) -> Unit = {}, navController: NavController) {
+fun HomeScreen(navController: NavController) {
     val context = LocalContext.current
 
     Scaffold(
@@ -100,7 +101,7 @@ fun HomeScreen(navigateTo: (Destinations) -> Unit = {}, navController: NavContro
                     icon = R.drawable.timer_icon,
                     descriptionIcon = "botón de Empezar Pomodoro",
                     onClick = {
-                        navigateTo(Destinations.SetupSessionScreen)
+                        navController.kiwiNavigation(Destinations.Timer)
                     },
                 )
 

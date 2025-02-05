@@ -8,4 +8,5 @@ plugins {
     alias(libs.plugins.ktlint.jlleitschuh) apply false
     alias(libs.plugins.ksp) apply false
     alias(libs.plugins.google.dagger.hilt) apply false
+    alias(libs.plugins.google.services) apply false
 }
