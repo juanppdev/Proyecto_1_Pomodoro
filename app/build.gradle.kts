@@ -62,6 +62,8 @@ dependencies {
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.bundles.androidBundle)
 
+    implementation(libs.kiwi.navigation)
+
     // Dagger Hilt
     implementation(libs.hilt.android)
     implementation(libs.hilt.android.navigation.compose)
@@ -76,6 +78,9 @@ dependencies {
 
     // Kiwi
     implementation(libs.core)
+    // Icons
+    implementation("androidx.compose.material:material-icons-extended:1.7.6")
+
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.ui.test.junit4)
@@ -101,5 +106,11 @@ ktlint {
     filter {
         exclude("**/generated/**")
         include("**/kotlin/**")
+    }
+}
+
+kotlin {
+    sourceSets.configureEach {
+        languageSettings.enableLanguageFeature("ExplicitBackingFields")
     }
 }
