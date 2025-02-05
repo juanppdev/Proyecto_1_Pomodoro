@@ -41,8 +41,6 @@ import com.mundocode.pomodoro.R
 import com.mundocode.pomodoro.model.local.Timer
 import com.mundocode.pomodoro.ui.components.CustomTopAppBar
 import com.mundocode.pomodoro.ui.theme.PomodoroTheme
-import com.mundocode.pomodoro.ui.viewmodel.TimerViewModel
-import com.mundocode.pomodoro.viewModels.timerViewModels.TimerState
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

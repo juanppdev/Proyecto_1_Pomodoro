@@ -25,14 +25,16 @@ fun NavigationRoot() {
                 navController = navController,
             )
         }
-        composable<Destinations.Home> {
+        composable<Destinations.HomeScreen> {
             HomeScreen(navController = navController)
         }
-        composable<Destinations.SetupSession> {
-            SetupSessionScreen()
+        composable<Destinations.SetupSessionScreen> {
+            SetupSessionScreen(
+                navController = navController,
+            )
         }
-        composable<Destinations.Timer> {
-            TimerScreen(navController = navController)
+        composable<Destinations.TimerScreen> {
+            TimerScreen(navController = navController, timer = timer)
         }
     }
 }
