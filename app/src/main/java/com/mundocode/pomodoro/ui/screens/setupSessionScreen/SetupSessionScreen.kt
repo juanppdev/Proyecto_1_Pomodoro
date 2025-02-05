@@ -10,12 +10,14 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -33,23 +35,34 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavController
 import com.mundocode.pomodoro.R
 import com.mundocode.pomodoro.core.navigation.Destinations
+import com.mundocode.pomodoro.ui.components.CustomTopAppBar
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SetupSessionScreen(viewModel: SetupSessionViewModel = hiltViewModel(), navigateTo: (Destinations) -> Unit = {}) {
+fun SetupSessionScreen(
+    viewModel: SetupSessionViewModel = hiltViewModel(),
+    navigateTo: (Destinations) -> Unit = {},
+    navController: NavController,
+) {
     val state by viewModel.sessionState.collectAsStateWithLifecycle()
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text("Configurar Sesión Pomodoro") }, // TODO: Extract string
-                colors =
-                TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color(0xFFD9D9D9), // TODO: Use theme color instead of this harcoded one
-                    titleContentColor = Color.Black,
-                ),
+            CustomTopAppBar(
+                navController = navController,
+                title = "Configurar sesión Pomodoro",
+                navigationIcon = {
+                    IconButton(onClick = { navController.navigateUp() }) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            tint = MaterialTheme.colorScheme.onSurface,
+                            contentDescription = "Localized description",
+                        )
+                    }
+                },
             )
         },
     ) { padding ->

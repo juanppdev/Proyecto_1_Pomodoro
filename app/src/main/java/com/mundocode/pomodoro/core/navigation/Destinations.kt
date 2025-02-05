@@ -18,13 +18,10 @@ sealed interface Destinations : Destination {
 
     @Serializable
     data class TimerScreen(val timer: Timer) : Destinations
-  
-    @Serializable
-    data object Timer : Destinations
 
     @Serializable
     data object Task : Destinations
-  
+
     @Serializable
     data object Habits : Destinations
 }
