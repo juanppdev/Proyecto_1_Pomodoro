@@ -41,6 +41,8 @@ import androidx.navigation.NavController
 import com.mundocode.pomodoro.R
 import com.mundocode.pomodoro.model.local.Timer
 import com.mundocode.pomodoro.ui.theme.PomodoroTheme
+import com.mundocode.pomodoro.ui.viewmodel.TimerViewModel
+import com.mundocode.pomodoro.viewModels.timerViewModels.TimerState
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -100,7 +102,9 @@ fun TimerContent(
     resetTimer: () -> Unit = {},
 ) {
     Column(
-        modifier = modifier.fillMaxSize(),
+        modifier = modifier
+            .fillMaxSize()
+            .background(color = MaterialTheme.colorScheme.background),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically),
     ) {
@@ -138,7 +142,7 @@ fun TimerContent(
                 else -> "Detenido"
             },
             fontSize = 24.sp,
-            color = MaterialTheme.colorScheme.primary,
+            color = MaterialTheme.colorScheme.onSecondary,
             modifier = Modifier
                 .padding(8.dp)
                 .background(MaterialTheme.colorScheme.primaryContainer)
@@ -156,7 +160,7 @@ fun TimerContent(
                         startTimer
                     }
                 },
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFF4E21)),
+                colors = ButtonDefaults.buttonColors().copy(containerColor = MaterialTheme.colorScheme.onPrimary),
             ) {
                 Icon(
                     painter = painterResource(
