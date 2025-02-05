@@ -14,6 +14,10 @@ hiltVersion = "2.53.1"
 androidHiltVersion = "1.2.0"
 kspVersion = "2.1.0-1.0.29"
 kotlinxSerializationCore = "1.7.3"
+firebaseBom = "33.8.0"
+services = "4.4.2"
+crashlytics = "3.0.2"
+navigationVersion = "2.8.5"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -35,6 +39,11 @@ hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hiltV
 hilt-android-compiler = { module = "com.google.dagger:hilt-android-compiler", version.ref = "hiltVersion" }
 hilt-android-navigation-compose = { group = "androidx.hilt", name = "hilt-navigation-compose", version.ref = "androidHiltVersion" }
 kotlinx-serialization-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-core", version.ref = "kotlinxSerializationCore" }
+firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
+firebase-crashlytics = { module = "com.google.firebase:firebase-crashlytics" }
+firebase-auth = { module = "com.google.firebase:firebase-auth-ktx" }
+
+androidx-navigation = { module = "androidx.navigattion:navigation-compose", version.ref = "navigationVersion" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
@@ -45,4 +54,6 @@ kotlin-serialize = { id = "org.jetbrains.kotlin.plugin.serialization", version.r
 ktlint-jlleitschuh = { id = "org.jlleitschuh.gradle.ktlint", version.ref = "ktlintJlleitschuh" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "kspVersion" }
 google-dagger-hilt = { id = "com.google.dagger.hilt.android", version.ref = "hiltVersion" }
+googleServices = { id = "com.google.gms.google-services", version.ref = "services" }
+crashlytics = { id = "com.google.firebase.crashlytics", version.ref = "crashlytics" }
 
