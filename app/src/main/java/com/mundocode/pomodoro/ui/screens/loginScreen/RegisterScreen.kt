@@ -3,17 +3,13 @@ package com.mundocode.pomodoro.ui.screens.loginScreen
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -45,33 +41,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mundocode.pomodoro.R
 
-@OptIn(ExperimentalSerializationApi::class)
+@Preview
 @Composable
-fun LoginScreen(navController: NavController, viewModel: LoginViewModel = hiltViewModel()) {
+fun RegisterScreen() {
 
-  val context = LocalContext.current
-    val loginSuccess by viewModel.loginSuccess.collectAsState()
-
-    LaunchedEffect(loginSuccess) {
-        if (loginSuccess) {
-            navController.kiwiNavigation(Destinations.HomeScreen)
-        }
-    }
-
-    Scaffold { padding ->
-        LoginContent(
-            modifier = Modifier.padding(padding),
-            loginGoogleClicked = {
-                viewModel.handleGoogleSignIn(context)
-            },
-        )
-    }
-}
-
-@Composable
-private fun LoginContent(modifier: Modifier = Modifier, loginGoogleClicked: () -> Unit) {
-    
-  Box(
+    Box(
         modifier = Modifier
             .fillMaxSize()
             .background(Color(0xFFEFEFEF)),
@@ -95,7 +69,7 @@ private fun LoginContent(modifier: Modifier = Modifier, loginGoogleClicked: () -
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    text = "POMODORAPP",
+                    text = "REGISTRO",
                     fontWeight = FontWeight.Bold,
                     fontSize = 29.sp,
                     color = Color.White,
@@ -104,81 +78,59 @@ private fun LoginContent(modifier: Modifier = Modifier, loginGoogleClicked: () -
 
                 Spacer(modifier = Modifier.padding(16.dp))
 
-                DataLogin("Usuario / correo electrónico")
+                DataRegister("Nombre:")
 
                 Spacer(modifier = Modifier.padding(8.dp))
 
-                PasswordLogin("Contraseña")
-                Text(
-                    text = "¿Has olvidado la contraseña?",
-                    color = Color.White,
+                DataRegister("Usuario / correo electrónico")
+
+                Spacer(modifier = Modifier.padding(8.dp))
+
+                PasswordRegister("Contraseña")
+
+                Spacer(modifier = Modifier.padding(8.dp))
+
+                Row (
                     modifier = Modifier
-                        .offset(x = (-40).dp)
-                        .padding(top = 6.dp)
-                )
-
-                Spacer(modifier = Modifier.padding(8.dp))
-
-                Box(
-                    modifier = Modifier.fillMaxWidth(),
-                    contentAlignment = Alignment.Center,
+                        .fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Center
                 ) {
                     Button(
                         onClick = {},
                         modifier = Modifier
+                            .padding(8.dp)
                             .size(
-                                width = 150.dp,
+                                width = 120.dp,
+                                height = 48.dp,
+                            ),
+                        colors = ButtonDefaults.buttonColors(Color.Gray),
+                        shape = RoundedCornerShape(16.dp),
+                    ) {
+                        Text(text = "Cancelar")
+                    }
+
+                    Button(
+                        onClick = {},
+                        modifier = Modifier
+                            .padding(8.dp)
+                            .size(
+                                width = 120.dp,
                                 height = 48.dp,
                             ),
                         colors = ButtonDefaults.buttonColors(Color(0xFFB51C1C)),
                         shape = RoundedCornerShape(16.dp),
                     ) {
-                        Text(text = "Iniciar sesión")
+                        Text(text = "Registro")
                     }
                 }
-
-                Row(
-                    modifier = Modifier
-                    .padding(16.dp)
-                    .clickable { loginGoogleClicked() },
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.google_logo),
-                        contentDescription = "",
-                        modifier = Modifier
-                            .size(24.dp)
-                    )
-                    Text(
-                        text = "Iniciar sesión con Google",
-                        modifier = Modifier.padding(8.dp),
-                        fontSize = 16.sp,
-                        color = Color.White
-                    )
-                }
-
-                Spacer(modifier = Modifier.padding(16.dp))
-
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(8.dp),
-                    contentAlignment = Alignment.BottomCenter,
-                ) {
-                    Text(
-                        buildAnnotatedString {
-                            append("¿No tienes cuenta aún? ¡Regístrate!")
-
-                        },
-                    )
-                }
+                Spacer(modifier = Modifier.padding(bottom = 16.dp))
             }
         }
     }
 }
 
 @Composable
-fun DataLogin(label: String) {
+fun DataRegister(label: String) {
     var state by rememberSaveable { mutableStateOf("") }
 
     OutlinedTextField(
@@ -197,7 +149,7 @@ fun DataLogin(label: String) {
 }
 
 @Composable
-fun PasswordLogin(label: String) {
+fun PasswordRegister(label: String) {
     var password by rememberSaveable { mutableStateOf("") }
     var hidden by rememberSaveable { mutableStateOf(true) }
 
@@ -215,7 +167,7 @@ fun PasswordLogin(label: String) {
         label = { Text(label) },
 
         visualTransformation =
-            if (hidden) PasswordVisualTransformation() else VisualTransformation.None,
+        if (hidden) PasswordVisualTransformation() else VisualTransformation.None,
 
         trailingIcon = {
             IconButton(onClick = {hidden = !hidden}) {
@@ -230,9 +182,4 @@ fun PasswordLogin(label: String) {
             }
         }
     )
-
-@Preview(showBackground = true)
-@Composable
-fun LoginScreenPreview() {
-    LoginScreen(navController = NavController(LocalContext.current))
 }

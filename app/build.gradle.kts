@@ -8,6 +8,8 @@ plugins {
     alias(libs.plugins.ktlint.jlleitschuh)
     alias(libs.plugins.ksp)
     alias(libs.plugins.google.dagger.hilt)
+    alias(libs.plugins.googleServices)
+    alias(libs.plugins.crashlytics)
 }
 
 android {
@@ -61,8 +63,6 @@ dependencies {
     // Android
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.bundles.androidBundle)
-
-    implementation(libs.kiwi.navigation)
 
     // Dagger Hilt
     implementation(libs.hilt.android)
