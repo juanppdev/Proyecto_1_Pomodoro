@@ -1,6 +1,5 @@
 package com.mundocode.pomodoro.ui.screens.homeScreen
 
-import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -17,6 +16,7 @@ import androidx.compose.material.icons.rounded.KeyboardArrowDown
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -30,21 +30,31 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.mundocode.pomodoro.R
 import com.mundocode.pomodoro.core.navigation.Destinations
+import com.mundocode.pomodoro.ui.components.CustomTopAppBar
+import kotlinx.serialization.ExperimentalSerializationApi
+import com.kiwi.navigationcompose.typed.navigate as kiwiNavigation
 
-@Preview
+@OptIn(ExperimentalSerializationApi::class)
 @Composable
-fun HomeScreen(navigateTo: (Destinations) -> Unit = {}) {
+fun HomeScreen(navController: NavController) {
     val context = LocalContext.current
 
     Scaffold(
-        modifier = Modifier.fillMaxSize()
+        topBar = {
+            CustomTopAppBar(
+                navController = navController,
+                title = "Pomodoro",
+            )
+        },
+        modifier = Modifier.fillMaxSize(),
     ) { padding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(color = Color(0xFFEFEFEF))
+                .background(color = MaterialTheme.colorScheme.background)
                 .padding(padding),
         ) {
             Column(modifier = Modifier.padding(8.dp)) {
@@ -52,12 +62,14 @@ fun HomeScreen(navigateTo: (Destinations) -> Unit = {}) {
                     text = "Bienvenido <nombre>",
                     fontSize = 24.sp,
                     modifier = Modifier.padding(8.dp),
+                    color = MaterialTheme.colorScheme.onSecondary,
                 )
                 Text(
                     text = "¿Qué quieres hacer hoy?",
                     fontSize = 32.sp,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.padding(8.dp),
+                    color = MaterialTheme.colorScheme.onSecondary,
                 )
             }
 
@@ -66,6 +78,8 @@ fun HomeScreen(navigateTo: (Destinations) -> Unit = {}) {
                     text = "Tus favoritos",
                     fontSize = 24.sp,
                     modifier = Modifier.padding(8.dp),
+                    color = MaterialTheme.colorScheme.onSecondary,
+
                 )
 
                 Spacer(modifier = Modifier.padding(4.dp))
@@ -89,7 +103,9 @@ fun HomeScreen(navigateTo: (Destinations) -> Unit = {}) {
                     icon = R.drawable.timer_icon,
                     descriptionIcon = "botón de Empezar Pomodoro",
                     onClick = {
-                        navigateTo(Destinations.Timer)
+                        navController.kiwiNavigation(
+                            Destinations.SetupSessionScreen,
+                        )
                     },
                 )
 
@@ -99,7 +115,7 @@ fun HomeScreen(navigateTo: (Destinations) -> Unit = {}) {
                     icon = R.drawable.habit_icon,
                     descriptionIcon = "botón Ver Hábitos",
                     onClick = {
-                        Toast.makeText(context, "TODO: Ver Hábitos", Toast.LENGTH_SHORT).show()
+                        navController.kiwiNavigation(Destinations.Habits)
                     },
                 )
 
@@ -109,7 +125,7 @@ fun HomeScreen(navigateTo: (Destinations) -> Unit = {}) {
                     icon = R.drawable.checklist_icon,
                     descriptionIcon = "botón Ver Tareas",
                     onClick = {
-                        Toast.makeText(context, "TODO: Ver Tareas", Toast.LENGTH_SHORT).show()
+                        navController.kiwiNavigation(Destinations.Task)
                     },
                 )
             }
@@ -125,13 +141,14 @@ fun HomeScreen(navigateTo: (Destinations) -> Unit = {}) {
                     text = "Estadísticas",
                     fontSize = 24.sp,
                     modifier = Modifier.padding(8.dp),
+                    color = MaterialTheme.colorScheme.onSecondary,
                 )
                 Button(
                     onClick = {},
                     shape = RoundedCornerShape(12.dp),
                     modifier = Modifier.padding(8.dp),
-                    border = BorderStroke(2.dp, color = Color.Black),
-                    colors = ButtonDefaults.buttonColors(Color.Transparent),
+                    border = BorderStroke(2.dp, color = MaterialTheme.colorScheme.onSecondary),
+                    colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.onTertiary),
                 ) {
                     Row(
                         modifier = Modifier.size(
@@ -143,12 +160,12 @@ fun HomeScreen(navigateTo: (Destinations) -> Unit = {}) {
                     ) {
                         Text(
                             text = "Weekly",
-                            color = Color.Black,
+                            color = MaterialTheme.colorScheme.onSecondary,
                         )
                         Icon(
                             imageVector = Icons.Rounded.KeyboardArrowDown,
                             contentDescription = "",
-                            tint = Color.Black,
+                            tint = MaterialTheme.colorScheme.onSecondary,
                         )
                     }
                 }
@@ -202,4 +219,12 @@ fun OptionButtons(color: Long, textButton: String, icon: Int, descriptionIcon: S
             )
         }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun HomeScreenPreview() {
+    HomeScreen(
+        navController = NavController(LocalContext.current),
+    )
 }

@@ -9,6 +9,11 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -40,11 +45,33 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mundocode.pomodoro.R
 
-@Preview
+@OptIn(ExperimentalSerializationApi::class)
 @Composable
-fun LoginScreen() {
+fun LoginScreen(navController: NavController, viewModel: LoginViewModel = hiltViewModel()) {
 
-    Box(
+  val context = LocalContext.current
+    val loginSuccess by viewModel.loginSuccess.collectAsState()
+
+    LaunchedEffect(loginSuccess) {
+        if (loginSuccess) {
+            navController.kiwiNavigation(Destinations.HomeScreen)
+        }
+    }
+
+    Scaffold { padding ->
+        LoginContent(
+            modifier = Modifier.padding(padding),
+            loginGoogleClicked = {
+                viewModel.handleGoogleSignIn(context)
+            },
+        )
+    }
+}
+
+@Composable
+private fun LoginContent(modifier: Modifier = Modifier, loginGoogleClicked: () -> Unit) {
+    
+  Box(
         modifier = Modifier
             .fillMaxSize()
             .background(Color(0xFFEFEFEF)),
@@ -111,7 +138,9 @@ fun LoginScreen() {
                 }
 
                 Row(
-                    modifier = Modifier.padding(16.dp),
+                    modifier = Modifier
+                    .padding(16.dp)
+                    .clickable { loginGoogleClicked() },
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Image(
@@ -201,4 +230,9 @@ fun PasswordLogin(label: String) {
             }
         }
     )
+
+@Preview(showBackground = true)
+@Composable
+fun LoginScreenPreview() {
+    LoginScreen(navController = NavController(LocalContext.current))
 }
