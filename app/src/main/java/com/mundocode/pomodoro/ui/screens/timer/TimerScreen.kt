@@ -41,12 +41,10 @@ import com.mundocode.pomodoro.R
 import com.mundocode.pomodoro.model.local.Timer
 import com.mundocode.pomodoro.ui.components.CustomTopAppBar
 import com.mundocode.pomodoro.ui.theme.PomodoroTheme
-import com.mundocode.pomodoro.ui.viewmodel.TimerViewModel
-import com.mundocode.pomodoro.viewModels.timerViewModels.TimerState
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TimerScreen(timer: Timer, navController: NavController, viewModel: TimerViewModel = hiltViewModel()) {
+fun TimerScreen(navController: NavController, timer: Timer, viewModel: TimerViewModel = hiltViewModel()) {
     val timeState by viewModel.timerState.collectAsStateWithLifecycle()
 //    val progress = timeState.remainingTime / (25 * 60 * 1000f)
 //

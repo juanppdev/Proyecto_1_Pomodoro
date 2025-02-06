@@ -4,7 +4,6 @@ import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
-
 class HabitsViewModel : ViewModel() {
 
     private val _showPopup = MutableStateFlow(false)
@@ -25,9 +24,8 @@ class HabitsViewModel : ViewModel() {
         _description.value = newText
     }
 
-    //Obtención de textos del popup
+    // Obtención de textos del popup
     fun onAddClick() {
-
         val currentText1 = _tittle.value
         val currentText2 = _description.value
 
@@ -35,7 +33,7 @@ class HabitsViewModel : ViewModel() {
         println("Descripción: $currentText2")
     }
 
-    //Mostrar el popup
+    // Mostrar el popup
     fun togglePopup() {
         _showPopup.value = !_showPopup.value
     }

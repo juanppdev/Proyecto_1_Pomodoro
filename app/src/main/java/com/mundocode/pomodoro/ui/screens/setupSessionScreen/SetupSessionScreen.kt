@@ -22,8 +22,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -42,11 +40,7 @@ import com.mundocode.pomodoro.ui.components.CustomTopAppBar
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SetupSessionScreen(
-    viewModel: SetupSessionViewModel = hiltViewModel(),
-    navigateTo: (Destinations) -> Unit = {},
-    navController: NavController,
-) {
+fun SetupSessionScreen(navController: NavController, viewModel: SetupSessionViewModel = hiltViewModel()) {
     val state by viewModel.sessionState.collectAsStateWithLifecycle()
 
     Scaffold(
@@ -75,7 +69,7 @@ fun SetupSessionScreen(
             updateTimer = viewModel::updateTimer,
             updatePause = viewModel::updatePause,
             startSession = {
-                navigateTo(Destinations.TimerScreen(state.timer))
+                navController.navigate(Destinations.TimerScreen(state.timer))
             },
         )
     }

@@ -21,18 +21,19 @@ fun NavigationRoot() {
         startDestination = createRoutePattern<Destinations.Login>(),
     ) {
         composable<Destinations.Login> {
-            LoginScreen(
-                navController = navController,
-            )
+            LoginScreen(navController = navController)
         }
-        composable<Destinations.Home> {
+
+        composable<Destinations.HomeScreen> {
             HomeScreen(navController = navController)
         }
-        composable<Destinations.SetupSession> {
-            SetupSessionScreen()
+
+        composable<Destinations.SetupSessionScreen> {
+            SetupSessionScreen(navController = navController)
         }
-        composable<Destinations.Timer> {
-            TimerScreen(navController = navController)
+
+        composable<Destinations.TimerScreen> {
+            TimerScreen(navController = navController, timer = timer)
         }
     }
 }

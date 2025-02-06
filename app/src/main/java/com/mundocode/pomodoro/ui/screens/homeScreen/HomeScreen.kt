@@ -27,11 +27,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.mundocode.pomodoro.R
 import com.mundocode.pomodoro.core.navigation.Destinations
+import com.mundocode.pomodoro.ui.components.CustomTopAppBar
 import kotlinx.serialization.ExperimentalSerializationApi
 import com.kiwi.navigationcompose.typed.navigate as kiwiNavigation
 
@@ -45,6 +47,7 @@ fun HomeScreen(navController: NavController) {
             CustomTopAppBar(
                 navController = navController,
                 title = "Pomodoro",
+                navigationIcon = {},
             )
         },
         modifier = Modifier.fillMaxSize(),
@@ -77,7 +80,6 @@ fun HomeScreen(navController: NavController) {
                     fontSize = 24.sp,
                     modifier = Modifier.padding(8.dp),
                     color = MaterialTheme.colorScheme.onSecondary,
-
                 )
 
                 Spacer(modifier = Modifier.padding(4.dp))
@@ -101,7 +103,7 @@ fun HomeScreen(navController: NavController) {
                     icon = R.drawable.timer_icon,
                     descriptionIcon = "botón de Empezar Pomodoro",
                     onClick = {
-                        navController.kiwiNavigation(Destinations.Timer)
+                        navController.kiwiNavigation(Destinations.SetupSessionScreen)
                     },
                 )
 
@@ -111,7 +113,7 @@ fun HomeScreen(navController: NavController) {
                     icon = R.drawable.habit_icon,
                     descriptionIcon = "botón Ver Hábitos",
                     onClick = {
-                        navigateTo(Destinations.Habits)
+                        navController.navigate(Destinations.Habits)
                     },
                 )
 
@@ -121,7 +123,7 @@ fun HomeScreen(navController: NavController) {
                     icon = R.drawable.checklist_icon,
                     descriptionIcon = "botón Ver Tareas",
                     onClick = {
-                        navigateTo(Destinations.Task)
+                        navController.navigate(Destinations.Task)
                     },
                 )
             }
@@ -221,7 +223,6 @@ fun OptionButtons(color: Long, textButton: String, icon: Int, descriptionIcon: S
 @Composable
 fun HomeScreenPreview() {
     HomeScreen(
-        navigateTo = {},
         navController = NavController(LocalContext.current),
     )
 }
