@@ -95,10 +95,9 @@ class TimerViewModel : ViewModel() {
         Log.d("TimerViewModel", "setupTimer: $timer")
         timerState.update {
             it.copy(
-                timer = timer,
-//                remainingTime = it.workDuration,
-//                workDuration = it.workDuration,
-//                breakDuration = timer.pause.toMillis(),
+                remainingTime = it.workDuration,
+                workDuration = it.workDuration,
+                breakDuration = timer.pause.toMillis(),
             )
         }
     }
