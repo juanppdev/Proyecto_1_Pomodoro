@@ -37,8 +37,10 @@ import androidx.navigation.NavController
 import com.mundocode.pomodoro.R
 import com.mundocode.pomodoro.core.navigation.Destinations
 import com.mundocode.pomodoro.ui.components.CustomTopAppBar
+import kotlinx.serialization.ExperimentalSerializationApi
+import com.kiwi.navigationcompose.typed.navigate as kiwiNavigate
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalSerializationApi::class)
 @Composable
 fun SetupSessionScreen(navController: NavController, viewModel: SetupSessionViewModel = hiltViewModel()) {
     val state by viewModel.sessionState.collectAsStateWithLifecycle()
@@ -69,7 +71,7 @@ fun SetupSessionScreen(navController: NavController, viewModel: SetupSessionView
             updateTimer = viewModel::updateTimer,
             updatePause = viewModel::updatePause,
             startSession = {
-                navController.navigate(Destinations.TimerScreen(state.timer))
+                navController.kiwiNavigate(Destinations.TimerScreen(state.timer))
             },
         )
     }
