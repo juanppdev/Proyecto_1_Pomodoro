@@ -33,7 +33,6 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.mundocode.pomodoro.R
 import com.mundocode.pomodoro.core.navigation.Destinations
-import com.mundocode.pomodoro.model.local.Timer
 import com.mundocode.pomodoro.ui.components.CustomTopAppBar
 import kotlinx.serialization.ExperimentalSerializationApi
 import com.kiwi.navigationcompose.typed.navigate as kiwiNavigation
@@ -105,14 +104,7 @@ fun HomeScreen(navController: NavController) {
                     descriptionIcon = "botón de Empezar Pomodoro",
                     onClick = {
                         navController.kiwiNavigation(
-                            Destinations.TimerScreen(
-                                timer = Timer(
-                                    sessionName = "Sesión 1",
-                                    mode = "Trabajo",
-                                    timer = "25:00",
-                                    pause = "5:00",
-                                ),
-                            ),
+                            Destinations.SetupSessionScreen,
                         )
                     },
                 )

@@ -22,8 +22,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -39,14 +37,12 @@ import androidx.navigation.NavController
 import com.mundocode.pomodoro.R
 import com.mundocode.pomodoro.core.navigation.Destinations
 import com.mundocode.pomodoro.ui.components.CustomTopAppBar
+import kotlinx.serialization.ExperimentalSerializationApi
+import com.kiwi.navigationcompose.typed.navigate as kiwiNavigation
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalSerializationApi::class)
 @Composable
-fun SetupSessionScreen(
-    viewModel: SetupSessionViewModel = hiltViewModel(),
-    navigateTo: (Destinations) -> Unit = {},
-    navController: NavController,
-) {
+fun SetupSessionScreen(viewModel: SetupSessionViewModel = hiltViewModel(), navController: NavController) {
     val state by viewModel.sessionState.collectAsStateWithLifecycle()
 
     Scaffold(
@@ -75,7 +71,9 @@ fun SetupSessionScreen(
             updateTimer = viewModel::updateTimer,
             updatePause = viewModel::updatePause,
             startSession = {
-                navigateTo(Destinations.TimerScreen(state.timer))
+                navController.kiwiNavigation(
+                    Destinations.TimerScreen(state.timer),
+                )
             },
         )
     }
