@@ -8,7 +8,6 @@ plugins {
     alias(libs.plugins.ktlint.jlleitschuh)
     alias(libs.plugins.ksp)
     alias(libs.plugins.google.dagger.hilt)
-    alias(libs.plugins.googleServices)
     alias(libs.plugins.crashlytics)
 }
 
@@ -79,8 +78,7 @@ dependencies {
     // Kiwi
     implementation(libs.core)
     // Icons
-    implementation("androidx.compose.material:material-icons-extended:1.7.6")
-
+    implementation("androidx.compose.material:material-icons-extended:1.7.7")
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.ui.test.junit4)

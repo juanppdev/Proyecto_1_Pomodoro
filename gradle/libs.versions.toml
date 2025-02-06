@@ -21,7 +21,6 @@ hiltVersion = "2.55"
 androidHiltVersion = "1.2.0"
 kspVersion = "2.1.0-1.0.29"
 kotlinxSerializationCore = "1.7.3"
-firebaseBom = "33.8.0"
 services = "4.4.2"
 crashlytics = "3.0.2"
 navigationVersion = "2.8.6"
@@ -98,6 +97,5 @@ kotlin-serialize = { id = "org.jetbrains.kotlin.plugin.serialization", version.r
 ktlint-jlleitschuh = { id = "org.jlleitschuh.gradle.ktlint", version.ref = "ktlintJlleitschuh" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "kspVersion" }
 google-dagger-hilt = { id = "com.google.dagger.hilt.android", version.ref = "hiltVersion" }
-googleServices = { id = "com.google.gms.google-services", version.ref = "services" }
 crashlytics = { id = "com.google.firebase.crashlytics", version.ref = "crashlytics" }
 
