@@ -78,7 +78,7 @@ dependencies {
     // Kiwi
     implementation(libs.core)
     // Icons
-    implementation(libs.androidx.material.icons.extended)
+    implementation("androidx.compose.material:material-icons-extended:1.7.7")
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.ui.test.junit4)
