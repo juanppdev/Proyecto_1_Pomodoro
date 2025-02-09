@@ -80,8 +80,7 @@ private fun LoginContent(modifier: Modifier = Modifier, loginGoogleClicked: () -
         contentAlignment = Alignment.Center,
     ) {
         Card(
-            modifier = modifier
-                .fillMaxWidth()
+            modifier = Modifier
                 .padding(16.dp),
             elevation = CardDefaults.cardElevation(
                 defaultElevation = 16.dp, // Controla la elevación (sombra)
@@ -93,7 +92,7 @@ private fun LoginContent(modifier: Modifier = Modifier, loginGoogleClicked: () -
             border = BorderStroke(width = 1.dp, Color.Black),
         ) {
             Column(
-                modifier = modifier.padding(8.dp),
+                modifier = Modifier.padding(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 Text(
@@ -101,14 +100,13 @@ private fun LoginContent(modifier: Modifier = Modifier, loginGoogleClicked: () -
                     fontWeight = FontWeight.Bold,
                     fontSize = 29.sp,
                     color = Color.White,
-                    modifier = modifier.padding(top = 24.dp),
                 )
 
-                Spacer(modifier = modifier.padding(16.dp))
+                Spacer(modifier = Modifier.padding(16.dp))
 
                 DataLogin("Usuario / correo electrónico")
 
-                Spacer(modifier = modifier.padding(8.dp))
+                Spacer(modifier = Modifier.padding(8.dp))
 
                 PasswordLogin("Contraseña")
                 Text(
@@ -119,15 +117,14 @@ private fun LoginContent(modifier: Modifier = Modifier, loginGoogleClicked: () -
                         .padding(top = 6.dp),
                 )
 
-                Spacer(modifier = modifier.padding(8.dp))
+                Spacer(modifier = Modifier.padding(16.dp))
 
                 Box(
-                    modifier = modifier.fillMaxWidth(),
                     contentAlignment = Alignment.Center,
                 ) {
                     Button(
                         onClick = {},
-                        modifier = modifier
+                        modifier = Modifier
                             .size(
                                 width = 150.dp,
                                 height = 48.dp,
@@ -139,9 +136,10 @@ private fun LoginContent(modifier: Modifier = Modifier, loginGoogleClicked: () -
                     }
                 }
 
+                Spacer(modifier = Modifier.padding(8.dp))
+
                 Row(
-                    modifier = modifier
-                        .padding(16.dp)
+                    modifier = Modifier
                         .clickable { loginGoogleClicked() },
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
@@ -153,13 +151,13 @@ private fun LoginContent(modifier: Modifier = Modifier, loginGoogleClicked: () -
                     )
                     Text(
                         text = "Iniciar sesión con Google",
-                        modifier = modifier.padding(8.dp),
+                        modifier = Modifier.padding(8.dp),
                         fontSize = 16.sp,
                         color = Color.White,
                     )
                 }
 
-                Spacer(modifier = modifier.padding(16.dp))
+                //Spacer(modifier = modifier.padding(16.dp))
 
                 Box(
                     modifier = Modifier
