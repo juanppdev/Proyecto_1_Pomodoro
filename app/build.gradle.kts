@@ -62,8 +62,6 @@ dependencies {
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.bundles.androidBundle)
 
-    implementation(libs.kiwi.navigation)
-
     // Dagger Hilt
     implementation(libs.hilt.android)
     implementation(libs.hilt.android.navigation.compose)

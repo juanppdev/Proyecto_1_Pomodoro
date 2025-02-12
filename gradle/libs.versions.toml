@@ -51,7 +51,6 @@ hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hiltV
 hilt-android-compiler = { module = "com.google.dagger:hilt-android-compiler", version.ref = "hiltVersion" }
 hilt-android-navigation-compose = { group = "androidx.hilt", name = "hilt-navigation-compose", version.ref = "androidHiltVersion" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
-kiwi-navigation = { group = "com.kiwi.navigation-compose.typed", name = "core", version.ref = "kiwiNavigationVersion" }
 kotlinx-serialization-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-core", version.ref = "kotlinxSerializationCore" }
 play-services-auth = { module = "com.google.android.gms:play-services-auth", version.ref = "googlePlayServicesAuth" }
 
