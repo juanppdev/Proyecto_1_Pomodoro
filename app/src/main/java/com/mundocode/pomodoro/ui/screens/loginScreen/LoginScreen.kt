@@ -95,6 +95,8 @@ private fun LoginContent(modifier: Modifier = Modifier, loginGoogleClicked: () -
                 modifier = Modifier.padding(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
+                Spacer(modifier = Modifier.padding(8.dp))
+
                 Text(
                     text = "POMODORAPP",
                     fontWeight = FontWeight.Bold,
@@ -123,7 +125,8 @@ private fun LoginContent(modifier: Modifier = Modifier, loginGoogleClicked: () -
                     contentAlignment = Alignment.Center,
                 ) {
                     Button(
-                        onClick = {},
+                        onClick = {
+                        },
                         modifier = Modifier
                             .size(
                                 width = 150.dp,
@@ -157,7 +160,7 @@ private fun LoginContent(modifier: Modifier = Modifier, loginGoogleClicked: () -
                     )
                 }
 
-                //Spacer(modifier = modifier.padding(16.dp))
+                // Spacer(modifier = modifier.padding(16.dp))
 
                 Box(
                     modifier = Modifier
