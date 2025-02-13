@@ -15,6 +15,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import com.mundocode.pomodoro.BuildConfig
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -27,14 +28,18 @@ import java.util.UUID
 import javax.inject.Inject
 
 @HiltViewModel
-class LoginViewModel @Inject constructor(private val firebaseAuth: FirebaseAuth) : ViewModel() {
+class LoginViewModel @Inject constructor(
+    private val firebaseAuth: FirebaseAuth,
+    private val credentialManager: CredentialManager,
+    @ApplicationContext private val context: Context,
+) : ViewModel() {
 
     private val _loginSuccess = MutableStateFlow(false)
     val loginSuccess: StateFlow<Boolean> = _loginSuccess
 
-    fun handleGoogleSignIn(context: Context) {
+    fun handleGoogleSignIn() {
         viewModelScope.launch {
-            googleSignIn(context).collect { result ->
+            googleSignIn().collect { result ->
                 result.fold(
                     onSuccess = {
                         Log.d("LoginScreenViewModel", "Google sign-in successful")
@@ -49,19 +54,16 @@ class LoginViewModel @Inject constructor(private val firebaseAuth: FirebaseAuth)
         }
     }
 
-    private fun googleSignIn(context: Context): Flow<Result<AuthResult>> = callbackFlow {
+    private fun googleSignIn(): Flow<Result<AuthResult>> = callbackFlow {
         try {
-            // Initialize Credential Manager
-            val credentialManager: CredentialManager = CredentialManager.create(context)
-
-            // Generate a nonce (a random number used once)
+            // Generar un nonce aleatorio
             val ranNonce: String = UUID.randomUUID().toString()
             val bytes: ByteArray = ranNonce.toByteArray()
             val md: MessageDigest = MessageDigest.getInstance("SHA-256")
             val digest: ByteArray = md.digest(bytes)
             val hashedNonce: String = digest.fold("") { str, it -> str + "%02x".format(it) }
 
-            // Set up Google ID option
+            // Configurar opción de Google Sign-In
             val googleIdOption: GetGoogleIdOption = GetGoogleIdOption.Builder()
                 .setFilterByAuthorizedAccounts(false)
                 .setServerClientId(BuildConfig.WEB_CLIENT_ID)
@@ -69,16 +71,16 @@ class LoginViewModel @Inject constructor(private val firebaseAuth: FirebaseAuth)
                 .setNonce(hashedNonce)
                 .build()
 
-            // Request credentials
+            // Crear solicitud de credenciales
             val request: GetCredentialRequest = GetCredentialRequest.Builder()
                 .addCredentialOption(googleIdOption)
                 .build()
 
-            // Get the credential result
+            // ✅ Pasamos el `context` al `getCredential`
             val result = credentialManager.getCredential(context, request)
             val credential = result.credential
 
-            // Check if the received credential is a valid Google ID Token
+            // Validar si la credencial es de Google
             if (credential is CustomCredential &&
                 credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL
             ) {
@@ -91,7 +93,7 @@ class LoginViewModel @Inject constructor(private val firebaseAuth: FirebaseAuth)
             } else {
                 throw RuntimeException("Received an invalid credential type")
             }
-        } catch (e: GetCredentialCancellationException) {
+        } catch (_: GetCredentialCancellationException) {
             trySend(Result.failure(Exception("Sign-in was canceled. Please try again.")))
         } catch (e: Exception) {
             trySend(Result.failure(e))

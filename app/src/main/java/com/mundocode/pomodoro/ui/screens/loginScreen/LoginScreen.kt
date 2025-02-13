@@ -52,7 +52,6 @@ import com.kiwi.navigationcompose.typed.navigate as kiwiNavigation
 @OptIn(ExperimentalSerializationApi::class)
 @Composable
 fun LoginScreen(navController: NavController, viewModel: LoginViewModel = hiltViewModel()) {
-    val context = LocalContext.current
     val loginSuccess by viewModel.loginSuccess.collectAsState()
 
     LaunchedEffect(loginSuccess) {
@@ -65,7 +64,7 @@ fun LoginScreen(navController: NavController, viewModel: LoginViewModel = hiltVi
         LoginContent(
             modifier = Modifier.padding(padding),
             loginGoogleClicked = {
-                viewModel.handleGoogleSignIn(context)
+                viewModel.handleGoogleSignIn()
             },
         )
     }
@@ -103,14 +102,15 @@ private fun LoginContent(modifier: Modifier = Modifier, loginGoogleClicked: () -
                     fontSize = 29.sp,
                     color = Color.White,
                 )
-
+                
                 Spacer(modifier = Modifier.padding(16.dp))
 
                 DataLogin("Usuario / correo electrónico")
 
                 Spacer(modifier = Modifier.padding(8.dp))
-
+                
                 PasswordLogin("Contraseña")
+                
                 Text(
                     text = "¿Has olvidado la contraseña?",
                     color = Color.White,
