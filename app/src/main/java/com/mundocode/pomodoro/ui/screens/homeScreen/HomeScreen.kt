@@ -31,6 +31,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import com.mundocode.pomodoro.R
 import com.mundocode.pomodoro.core.navigation.Destinations
 import com.mundocode.pomodoro.ui.components.CustomTopAppBar
@@ -40,7 +42,7 @@ import com.kiwi.navigationcompose.typed.navigate as kiwiNavigation
 @OptIn(ExperimentalSerializationApi::class)
 @Composable
 fun HomeScreen(navController: NavController) {
-    val context = LocalContext.current
+    val user = Firebase.auth.currentUser
 
     Scaffold(
         topBar = {
@@ -59,7 +61,7 @@ fun HomeScreen(navController: NavController) {
         ) {
             Column(modifier = Modifier.padding(8.dp)) {
                 Text(
-                    text = "Bienvenido <nombre>",
+                    text = "Bienvenid@ ${user?.displayName}",
                     fontSize = 24.sp,
                     modifier = Modifier.padding(8.dp),
                     color = MaterialTheme.colorScheme.onSecondary,
