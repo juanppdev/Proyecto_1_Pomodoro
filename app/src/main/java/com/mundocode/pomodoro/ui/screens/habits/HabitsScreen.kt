@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -17,6 +16,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -27,9 +27,10 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -45,14 +46,30 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.NavController
 import com.mundocode.pomodoro.R
 import com.mundocode.pomodoro.ui.components.CustomTopAppBar
-import com.mundocode.pomodoro.viewModels.habitsViewModel.HabitsViewModel
+import com.mundocode.pomodoro.ui.screens.habits.model.HabitsModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HabitsScreen(viewModel: HabitsViewModel = hiltViewModel(), navController: NavController) {
+    val showDialog: Boolean by viewModel.showDialog.observeAsState(false)
+    val lifecycle = LocalLifecycleOwner.current.lifecycle
+
+    val uiState by produceState<HabitsUIState>(
+        initialValue = HabitsUIState.Loading,
+        key1 = lifecycle,
+        key2 = viewModel,
+    ) {
+        lifecycle.repeatOnLifecycle(state = Lifecycle.State.STARTED) {
+            viewModel.uiState.collect { value = it }
+        }
+    }
+
     MaterialTheme {
         Scaffold(
             topBar = {
@@ -72,7 +89,7 @@ fun HabitsScreen(viewModel: HabitsViewModel = hiltViewModel(), navController: Na
             },
             floatingActionButton = {
                 FloatingActionButton(
-                    onClick = { viewModel.togglePopup() },
+                    onClick = { viewModel.onShowDialogSelected() },
                     containerColor = Color(0xFF06B6D4),
                 ) {
                     Icon(
@@ -113,33 +130,44 @@ fun HabitsScreen(viewModel: HabitsViewModel = hiltViewModel(), navController: Na
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // RecyclerView (LazyColumn)
-                val items =
-                    listOf(
-                        "Elemento 1",
-                        "Elemento 2",
-                        "Elemento 3",
-                        "Elemento 4",
-                        "Elemento 5",
-                        "Elemento 6",
-                        "Elemento 7",
-                    )
-                LazyColumn {
-                    items(items) { item ->
-                        MyCard(item)
+                when (uiState) {
+                    is HabitsUIState.Error -> {
+                        val error = uiState as HabitsUIState.Error
+                        Text(text = error.throwable.message ?: "Error desconocido")
+                    }
+
+                    HabitsUIState.Loading -> {
+                        CircularProgressIndicator()
+                    }
+
+                    is HabitsUIState.Success -> {
+                        TextInputPopup(
+                            showDialog,
+                            onDismiss = { viewModel.onDialogClose() },
+                            onTaskAdded = { tittle, description -> viewModel.onTaskCreated(tittle, description) },
+                        )
+
+                        TasksList(
+                            (uiState as HabitsUIState.Success).tasks,
+                        )
                     }
                 }
             }
-        }
-        val showPopup by viewModel.showPopup.collectAsState()
-        if (showPopup) {
-            TextInputPopup(viewModel = viewModel, onDismiss = { viewModel.togglePopup() })
         }
     }
 }
 
 @Composable
-fun MyCard(item: String) {
+fun TasksList(tasks: List<HabitsModel>) {
+    LazyColumn {
+        items(tasks.size) { task ->
+            MyCard(taskModel = tasks[task])
+        }
+    }
+}
+
+@Composable
+fun MyCard(taskModel: HabitsModel) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -154,7 +182,7 @@ fun MyCard(item: String) {
             Spacer(modifier = Modifier.height(8.dp))
             // Título
             Text(
-                text = item,
+                text = taskModel.title,
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color.Black,
@@ -164,7 +192,7 @@ fun MyCard(item: String) {
 
             // Descripción
             Text(
-                text = "Descripción que se quiera insertar para mostrar en el listado",
+                text = taskModel.description,
                 fontSize = 16.sp,
                 color = Color.Gray,
             )
@@ -173,57 +201,63 @@ fun MyCard(item: String) {
 }
 
 @Composable
-fun TextInputPopup(viewModel: HabitsViewModel, onDismiss: () -> Unit) {
-    val tittle by viewModel.tittle.collectAsState()
-    val description by viewModel.description.collectAsState()
+fun TextInputPopup(show: Boolean, onDismiss: () -> Unit, onTaskAdded: (String, String) -> Unit) {
+    var tittle by remember { mutableStateOf("") }
+    var description by remember { mutableStateOf("") }
 
-    Dialog(onDismissRequest = { onDismiss() }) {
-        Surface(shape = RoundedCornerShape(8.dp), shadowElevation = 8.dp) {
-            Column(modifier = Modifier.padding(16.dp)) {
-                Text(text = "Nuevo hábito")
+    if (show) {
+        Dialog(onDismissRequest = { onDismiss() }) {
+            Surface(shape = RoundedCornerShape(8.dp), shadowElevation = 8.dp) {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Text(text = "Nuevo hábito")
 
-                TextField(
-                    value = tittle,
-                    onValueChange = { viewModel.updateTittle(it) },
-                    label = { Text("Titulo") },
-                )
+                    TextField(
+                        value = tittle,
+                        onValueChange = { tittle = it },
+                        singleLine = true,
+                        maxLines = 1,
+                    )
 
-                Spacer(modifier = Modifier.height(4.dp))
+                    Spacer(modifier = Modifier.height(4.dp))
 
-                TextField(
-                    value = description,
-                    onValueChange = { viewModel.updateDescription(it) },
-                    label = { Text("Descripción") },
-                )
+                    TextField(
+                        value = description,
+                        onValueChange = { description = it },
+                        singleLine = true,
+                        maxLines = 20,
+                    )
 
-                Spacer(modifier = Modifier.height(4.dp))
+                    Spacer(modifier = Modifier.height(4.dp))
 
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.Center,
-                ) {
-                    Column(
-                        modifier = Modifier.weight(1f).padding(8.dp),
-                        verticalArrangement = Arrangement.Center,
-                        horizontalAlignment = Alignment.CenterHorizontally,
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Center,
                     ) {
-                        Button(
-                            onClick = {
-                                viewModel.onAddClick()
-                                onDismiss()
-                            },
-                            modifier = Modifier.padding(end = 8.dp),
+                        Column(
+                            modifier = Modifier.weight(1f).padding(8.dp),
+                            verticalArrangement = Arrangement.Center,
+                            horizontalAlignment = Alignment.CenterHorizontally,
                         ) {
-                            Text("Guardar")
+                            Button(
+                                onClick = {
+                                    onTaskAdded(tittle, description)
+                                    tittle = ""
+                                    description = ""
+                                    onDismiss()
+                                },
+                                modifier = Modifier.padding(end = 8.dp),
+                            ) {
+                                Text("Guardar")
+                            }
                         }
-                    }
-                    Column(
-                        modifier = Modifier.weight(1f).padding(8.dp),
-                        verticalArrangement = Arrangement.Center,
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                    ) {
-                        Button(onClick = { onDismiss() }) {
-                            Text("Cancelar")
+                        Column(
+                            modifier = Modifier.weight(1f).padding(8.dp),
+                            verticalArrangement = Arrangement.Center,
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                        ) {
+                            Button(onClick = { onDismiss() }) {
+                                Text("Cancelar")
+                            }
                         }
                     }
                 }
