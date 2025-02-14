@@ -11,7 +11,7 @@ import com.mundocode.pomodoro.data.habitsDB.domain.UpdateTaskUseCase
 import com.mundocode.pomodoro.ui.screens.habits.HabitsUIState.Loading
 import com.mundocode.pomodoro.ui.screens.habits.HabitsUIState.Success
 import com.mundocode.pomodoro.ui.screens.habits.model.HabitsModel
-import kotlinx.coroutines.flow.MutableStateFlow
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
@@ -20,14 +20,13 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+@HiltViewModel
 class HabitsViewModel @Inject constructor(
     private val addTaskUserCase: AddTaskUserCase,
     private val updateTaskUseCase: UpdateTaskUseCase,
     private val deleteTaskUseCase: DeleteTaskUseCase,
     getTasksUserCase: GetTasksUserCase,
 ) : ViewModel() {
-
-    private val _showPopup = MutableStateFlow(false)
 
     val uiState: StateFlow<HabitsUIState> = getTasksUserCase().map(::Success)
         .catch { Error(it) }
@@ -50,22 +49,17 @@ class HabitsViewModel @Inject constructor(
 
     fun onShowDialogSelected() {
         _showDialog.value = true
+    }
 
-        fun onItemRemove(taskModel: HabitsModel) {
-            viewModelScope.launch {
-                deleteTaskUseCase(taskModel)
-            }
+    fun onItemRemove(taskModel: HabitsModel) {
+        viewModelScope.launch {
+            deleteTaskUseCase(taskModel)
         }
+    }
 
-        fun onTaskUpdated(taskModel: HabitsModel) {
-            viewModelScope.launch {
-                updateTaskUseCase(taskModel)
-            }
-        }
-
-        // Mostrar el popup
-        fun togglePopup() {
-            _showPopup.value = !_showPopup.value
+    fun onTaskUpdated(taskModel: HabitsModel) {
+        viewModelScope.launch {
+            updateTaskUseCase(taskModel)
         }
     }
 }

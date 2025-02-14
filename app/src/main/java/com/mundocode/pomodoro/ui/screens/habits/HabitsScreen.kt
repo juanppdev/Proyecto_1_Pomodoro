@@ -1,6 +1,9 @@
 package com.mundocode.pomodoro.ui.screens.habits
 
+import androidx.compose.animation.animateContentSize
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -13,6 +16,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.outlined.Delete
+import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -24,9 +29,14 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
+import androidx.compose.material3.SwipeToDismissBox
+import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
+import androidx.compose.material3.minimumInteractiveComponentSize
+import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
@@ -36,6 +46,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -49,6 +60,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.mundocode.pomodoro.R
 import com.mundocode.pomodoro.ui.components.CustomTopAppBar
@@ -161,41 +173,48 @@ fun HabitsScreen(viewModel: HabitsViewModel = hiltViewModel(), navController: Na
 fun TasksList(tasks: List<HabitsModel>) {
     LazyColumn {
         items(tasks.size) { task ->
-            MyCard(taskModel = tasks[task])
+            MyCard(taskModel = tasks[task], habitsViewModel = viewModel())
         }
     }
 }
 
 @Composable
-fun MyCard(taskModel: HabitsModel) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp),
-        shape = RoundedCornerShape(8.dp),
-        elevation = CardDefaults.cardElevation(4.dp),
+fun MyCard(taskModel: HabitsModel, habitsViewModel: HabitsViewModel) {
+    SwipeBox(
+        onDelete = {
+            habitsViewModel.onItemRemove(taskModel)
+        },
+        modifier = Modifier,
     ) {
-        Column(
-            modifier = Modifier.padding(16.dp),
-            horizontalAlignment = Alignment.Start,
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(0.dp),
+            shape = RoundedCornerShape(8.dp),
+            elevation = CardDefaults.cardElevation(4.dp),
         ) {
-            Spacer(modifier = Modifier.height(8.dp))
-            // Título
-            Text(
-                text = taskModel.title,
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color.Black,
-            )
+            Column(
+                modifier = Modifier.padding(16.dp),
+                horizontalAlignment = Alignment.Start,
+            ) {
+                Spacer(modifier = Modifier.height(8.dp))
+                // Título
+                Text(
+                    text = taskModel.title,
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.Black,
+                )
 
-            Spacer(modifier = Modifier.height(4.dp))
+                Spacer(modifier = Modifier.height(4.dp))
 
-            // Descripción
-            Text(
-                text = taskModel.description,
-                fontSize = 16.sp,
-                color = Color.Gray,
-            )
+                // Descripción
+                Text(
+                    text = taskModel.description,
+                    fontSize = 16.sp,
+                    color = Color.Gray,
+                )
+            }
         }
     }
 }
@@ -216,6 +235,7 @@ fun TextInputPopup(show: Boolean, onDismiss: () -> Unit, onTaskAdded: (String, S
                         onValueChange = { tittle = it },
                         singleLine = true,
                         maxLines = 1,
+                        label = { Text("Título") },
                     )
 
                     Spacer(modifier = Modifier.height(4.dp))
@@ -223,8 +243,8 @@ fun TextInputPopup(show: Boolean, onDismiss: () -> Unit, onTaskAdded: (String, S
                     TextField(
                         value = description,
                         onValueChange = { description = it },
-                        singleLine = true,
                         maxLines = 20,
+                        label = { Text("Descripción") },
                     )
 
                     Spacer(modifier = Modifier.height(4.dp))
@@ -262,6 +282,72 @@ fun TextInputPopup(show: Boolean, onDismiss: () -> Unit, onTaskAdded: (String, S
                     }
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun SwipeBox(modifier: Modifier = Modifier, onDelete: () -> Unit, content: @Composable () -> Unit) {
+    val swipeState = rememberSwipeToDismissBoxState()
+
+    lateinit var icon: ImageVector
+    lateinit var alignment: Alignment
+    val color: Color
+
+    when (swipeState.dismissDirection) {
+        SwipeToDismissBoxValue.EndToStart -> {
+            icon = Icons.Outlined.Delete
+            alignment = Alignment.CenterEnd
+            color = MaterialTheme.colorScheme.errorContainer
+        }
+
+        SwipeToDismissBoxValue.StartToEnd -> {
+            icon = Icons.Outlined.Edit
+            alignment = Alignment.CenterStart
+            color =
+                Color.Green.copy(alpha = 0.3f) // You can generate theme for successContainer in themeBuilder
+        }
+
+        SwipeToDismissBoxValue.Settled -> {
+            icon = Icons.Outlined.Delete
+            alignment = Alignment.CenterEnd
+            color = MaterialTheme.colorScheme.errorContainer
+        }
+    }
+
+    SwipeToDismissBox(
+        modifier = modifier.animateContentSize(),
+        state = swipeState,
+        backgroundContent = {
+            Box(
+                contentAlignment = alignment,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(color),
+            ) {
+                Icon(
+                    modifier = Modifier.minimumInteractiveComponentSize(),
+                    imageVector = icon,
+                    contentDescription = null,
+                )
+            }
+        },
+    ) {
+        content()
+    }
+
+    when (swipeState.currentValue) {
+        SwipeToDismissBoxValue.EndToStart -> {
+            onDelete()
+        }
+
+        SwipeToDismissBoxValue.StartToEnd -> {
+            LaunchedEffect(swipeState) {
+                swipeState.snapTo(SwipeToDismissBoxValue.Settled)
+            }
+        }
+
+        SwipeToDismissBoxValue.Settled -> {
         }
     }
 }
