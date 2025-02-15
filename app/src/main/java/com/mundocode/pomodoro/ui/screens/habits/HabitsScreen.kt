@@ -30,7 +30,6 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -70,9 +69,6 @@ fun HabitsScreen(viewModel: HabitsViewModel = hiltViewModel(), navController: Na
         }
     }
 
-    var title by rememberSaveable { mutableStateOf("") }
-    var description by rememberSaveable { mutableStateOf("") }
-
     MaterialTheme {
         Scaffold(
             topBar = {
@@ -106,8 +102,6 @@ fun HabitsScreen(viewModel: HabitsViewModel = hiltViewModel(), navController: Na
                 uiState = uiState,
                 showDialog = showDialog,
                 innerPadding = innerPadding,
-                title = title,
-                description = description,
             )
         }
     }
@@ -119,8 +113,6 @@ fun HabitsContent(
     uiState: HabitsUIState,
     showDialog: Boolean,
     innerPadding: PaddingValues,
-    title: String,
-    description: String,
 ) {
     Column(
         modifier = Modifier
@@ -160,10 +152,6 @@ fun HabitsContent(
                     showDialog,
                     onDismiss = { viewModel.onDialogClose() },
                     onTaskAdded = { tittle, description -> viewModel.onTaskCreated(tittle, description) },
-                    title = title,
-                    description = description,
-                    onValueChangeTitle = { it },
-                    onValueChangeDescription = { it },
                 )
 
                 TasksList(
@@ -186,8 +174,6 @@ fun HabitsContentPreview() {
         ),
         showDialog = false,
         innerPadding = PaddingValues(16.dp),
-        title = "",
-        description = "",
     )
 }
 
