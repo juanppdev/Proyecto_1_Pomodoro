@@ -3,7 +3,6 @@ package com.mundocode.pomodoro.ui.screens.habits
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -14,7 +13,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -24,7 +22,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -33,6 +30,7 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -44,7 +42,6 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
@@ -53,6 +50,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.mundocode.pomodoro.R
 import com.mundocode.pomodoro.ui.components.CustomTopAppBar
+import com.mundocode.pomodoro.ui.components.DialogPopUp
 import com.mundocode.pomodoro.ui.components.SwipeBox
 import com.mundocode.pomodoro.ui.screens.habits.model.HabitsModel
 
@@ -71,6 +69,9 @@ fun HabitsScreen(viewModel: HabitsViewModel = hiltViewModel(), navController: Na
             viewModel.uiState.collect { value = it }
         }
     }
+
+    var title by rememberSaveable { mutableStateOf("") }
+    var description by rememberSaveable { mutableStateOf("") }
 
     MaterialTheme {
         Scaffold(
@@ -105,6 +106,8 @@ fun HabitsScreen(viewModel: HabitsViewModel = hiltViewModel(), navController: Na
                 uiState = uiState,
                 showDialog = showDialog,
                 innerPadding = innerPadding,
+                title = title,
+                description = description,
             )
         }
     }
@@ -116,6 +119,8 @@ fun HabitsContent(
     uiState: HabitsUIState,
     showDialog: Boolean,
     innerPadding: PaddingValues,
+    title: String,
+    description: String,
 ) {
     Column(
         modifier = Modifier
@@ -151,10 +156,14 @@ fun HabitsContent(
             }
 
             is HabitsUIState.Success -> {
-                TextInputPopup(
+                DialogPopUp(
                     showDialog,
                     onDismiss = { viewModel.onDialogClose() },
                     onTaskAdded = { tittle, description -> viewModel.onTaskCreated(tittle, description) },
+                    title = title,
+                    description = description,
+                    onValueChangeTitle = { it },
+                    onValueChangeDescription = { it },
                 )
 
                 TasksList(
@@ -177,6 +186,8 @@ fun HabitsContentPreview() {
         ),
         showDialog = false,
         innerPadding = PaddingValues(16.dp),
+        title = "",
+        description = "",
     )
 }
 
@@ -225,73 +236,6 @@ fun MyCard(taskModel: HabitsModel, habitsViewModel: HabitsViewModel) {
                     fontSize = 16.sp,
                     color = Color.Gray,
                 )
-            }
-        }
-    }
-}
-
-@Composable
-fun TextInputPopup(show: Boolean, onDismiss: () -> Unit, onTaskAdded: (String, String) -> Unit) {
-    var tittle by remember { mutableStateOf("") }
-    var description by remember { mutableStateOf("") }
-
-    if (show) {
-        Dialog(onDismissRequest = { onDismiss() }) {
-            Surface(shape = RoundedCornerShape(8.dp), shadowElevation = 8.dp) {
-                Column(modifier = Modifier.padding(16.dp)) {
-                    Text(text = "Nuevo hábito")
-
-                    TextField(
-                        value = tittle,
-                        onValueChange = { tittle = it },
-                        singleLine = true,
-                        maxLines = 1,
-                        label = { Text("Título") },
-                    )
-
-                    Spacer(modifier = Modifier.height(4.dp))
-
-                    TextField(
-                        value = description,
-                        onValueChange = { description = it },
-                        maxLines = 20,
-                        label = { Text("Descripción") },
-                    )
-
-                    Spacer(modifier = Modifier.height(4.dp))
-
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.Center,
-                    ) {
-                        Column(
-                            modifier = Modifier.weight(1f).padding(8.dp),
-                            verticalArrangement = Arrangement.Center,
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                        ) {
-                            Button(
-                                onClick = {
-                                    onTaskAdded(tittle, description)
-                                    tittle = ""
-                                    description = ""
-                                    onDismiss()
-                                },
-                                modifier = Modifier.padding(end = 8.dp),
-                            ) {
-                                Text("Guardar")
-                            }
-                        }
-                        Column(
-                            modifier = Modifier.weight(1f).padding(8.dp),
-                            verticalArrangement = Arrangement.Center,
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                        ) {
-                            Button(onClick = { onDismiss() }) {
-                                Text("Cancelar")
-                            }
-                        }
-                    }
-                }
             }
         }
     }
