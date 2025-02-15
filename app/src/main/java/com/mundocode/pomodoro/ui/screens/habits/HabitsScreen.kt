@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -49,10 +50,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -87,7 +88,7 @@ fun HabitsScreen(viewModel: HabitsViewModel = hiltViewModel(), navController: Na
             topBar = {
                 CustomTopAppBar(
                     navController = navController,
-                    title = stringResource(R.string.app_name),
+                    title = "Mis Hábitos",
                     navigationIcon = {
                         IconButton(onClick = { navController.navigateUp() }) {
                             Icon(
@@ -111,62 +112,83 @@ fun HabitsScreen(viewModel: HabitsViewModel = hiltViewModel(), navController: Na
                 }
             },
         ) { innerPadding ->
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(innerPadding)
-                    .padding(16.dp),
-                verticalArrangement = Arrangement.Top,
-                horizontalAlignment = Alignment.Start,
-            ) {
-                Text(
-                    text = "Mis Hábitos",
-                    style = MaterialTheme.typography.titleLarge,
-                    fontSize = 32.sp,
-                    fontWeight = FontWeight.Bold,
+            HabitsContent(
+                uiState = uiState,
+                showDialog = showDialog,
+                innerPadding = innerPadding,
+            )
+        }
+    }
+}
+
+@Composable
+fun HabitsContent(
+    viewModel: HabitsViewModel = hiltViewModel(),
+    uiState: HabitsUIState,
+    showDialog: Boolean,
+    innerPadding: PaddingValues,
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(innerPadding),
+        verticalArrangement = Arrangement.Top,
+        horizontalAlignment = Alignment.Start,
+    ) {
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Buscador de hábitos
+        var searchQuery by remember { mutableStateOf("") }
+        TextField(
+            value = searchQuery,
+            onValueChange = { searchQuery = it },
+            label = { Text("Buscar") },
+            keyboardOptions = KeyboardOptions.Default.copy(
+                imeAction = ImeAction.Search,
+            ),
+            modifier = Modifier.fillMaxWidth(),
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        when (uiState) {
+            is HabitsUIState.Error -> {
+                val error = uiState
+                Text(text = error.throwable.message ?: "Error desconocido")
+            }
+
+            HabitsUIState.Loading -> {
+                CircularProgressIndicator()
+            }
+
+            is HabitsUIState.Success -> {
+                TextInputPopup(
+                    showDialog,
+                    onDismiss = { viewModel.onDialogClose() },
+                    onTaskAdded = { tittle, description -> viewModel.onTaskCreated(tittle, description) },
                 )
 
-                Spacer(modifier = Modifier.height(16.dp))
-
-                // Buscador de hábitos
-                var searchQuery by remember { mutableStateOf("") }
-                TextField(
-                    value = searchQuery,
-                    onValueChange = { searchQuery = it },
-                    label = { Text("Buscar") },
-                    keyboardOptions = KeyboardOptions.Default.copy(
-                        imeAction = ImeAction.Search,
-                    ),
-                    modifier = Modifier.fillMaxWidth(),
+                TasksList(
+                    uiState.tasks,
                 )
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                when (uiState) {
-                    is HabitsUIState.Error -> {
-                        val error = uiState as HabitsUIState.Error
-                        Text(text = error.throwable.message ?: "Error desconocido")
-                    }
-
-                    HabitsUIState.Loading -> {
-                        CircularProgressIndicator()
-                    }
-
-                    is HabitsUIState.Success -> {
-                        TextInputPopup(
-                            showDialog,
-                            onDismiss = { viewModel.onDialogClose() },
-                            onTaskAdded = { tittle, description -> viewModel.onTaskCreated(tittle, description) },
-                        )
-
-                        TasksList(
-                            (uiState as HabitsUIState.Success).tasks,
-                        )
-                    }
-                }
             }
         }
     }
+}
+
+@Preview
+@Composable
+fun HabitsContentPreview() {
+    HabitsContent(
+        uiState = HabitsUIState.Success(
+            listOf(
+                HabitsModel(1, "Habito 1", "Descripcion 1"),
+                HabitsModel(2, "Habito 2", "Descripcion 2"),
+            ),
+        ),
+        showDialog = false,
+        innerPadding = PaddingValues(16.dp),
+    )
 }
 
 @Composable
@@ -189,7 +211,7 @@ fun MyCard(taskModel: HabitsModel, habitsViewModel: HabitsViewModel) {
         Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(0.dp),
+                .padding(8.dp),
             shape = RoundedCornerShape(8.dp),
             elevation = CardDefaults.cardElevation(4.dp),
         ) {
@@ -293,6 +315,7 @@ private fun SwipeBox(modifier: Modifier = Modifier, onDelete: () -> Unit, conten
     lateinit var icon: ImageVector
     lateinit var alignment: Alignment
     val color: Color
+    val padding: Dp = 0.dp
 
     when (swipeState.dismissDirection) {
         SwipeToDismissBoxValue.EndToStart -> {
@@ -316,13 +339,16 @@ private fun SwipeBox(modifier: Modifier = Modifier, onDelete: () -> Unit, conten
     }
 
     SwipeToDismissBox(
-        modifier = modifier.animateContentSize(),
+        modifier = modifier.animateContentSize().padding(padding),
         state = swipeState,
         backgroundContent = {
             Box(
                 contentAlignment = alignment,
                 modifier = Modifier
                     .fillMaxSize()
+                    .padding(horizontal = 16.dp)
+                    .padding(vertical = 8.dp)
+                    .animateContentSize()
                     .background(color),
             ) {
                 Icon(
