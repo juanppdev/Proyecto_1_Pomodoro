@@ -83,7 +83,7 @@ fun HomeScreen(viewModel: HomeViewModel = hiltViewModel(), navController: NavCon
         },
         modifier = Modifier.fillMaxSize(),
     ) { padding ->
-      
+
         LazyColumn {
             item {
                 Column(

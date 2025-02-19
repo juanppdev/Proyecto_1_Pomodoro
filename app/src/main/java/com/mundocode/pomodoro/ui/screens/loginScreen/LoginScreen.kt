@@ -1,5 +1,6 @@
 package com.mundocode.pomodoro.ui.screens.loginScreen
 
+import androidx.activity.ComponentActivity
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -54,10 +55,13 @@ import com.kiwi.navigationcompose.typed.navigate as kiwiNavigation
 fun LoginScreen(navController: NavController, viewModel: LoginViewModel = hiltViewModel()) {
     val context = LocalContext.current
     val loginSuccess by viewModel.loginSuccess.collectAsState()
+    val activity = LocalContext.current as? ComponentActivity
 
     LaunchedEffect(loginSuccess) {
         if (loginSuccess) {
-            navController.kiwiNavigation(Destinations.HomeScreen)
+            navController.kiwiNavigation(Destinations.HomeScreen) { popUpTo("login") { inclusive = true } }
+        } else {
+            navController.kiwiNavigation(Destinations.Login) { popUpTo("home") { inclusive = true } }
         }
     }
 
@@ -65,7 +69,7 @@ fun LoginScreen(navController: NavController, viewModel: LoginViewModel = hiltVi
         LoginContent(
             modifier = Modifier.padding(padding),
             loginGoogleClicked = {
-                viewModel.handleGoogleSignIn()
+                activity?.let { viewModel.handleGoogleSignIn(it) }
             },
         )
     }
@@ -103,15 +107,15 @@ private fun LoginContent(modifier: Modifier = Modifier, loginGoogleClicked: () -
                     fontSize = 29.sp,
                     color = Color.White,
                 )
-                
+
                 Spacer(modifier = Modifier.padding(16.dp))
 
                 DataLogin("Usuario / correo electrónico")
 
                 Spacer(modifier = Modifier.padding(8.dp))
-                
+
                 PasswordLogin("Contraseña")
-                
+
                 Text(
                     text = "¿Has olvidado la contraseña?",
                     color = Color.White,

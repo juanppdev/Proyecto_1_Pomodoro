@@ -71,6 +71,7 @@ dependencies {
     // Firebase
     implementation(platform(libs.firebase.bom))
     implementation(libs.bundles.firebaseBundle)
+    implementation(libs.firebase.database.ktx)
 
     // Google
     implementation(libs.bundles.googleBundle)
@@ -91,6 +92,21 @@ dependencies {
     implementation("com.google.accompanist:accompanist-appcompat-theme:0.30.1")
 
     implementation("com.github.PhilJay:MPAndroidChart:v3.1.0") // Librería para gráficos
+
+    // Room
+    implementation(libs.androidx.room.runtime)
+    ksp(libs.androidx.room.compiler)
+    implementation(libs.androidx.room.ktx)
+
+    // Livedata
+    implementation(libs.androidx.lifecycle.runtime.ktx)
+    implementation(libs.androidx.runtime.livedata)
+
+    // Timber
+    implementation(libs.timber)
+
+    // Coil
+    implementation(libs.coil.compose)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.ui.test.junit4)

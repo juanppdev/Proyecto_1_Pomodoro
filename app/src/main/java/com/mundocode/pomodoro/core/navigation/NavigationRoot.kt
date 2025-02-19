@@ -5,6 +5,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
 import com.kiwi.navigationcompose.typed.composable
 import com.kiwi.navigationcompose.typed.createRoutePattern
+import com.mundocode.pomodoro.ui.screens.splashScreen.SplashScreen
 import com.mundocode.pomodoro.ui.screens.habits.HabitsScreen
 import com.mundocode.pomodoro.ui.screens.homeScreen.HomeScreen
 import com.mundocode.pomodoro.ui.screens.loginScreen.LoginScreen
@@ -20,8 +21,14 @@ fun NavigationRoot() {
 
     NavHost(
         navController = navController,
-        startDestination = createRoutePattern<Destinations.Login>(),
+        startDestination = createRoutePattern<Destinations.Splash>(),
     ) {
+        composable<Destinations.Splash> {
+            SplashScreen(
+                navController = navController,
+            )
+        }
+
         composable<Destinations.Login> {
             LoginScreen(navController = navController)
         }
