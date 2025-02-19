@@ -37,6 +37,8 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import com.mundocode.pomodoro.R
 import com.mundocode.pomodoro.model.local.Timer
 import com.mundocode.pomodoro.ui.components.CustomTopAppBar
@@ -46,6 +48,7 @@ import com.mundocode.pomodoro.ui.theme.PomodoroTheme
 @Composable
 fun TimerScreen(timer: Timer, navController: NavController, viewModel: TimerViewModel = hiltViewModel()) {
     val timeState by viewModel.timerState.collectAsStateWithLifecycle()
+    val user = Firebase.auth.currentUser
 //    val progress = timeState.remainingTime / (25 * 60 * 1000f)
 //
 //    val workDurationInput = remember {
@@ -64,6 +67,7 @@ fun TimerScreen(timer: Timer, navController: NavController, viewModel: TimerView
             CustomTopAppBar(
                 navController = navController,
                 title = timer.sessionName,
+                image = user?.photoUrl.toString(),
                 navigationIcon = {
                     IconButton(onClick = { navController.navigateUp() }) {
                         Icon(

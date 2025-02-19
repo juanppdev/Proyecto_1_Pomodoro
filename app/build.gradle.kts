@@ -71,6 +71,7 @@ dependencies {
     // Firebase
     implementation(platform(libs.firebase.bom))
     implementation(libs.bundles.firebaseBundle)
+    implementation(libs.firebase.database.ktx)
 
     // Google
     implementation(libs.bundles.googleBundle)
@@ -88,6 +89,12 @@ dependencies {
     // Livedata
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.runtime.livedata)
+
+    // Timber
+    implementation(libs.timber)
+
+    // Coil
+    implementation(libs.coil.compose)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.ui.test.junit4)

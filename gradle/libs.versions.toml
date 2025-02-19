@@ -1,5 +1,7 @@
 [versions]
 agp = "8.8.1"
+coilCompose = "2.7.0"
+firebaseDatabaseKtx = "21.0.0"
 googleid = "1.1.1"
 googleServices = "4.4.2"
 kotlin = "2.1.0"
@@ -23,6 +25,7 @@ kspVersion = "2.1.0-1.0.29"
 kotlinxSerializationCore = "1.7.3"
 roomRuntime = "2.6.1"
 crashlytics = "3.0.3"
+timber = "5.0.1"
 
 [libraries]
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
@@ -44,12 +47,14 @@ androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit
 androidx-material3 = { group = "androidx.compose.material3", name = "material3" }
 androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coilCompose" }
 core = { module = "com.kiwi.navigation-compose.typed:core", version.ref = "core" }
 credentials = { module = "androidx.credentials:credentials", version.ref = "credentials" }
 firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
 firebase-analytics = { module = "com.google.firebase:firebase-analytics" }
 firebase-auth-ktx = { module = "com.google.firebase:firebase-auth-ktx" }
 firebase-crashlytics = { module = "com.google.firebase:firebase-crashlytics" }
+firebase-database-ktx = { module = "com.google.firebase:firebase-database-ktx", version.ref = "firebaseDatabaseKtx" }
 firebase-firestore = { module = "com.google.firebase:firebase-firestore" }
 firebase-messaging = { module = "com.google.firebase:firebase-messaging" }
 googleid = { module = "com.google.android.libraries.identity.googleid:googleid", version.ref = "googleid" }
@@ -60,6 +65,7 @@ hilt-android-navigation-compose = { group = "androidx.hilt", name = "hilt-naviga
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 kotlinx-serialization-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-core", version.ref = "kotlinxSerializationCore" }
 play-services-auth = { module = "com.google.android.gms:play-services-auth", version.ref = "googlePlayServicesAuth" }
+timber = { module = "com.jakewharton.timber:timber", version.ref = "timber" }
 
 [bundles]
 androidBundle = [

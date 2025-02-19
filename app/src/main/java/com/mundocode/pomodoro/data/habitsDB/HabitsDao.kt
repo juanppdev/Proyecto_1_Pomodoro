@@ -13,6 +13,9 @@ interface HabitsDao {
     @Query("SELECT * FROM HabitsEntity")
     fun getHabits(): Flow<List<HabitsEntity>>
 
+    @Query("SELECT * FROM HabitsEntity WHERE id = :habitId LIMIT 1")
+    suspend fun getHabitById(habitId: Int): HabitsEntity?
+
     @Insert
     suspend fun addHabit(habit: HabitsEntity)
 
@@ -21,4 +24,7 @@ interface HabitsDao {
 
     @Delete
     suspend fun deleteHabit(habit: HabitsEntity)
+
+    @Query("DELETE FROM HabitsEntity")
+    suspend fun clearHabits()
 }

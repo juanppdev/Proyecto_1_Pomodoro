@@ -25,6 +25,8 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
@@ -47,6 +49,8 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import com.mundocode.pomodoro.R
 import com.mundocode.pomodoro.ui.components.CustomTopAppBar
 import com.mundocode.pomodoro.ui.components.DialogPopUp
@@ -58,6 +62,10 @@ import com.mundocode.pomodoro.ui.screens.habits.model.HabitsModel
 fun HabitsScreen(viewModel: HabitsViewModel = hiltViewModel(), navController: NavController) {
     val showDialog: Boolean by viewModel.showDialog.observeAsState(false)
     val lifecycle = LocalLifecycleOwner.current.lifecycle
+
+    val user = Firebase.auth.currentUser
+
+    val searchQuery by viewModel.searchQuery.collectAsState()
 
     val uiState by produceState<HabitsUIState>(
         initialValue = HabitsUIState.Loading,
@@ -75,6 +83,7 @@ fun HabitsScreen(viewModel: HabitsViewModel = hiltViewModel(), navController: Na
                 CustomTopAppBar(
                     navController = navController,
                     title = "Mis Hábitos",
+                    image = user?.photoUrl.toString(),
                     navigationIcon = {
                         IconButton(onClick = { navController.navigateUp() }) {
                             Icon(
@@ -102,6 +111,11 @@ fun HabitsScreen(viewModel: HabitsViewModel = hiltViewModel(), navController: Na
                 uiState = uiState,
                 showDialog = showDialog,
                 innerPadding = innerPadding,
+                searchQuery = searchQuery,
+                onSearchQueryChangedIT = viewModel::onSearchQueryChanged,
+                onSearchQueryChanged = viewModel::onSearchQueryChanged,
+                onDialogClose = viewModel::onDialogClose,
+                onTaskCreated = viewModel::onTaskCreated,
             )
         }
     }
@@ -109,10 +123,14 @@ fun HabitsScreen(viewModel: HabitsViewModel = hiltViewModel(), navController: Na
 
 @Composable
 fun HabitsContent(
-    viewModel: HabitsViewModel = hiltViewModel(),
     uiState: HabitsUIState,
     showDialog: Boolean,
     innerPadding: PaddingValues,
+    searchQuery: String,
+    onSearchQueryChangedIT: (String) -> Unit = {},
+    onSearchQueryChanged: (String) -> Unit = {},
+    onDialogClose: () -> Unit = {},
+    onTaskCreated: (String, String) -> Unit = { _, _ -> },
 ) {
     Column(
         modifier = Modifier
@@ -124,10 +142,14 @@ fun HabitsContent(
         Spacer(modifier = Modifier.height(16.dp))
 
         // Buscador de hábitos
-        var searchQuery by remember { mutableStateOf("") }
+        var localSearchQuery by remember { mutableStateOf(searchQuery) }
+
         TextField(
-            value = searchQuery,
-            onValueChange = { searchQuery = it },
+            value = localSearchQuery,
+            onValueChange = {
+                localSearchQuery = it
+                onSearchQueryChangedIT(it)
+            },
             label = { Text("Buscar") },
             keyboardOptions = KeyboardOptions.Default.copy(
                 imeAction = ImeAction.Search,
@@ -135,12 +157,15 @@ fun HabitsContent(
             modifier = Modifier.fillMaxWidth(),
         )
 
+        LaunchedEffect(localSearchQuery) {
+            onSearchQueryChanged(localSearchQuery)
+        }
+
         Spacer(modifier = Modifier.height(16.dp))
 
         when (uiState) {
             is HabitsUIState.Error -> {
-                val error = uiState
-                Text(text = error.throwable.message ?: "Error desconocido")
+                Text(text = uiState.throwable.message ?: "Error desconocido")
             }
 
             HabitsUIState.Loading -> {
@@ -150,31 +175,14 @@ fun HabitsContent(
             is HabitsUIState.Success -> {
                 DialogPopUp(
                     showDialog,
-                    onDismiss = { viewModel.onDialogClose() },
-                    onTaskAdded = { tittle, description -> viewModel.onTaskCreated(tittle, description) },
+                    onDismiss = { onDialogClose },
+                    onTaskAdded = { title, description -> onTaskCreated(title, description) },
                 )
 
-                TasksList(
-                    uiState.tasks,
-                )
+                TasksList(uiState.tasks)
             }
         }
     }
-}
-
-@Preview
-@Composable
-fun HabitsContentPreview() {
-    HabitsContent(
-        uiState = HabitsUIState.Success(
-            listOf(
-                HabitsModel(1, "Habito 1", "Descripcion 1"),
-                HabitsModel(2, "Habito 2", "Descripcion 2"),
-            ),
-        ),
-        showDialog = false,
-        innerPadding = PaddingValues(16.dp),
-    )
 }
 
 @Composable
@@ -227,8 +235,14 @@ fun MyCard(taskModel: HabitsModel, habitsViewModel: HabitsViewModel) {
     }
 }
 
-@Preview()
+@Preview(showBackground = true)
 @Composable
-fun HabitsScreenPreview() {
-    HabitsScreen(navController = NavController(LocalContext.current))
+fun HabitsContentPreview() {
+    HabitsContent(
+        uiState = HabitsUIState.Success(emptyList()),
+        showDialog = false,
+        innerPadding = PaddingValues(0.dp),
+        searchQuery = "",
+        onSearchQueryChanged = {},
+    )
 }
