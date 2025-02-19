@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.CircleShape
@@ -77,114 +78,118 @@ fun HomeScreen(viewModel: HomeViewModel = hiltViewModel(), navController: NavCon
         },
         modifier = Modifier.fillMaxSize(),
     ) { padding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(color = MaterialTheme.colorScheme.background)
-                .padding(padding),
-        ) {
-            Column(modifier = Modifier.padding(8.dp)) {
-                Text(
-                    text = "Bienvenido <nombre>",
-                    fontSize = 24.sp,
-                    modifier = Modifier.padding(8.dp),
-                    color = MaterialTheme.colorScheme.onSecondary,
-                )
-                Text(
-                    text = "¿Qué quieres hacer hoy?",
-                    fontSize = 32.sp,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(8.dp),
-                    color = MaterialTheme.colorScheme.onSecondary,
-                )
-            }
-
-            Column(modifier = Modifier.padding(8.dp)) {
-                Text(
-                    text = "Tus favoritos",
-                    fontSize = 24.sp,
-                    modifier = Modifier.padding(8.dp),
-                    color = MaterialTheme.colorScheme.onSecondary,
-                )
-
-                Spacer(modifier = Modifier.padding(4.dp))
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceEvenly,
+        LazyColumn {
+            item {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(color = MaterialTheme.colorScheme.background)
+                        .padding(padding),
                 ) {
-                    FavouritesButtons(0xFFFF4E21)
-                    FavouritesButtons(0xFF6366F1)
-                    FavouritesButtons(0xFF900300)
-                }
-            }
+                    Column(modifier = Modifier.padding(8.dp)) {
+                        Text(
+                            text = "Bienvenido <nombre>",
+                            fontSize = 24.sp,
+                            modifier = Modifier.padding(8.dp),
+                            color = MaterialTheme.colorScheme.onSecondary,
+                        )
+                        Text(
+                            text = "¿Qué quieres hacer hoy?",
+                            fontSize = 32.sp,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.padding(8.dp),
+                            color = MaterialTheme.colorScheme.onSecondary,
+                        )
+                    }
 
-            Spacer(modifier = Modifier.padding(16.dp))
+                    Column(modifier = Modifier.padding(8.dp)) {
+                        Text(
+                            text = "Tus favoritos",
+                            fontSize = 24.sp,
+                            modifier = Modifier.padding(8.dp),
+                            color = MaterialTheme.colorScheme.onSecondary,
+                        )
 
-            Column(modifier = Modifier.padding(8.dp)) {
-                OptionButtons(
-                    color = 0xFFB51C1C,
-                    textButton = "Empezar\nPomodoro",
-                    icon = R.drawable.timer_icon,
-                    descriptionIcon = "botón de Empezar Pomodoro",
-                    onClick = {
-                        navController.kiwiNavigation(Destinations.SetupSessionScreen)
-                    },
-                )
+                        Spacer(modifier = Modifier.padding(4.dp))
 
-                OptionButtons(
-                    color = 0xFF06B6D4,
-                    textButton = "Ver\nHábitos",
-                    icon = R.drawable.habit_icon,
-                    descriptionIcon = "botón Ver Hábitos",
-                    onClick = {
-                        navController.navigate(Destinations.Habits)
-                    },
-                )
-
-                OptionButtons(
-                    color = 0xFF6366F1,
-                    textButton = "Ver\nTareas",
-                    icon = R.drawable.checklist_icon,
-                    descriptionIcon = "botón Ver Tareas",
-                    onClick = {
-                        navController.navigate(Destinations.Task)
-                    },
-                )
-            }
-
-            Log.d("HomeScreen", "📊 Datos recibidos: $sessionsData")
-            Log.d("HomeScreen", "🗓 Etiquetas en X: $xLabels")
-
-            Column {
-                // Dropdown para seleccionar la vista
-                Box {
-                    Button(onClick = { expanded = true }) { Text(selectedOption) }
-                    DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-                        listOf("Daily", "Weekly", "Monthly").forEach { option ->
-                            DropdownMenuItem(
-                                text = { Text(option) },
-                                onClick = {
-                                    if (selectedOption != option) { // ✅ Solo actualizar si la opción cambia
-                                        selectedOption = option
-                                        expanded = false
-                                        viewModel.loadSessions(option) // ✅ Cargar los datos según la selección
-                                    } else {
-                                        expanded = false
-                                    }
-                                },
-                            )
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceEvenly,
+                        ) {
+                            FavouritesButtons(0xFFFF4E21)
+                            FavouritesButtons(0xFF6366F1)
+                            FavouritesButtons(0xFF900300)
                         }
                     }
-                }
 
-                Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.padding(16.dp))
 
-                // ✅ Cambiar el contenido según la selección
-                when (selectedOption) {
-                    "Daily" -> DailyChart(sessionsData, xLabels)
-                    "Weekly" -> BarChartS(sessionsData, xLabels)
-                    "Monthly" -> MonthlyCalendar(sessionsData)
+                    Column(modifier = Modifier.padding(8.dp)) {
+                        OptionButtons(
+                            color = 0xFFB51C1C,
+                            textButton = "Empezar\nPomodoro",
+                            icon = R.drawable.timer_icon,
+                            descriptionIcon = "botón de Empezar Pomodoro",
+                            onClick = {
+                                navController.kiwiNavigation(Destinations.SetupSessionScreen)
+                            },
+                        )
+
+                        OptionButtons(
+                            color = 0xFF06B6D4,
+                            textButton = "Ver\nHábitos",
+                            icon = R.drawable.habit_icon,
+                            descriptionIcon = "botón Ver Hábitos",
+                            onClick = {
+                                navController.navigate(Destinations.Habits)
+                            },
+                        )
+
+                        OptionButtons(
+                            color = 0xFF6366F1,
+                            textButton = "Ver\nTareas",
+                            icon = R.drawable.checklist_icon,
+                            descriptionIcon = "botón Ver Tareas",
+                            onClick = {
+                                navController.navigate(Destinations.Task)
+                            },
+                        )
+                    }
+
+                    Log.d("HomeScreen", "📊 Datos recibidos: $sessionsData")
+                    Log.d("HomeScreen", "🗓 Etiquetas en X: $xLabels")
+
+                    Column {
+                        // Dropdown para seleccionar la vista
+                        Box {
+                            Button(onClick = { expanded = true }) { Text(selectedOption, color = Color.White) }
+                            DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+                                listOf("Daily", "Weekly", "Monthly").forEach { option ->
+                                    DropdownMenuItem(
+                                        text = { Text(option) },
+                                        onClick = {
+                                            if (selectedOption != option) { // ✅ Solo actualizar si la opción cambia
+                                                selectedOption = option
+                                                expanded = false
+                                                viewModel.loadSessions(option) // ✅ Cargar los datos según la selección
+                                            } else {
+                                                expanded = false
+                                            }
+                                        },
+                                    )
+                                }
+                            }
+                        }
+
+                        Spacer(modifier = Modifier.height(16.dp))
+
+                        // ✅ Cambiar el contenido según la selección
+                        when (selectedOption) {
+                            "Daily" -> DailyChart(sessionsData, xLabels)
+                            "Weekly" -> BarChartS(sessionsData, xLabels)
+                            "Monthly" -> MonthlyCalendar(sessionsData)
+                        }
+                    }
                 }
             }
         }

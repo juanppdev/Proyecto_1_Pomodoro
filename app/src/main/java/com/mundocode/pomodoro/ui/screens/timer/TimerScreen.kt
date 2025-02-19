@@ -52,6 +52,7 @@ fun TimerScreen(navController: NavController, viewModel: TimerViewModel = hiltVi
     val savedStateHandle = navController.previousBackStackEntry?.savedStateHandle
     val timerJson = savedStateHandle?.get<String>("timer") ?: ""
     val timer = if (timerJson.isNotEmpty()) Timer.fromJson(timerJson) else Timer()
+    val context = LocalContext.current // ✅ Obtener `context`
 
     LaunchedEffect(timer) {
         viewModel.setupTimer(timer)
@@ -106,10 +107,15 @@ fun TimerScreen(navController: NavController, viewModel: TimerViewModel = hiltVi
         TimerContent(
             timerState = timeState,
             modifier = Modifier.padding(paddingValues),
-            startTimer = viewModel::startTimer,
+            startTimer = { viewModel.startTimer(context) }, // ✅ Pasamos `context`
             stopTimer = viewModel::stopTimer,
             resetTimer = viewModel::resetTimer,
         )
+
+        // ✅ Llamar onTimerFinished() con contexto cuando el temporizador llega a 0
+        if (timeState.remainingTime == 0L) {
+            viewModel.onTimerFinished(context)
+        }
     }
 }
 

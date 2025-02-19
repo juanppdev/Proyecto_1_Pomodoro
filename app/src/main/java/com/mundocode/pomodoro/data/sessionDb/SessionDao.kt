@@ -2,13 +2,15 @@ package com.mundocode.pomodoro.data.sessionDb
 
 import androidx.room.Dao
 import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface SessionDao {
-    @Insert
-    suspend fun insertSession(session: SessionEntity)
-
     @Query("SELECT * FROM sessions WHERE date BETWEEN :startDate AND :endDate")
-    suspend fun getSessionsBetweenDates(startDate: String, endDate: String): List<SessionEntity>
+    fun getSessionsBetweenDatesFlow(startDate: String, endDate: String): Flow<List<SessionEntity>> // ✅ Devuelve Flow
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertSession(session: SessionEntity)
 }

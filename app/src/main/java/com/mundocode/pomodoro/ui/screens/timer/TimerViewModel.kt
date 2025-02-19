@@ -1,12 +1,17 @@
 package com.mundocode.pomodoro.ui.screens.timer
 
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.content.Context
+import android.os.Build
 import android.util.Log
+import androidx.core.app.NotificationCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mundocode.pomodoro.data.sessionDb.SessionDao
 import com.mundocode.pomodoro.data.sessionDb.SessionEntity
 import com.mundocode.pomodoro.model.local.Timer
-import com.mundocode.pomodoro.ui.screens.homeScreen.HomeViewModel
+import com.mundocode.pomodoro.R
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -28,11 +33,13 @@ class TimerViewModel @Inject constructor(private val sessionDao: SessionDao) : V
 
     private var timerJob: Job? = null
 
-    // Lista de sesiones completadas
+    private val _navigateToHome = MutableStateFlow(false)
+    val navigateToHome: StateFlow<Boolean> = _navigateToHome.asStateFlow()
+
     private val _sessionHistory = MutableStateFlow<List<SessionHistory>>(emptyList())
     val sessionHistory: StateFlow<List<SessionHistory>> = _sessionHistory.asStateFlow()
 
-    fun startTimer() {
+    fun startTimer(context: Context) { // ✅ Ahora recibe `context`
         if (timerState.value.isRunning) return
 
         timerJob?.cancel()
@@ -44,7 +51,7 @@ class TimerViewModel @Inject constructor(private val sessionDao: SessionDao) : V
                     it.copy(remainingTime = it.remainingTime - 1000L)
                 }
             }
-            onTimerFinished()
+            onTimerFinished(context) // ✅ Llamamos la función con el `context`
         }
     }
 
@@ -58,10 +65,7 @@ class TimerViewModel @Inject constructor(private val sessionDao: SessionDao) : V
         timerState.update { it.copy(remainingTime = it.workDuration) }
     }
 
-    private val _navigateToHome = MutableStateFlow(false)
-    val navigateToHome: StateFlow<Boolean> = _navigateToHome.asStateFlow()
-
-    private fun onTimerFinished() {
+    fun onTimerFinished(context: Context) { // ✅ Ahora es pública
         stopTimer()
         val currentDate = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(Date())
 
@@ -72,13 +76,11 @@ class TimerViewModel @Inject constructor(private val sessionDao: SessionDao) : V
                     duration = timerState.value.workDuration.toMinutesString(),
                     date = currentDate,
                 )
-                sessionDao.insertSession(session) // Guardar en Room
+                sessionDao.insertSession(session)
+                Log.d("TimerViewModel", "✅ Sesión de trabajo guardada: $session")
 
-                // ✅ Forzar la recarga de datos en HomeViewModel
-                HomeViewModel(sessionDao).loadSessions("Weekly")
-                Log.d("TimerViewModel", "Sesión guardada: $session")
+                showNotification(context, "Sesión Finalizada", "Tiempo de trabajo completado.") // ✅ Notificación
 
-                // Cambiar a descanso
                 timerState.update {
                     it.copy(
                         isWorking = false,
@@ -86,22 +88,39 @@ class TimerViewModel @Inject constructor(private val sessionDao: SessionDao) : V
                         isRunning = false,
                     )
                 }
-                startTimer()
+                startTimer(context) // ✅ Se inicia el temporizador con `context`
             } else {
                 val session = SessionEntity(
                     type = "Descanso",
                     duration = timerState.value.breakDuration.toMinutesString(),
                     date = currentDate,
                 )
-                sessionDao.insertSession(session) // Guardar en Room
+                sessionDao.insertSession(session)
+                Log.d("TimerViewModel", "✅ Sesión de descanso guardada: $session")
 
-                // ✅ Forzar la recarga de datos en HomeViewModel
-                HomeViewModel(sessionDao).loadSessions("Weekly")
-                Log.d("TimerViewModel", "Sesión guardada: $session")
+                showNotification(context, "Descanso Terminado", "Tiempo de descanso finalizado.") // ✅ Notificación
 
-                _navigateToHome.value = true // Activar la navegación a Home
+                _navigateToHome.value = true
             }
         }
+    }
+
+    fun showNotification(context: Context, title: String, message: String) {
+        val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val channel = NotificationChannel("session_channel", "Sesiones", NotificationManager.IMPORTANCE_DEFAULT)
+            notificationManager.createNotificationChannel(channel)
+        }
+
+        val notification = NotificationCompat.Builder(context, "session_channel")
+            .setContentTitle(title)
+            .setContentText(message)
+            .setSmallIcon(R.drawable.timer)
+            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .build()
+
+        notificationManager.notify(1, notification)
     }
 
     fun onPopupDismissed() {
@@ -116,7 +135,7 @@ class TimerViewModel @Inject constructor(private val sessionDao: SessionDao) : V
                 workDuration = timer.timer.toMillis(),
                 breakDuration = timer.pause.toMillis(),
                 remainingTime = timer.timer.toMillis(),
-                isRunning = false, // Asegura que comience detenido
+                isRunning = false,
                 isWorking = true,
             )
         }
