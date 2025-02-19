@@ -7,6 +7,7 @@ import com.mundocode.pomodoro.ui.screens.habits.model.HabitsModel
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
@@ -17,13 +18,22 @@ class HabitsRepository @Inject constructor(
 ) {
     private val userId: String? get() = auth.currentUser?.uid
 
-    val habits: Flow<List<HabitsModel>> = habitsDao.getHabits().map { list ->
-        list.map { HabitsModel(it.id, it.title, it.description) }
+    val habits: Flow<List<HabitsModel>> = habitsDao.getHabits().map { habitsEntityList ->
+        habitsEntityList.map { habitsEntity ->
+            HabitsModel(
+                id = habitsEntity.id,
+                title = habitsEntity.title,
+                description = habitsEntity.description,
+            )
+        }
     }
 
     suspend fun addHabit(habit: HabitsModel) {
-        habitsDao.addHabit(habit.toData())
-        syncHabitWithFirestore(habit)
+        val existingHabit = habitsDao.getHabitById(habit.id) // ✅ Método correcto en DAO
+        if (existingHabit == null) { // ✅ Solo insertar si el hábito no existe
+            habitsDao.addHabit(habit.toData())
+            syncHabitWithFirestore(habit)
+        }
     }
 
     suspend fun updateHabit(habit: HabitsModel) {
@@ -80,9 +90,13 @@ class HabitsRepository @Inject constructor(
                 scope.launch {
                     val habitsList = snapshot.documents.mapNotNull { it.toObject(HabitsModel::class.java) }
 
-                    if (habitsList.isNotEmpty()) {
-                        habitsDao.clearHabits() // Solo borra si hay cambios
-                        habitsList.forEach { habitsDao.addHabit(it.toData()) }
+                    habitsList.forEach { habit ->
+                        val existingHabit = habitsDao.getHabits().firstOrNull()?.find { it.id == habit.id }
+                        if (existingHabit == null) { // ✅ Solo insertar si no existe
+                            habitsDao.addHabit(habit.toData())
+                        } else {
+                            habitsDao.updateHabit(habit.toData()) // ✅ Si existe, actualizarlo en lugar de insertarlo
+                        }
                     }
                 }
             }

@@ -7,5 +7,4 @@ sealed interface HabitsUIState {
     object Loading : HabitsUIState
     data class Error(val throwable: Throwable) : HabitsUIState
     data class Success(val tasks: List<HabitsModel>) : HabitsUIState
-
 }

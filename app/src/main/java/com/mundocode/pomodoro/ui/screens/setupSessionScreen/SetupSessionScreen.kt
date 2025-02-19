@@ -1,5 +1,6 @@
 package com.mundocode.pomodoro.ui.screens.setupSessionScreen
 
+import android.app.TimePickerDialog
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -12,7 +13,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -23,11 +23,15 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -36,15 +40,14 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
-import com.mundocode.pomodoro.R
 import com.mundocode.pomodoro.core.navigation.Destinations
 import com.mundocode.pomodoro.ui.components.CustomTopAppBar
 import kotlinx.serialization.ExperimentalSerializationApi
-import com.kiwi.navigationcompose.typed.navigate as kiwiNavigation
+import com.kiwi.navigationcompose.typed.navigate as kiwiNavigate
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalSerializationApi::class)
 @Composable
-fun SetupSessionScreen(viewModel: SetupSessionViewModel = hiltViewModel(), navController: NavController) {
+fun SetupSessionScreen(navController: NavController, viewModel: SetupSessionViewModel = hiltViewModel()) {
     val state by viewModel.sessionState.collectAsStateWithLifecycle()
     val user = Firebase.auth.currentUser
 
@@ -71,14 +74,12 @@ fun SetupSessionScreen(viewModel: SetupSessionViewModel = hiltViewModel(), navCo
             state = state,
             modifier = Modifier.padding(padding),
             updateSessionName = viewModel::updateSessionName,
-            updateMode = viewModel::updateMode,
-            updateTimer = viewModel::updateTimer,
-            updatePause = viewModel::updatePause,
             startSession = {
-                navController.kiwiNavigation(
-                    Destinations.TimerScreen(state.timer),
-                )
+                val timerJson = state.timer.toJson() // Convertir a JSON
+                navController.currentBackStackEntry?.savedStateHandle?.set("timer", timerJson)
+                navController.kiwiNavigate(Destinations.TimerScreen(state.timer))
             },
+
         )
     }
 }
@@ -87,19 +88,19 @@ fun SetupSessionScreen(viewModel: SetupSessionViewModel = hiltViewModel(), navCo
 fun SetupSessionContent(
     state: SessionState,
     modifier: Modifier = Modifier,
-    updateSessionName: (String) -> Unit = {},
-    updateMode: (String) -> Unit = {},
-    updateTimer: (String) -> Unit = {},
-    updatePause: (String) -> Unit = {},
     startSession: () -> Unit = {},
+    updateSessionName: (String) -> Unit = {},
+    viewModel: SetupSessionViewModel = hiltViewModel(),
 ) {
+    var showTimerPicker by remember { mutableStateOf(false) }
+    var showPausePicker by remember { mutableStateOf(false) }
+
     Column(
         modifier = modifier
             .fillMaxSize()
             .padding(16.dp)
             .background(Color(0xFFF7F7F7)),
         verticalArrangement = Arrangement.spacedBy(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Text(
             text = "Descripción de la Sesión",
@@ -114,58 +115,63 @@ fun SetupSessionContent(
             modifier = Modifier.fillMaxWidth(),
             leadingIcon = { Icon(Icons.Default.Edit, contentDescription = null) },
         )
-        Text(
-            text = "Tiempo",
-            style = MaterialTheme.typography.bodyMedium,
-            color = Color(0xFF333333),
-        )
+
         Row(
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
         ) {
-            listOf("25:00", "30:00", "60:00").forEach { time ->
-                Button(
-                    onClick = { /* Handle click */ },
-                    shape = RoundedCornerShape(50),
-                    colors =
-                    ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFF192229),
-                    ),
-                    modifier = Modifier.weight(1f),
-                ) {
-                    Text(
-                        text = time,
-                        color = Color.White,
-                        style = MaterialTheme.typography.bodyMedium,
-                    )
-                }
+            Text(
+                text = "Temporizador Personalizado",
+                style = MaterialTheme.typography.bodyMedium,
+                color = Color(0xFF333333),
+            )
+            Button(
+                onClick = { showTimerPicker = true },
+                shape = MaterialTheme.shapes.medium,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.onSurface,
+                ),
+            ) {
+                Text(state.timer.timer, color = Color.White)
+            }
+            if (showTimerPicker) {
+                TimePickerDialogT(
+                    title = "Selecciona el temporizador",
+                    initialTime = state.timer.timer,
+                    onTimeSelected = { viewModel.updateTimer(it) },
+                    onDismiss = { showTimerPicker = false },
+                )
             }
         }
-        OutlinedTextField(
-            value = state.timer.timer,
-            onValueChange = updateTimer,
-            shape = MaterialTheme.shapes.medium,
-            label = { Text("Temporizador personalizado (mm:ss)") },
-            modifier = Modifier.fillMaxWidth(),
-            leadingIcon = { Icon(painterResource(id = R.drawable.timer), contentDescription = null) },
-        )
-        OutlinedTextField(
-            value = state.timer.mode,
-            onValueChange = updateMode,
-            shape = MaterialTheme.shapes.medium,
-            label = { Text("Modo actual") },
-            modifier = Modifier.fillMaxWidth(),
-            leadingIcon = { Icon(Icons.Default.Info, contentDescription = null) },
-        )
-        OutlinedTextField(
-            value = state.timer.pause,
-            onValueChange = updatePause,
-            shape = RoundedCornerShape(18.dp),
-            label = { Text("Temporizador de pausa (mm:ss)") },
-            modifier = Modifier.fillMaxWidth(),
-            leadingIcon = { Icon(painterResource(id = R.drawable.pause), contentDescription = null) },
-        )
+
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
+        ) {
+            Text(
+                text = "Temporizador de Pausa",
+                style = MaterialTheme.typography.bodyMedium,
+                color = Color(0xFF333333),
+            )
+            Button(
+                onClick = { showPausePicker = true },
+                shape = MaterialTheme.shapes.medium,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.onSurface,
+                ),
+            ) {
+                Text(state.timer.pause, color = Color.White)
+            }
+            if (showPausePicker) {
+                TimePickerDialogT(
+                    title = "Selecciona el tiempo de pausa",
+                    initialTime = state.timer.pause,
+                    onTimeSelected = { viewModel.updatePause(it) },
+                    onDismiss = { showPausePicker = false },
+                )
+            }
+        }
+
         Button(
             onClick = startSession,
             modifier = Modifier
@@ -182,6 +188,28 @@ fun SetupSessionContent(
                 color = Color.White,
             )
         }
+    }
+}
+
+@Composable
+fun TimePickerDialogT(title: String, initialTime: String, onTimeSelected: (String) -> Unit, onDismiss: () -> Unit) {
+    val context = LocalContext.current
+    val timeParts = initialTime.split(":").map { it.toIntOrNull() ?: 0 }
+    val initialHour = timeParts[0]
+    val initialMinute = timeParts[1]
+
+    LaunchedEffect(Unit) {
+        TimePickerDialog(
+            context,
+            { _, hourOfDay, minute ->
+                val formattedTime = "${hourOfDay.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}"
+                onTimeSelected(formattedTime)
+                onDismiss() // Cerrar diálogo después de la selección
+            },
+            initialHour,
+            initialMinute,
+            true,
+        ).show()
     }
 }
 

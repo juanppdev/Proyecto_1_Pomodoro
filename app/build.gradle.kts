@@ -63,6 +63,8 @@ dependencies {
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.bundles.androidBundle)
 
+    // Livedata
+
     // Dagger Hilt
     implementation(libs.hilt.android)
     implementation(libs.hilt.android.navigation.compose)
@@ -71,7 +73,6 @@ dependencies {
     // Firebase
     implementation(platform(libs.firebase.bom))
     implementation(libs.bundles.firebaseBundle)
-    implementation(libs.firebase.database.ktx)
 
     // Google
     implementation(libs.bundles.googleBundle)
@@ -79,22 +80,25 @@ dependencies {
     // Kiwi
     implementation(libs.core)
     // Icons
-    implementation("androidx.compose.material:material-icons-extended:1.7.7")
+    implementation("androidx.compose.material:material-icons-extended:1.7.6")
+
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3")
 
     // Room
     implementation(libs.androidx.room.runtime)
     ksp(libs.androidx.room.compiler)
     implementation(libs.androidx.room.ktx)
 
-    // Livedata
-    implementation(libs.androidx.lifecycle.runtime.ktx)
-    implementation(libs.androidx.runtime.livedata)
+    implementation("androidx.compose.ui:ui:1.7.8") // Asegúrate de usar la última versión de Compose
+    implementation("com.google.accompanist:accompanist-appcompat-theme:0.30.1")
+
+    // coil
+    implementation("io.coil-kt:coil-compose:2.5.0")
+
+    implementation("com.github.PhilJay:MPAndroidChart:v3.1.0") // Librería para gráficos
 
     // Timber
-    implementation(libs.timber)
-
-    // Coil
-    implementation(libs.coil.compose)
+    implementation("com.jakewharton.timber:timber:5.0.1")
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.ui.test.junit4)

@@ -16,7 +16,7 @@ import javax.inject.Singleton
 class DatabaseModule {
 
     @Provides
-    fun provideTaskDao(habitsDatabase: HabitsDatabase): HabitsDao = habitsDatabase.taskDao()
+    fun provideTaskDao(habitsDatabase: HabitsDatabase): HabitsDao = habitsDatabase.habitsDao()
 
     @Provides
     @Singleton
