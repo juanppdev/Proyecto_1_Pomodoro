@@ -9,8 +9,9 @@ import com.mundocode.pomodoro.ui.screens.splashScreen.SplashScreen
 import com.mundocode.pomodoro.ui.screens.habits.HabitsScreen
 import com.mundocode.pomodoro.ui.screens.homeScreen.HomeScreen
 import com.mundocode.pomodoro.ui.screens.loginScreen.LoginScreen
+import com.mundocode.pomodoro.ui.screens.loginScreen.RegisterScreen
 import com.mundocode.pomodoro.ui.screens.setupSessionScreen.SetupSessionScreen
-import com.mundocode.pomodoro.ui.screens.taskScreen.TaskScreen
+import com.mundocode.pomodoro.ui.screens.TaskScreen.TaskScreen
 import com.mundocode.pomodoro.ui.screens.timer.TimerScreen
 import kotlinx.serialization.ExperimentalSerializationApi
 
@@ -31,6 +32,11 @@ fun NavigationRoot() {
 
         composable<Destinations.Login> {
             LoginScreen(
+                navController = navController,
+            )
+        }
+        composable<Destinations.Register> {
+            RegisterScreen(
                 navController = navController,
             )
         }

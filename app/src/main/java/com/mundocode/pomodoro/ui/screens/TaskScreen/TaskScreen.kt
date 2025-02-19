@@ -1,4 +1,4 @@
-package com.mundocode.pomodoro.ui.screens.taskScreen
+package com.mundocode.pomodoro.ui.screens.TaskScreen
 
 import android.widget.Toast
 import androidx.compose.foundation.background

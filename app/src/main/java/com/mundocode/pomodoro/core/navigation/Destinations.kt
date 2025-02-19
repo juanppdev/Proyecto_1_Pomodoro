@@ -14,6 +14,9 @@ sealed interface Destinations : Destination {
     data object Login : Destinations
 
     @Serializable
+    data object Register : Destinations
+
+    @Serializable
     data object HomeScreen : Destinations
 
     @Serializable

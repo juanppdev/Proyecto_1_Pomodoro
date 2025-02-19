@@ -1,6 +1,5 @@
 package com.mundocode.pomodoro.ui.screens.homeScreen
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -94,7 +93,7 @@ fun HomeScreen(viewModel: HomeViewModel = hiltViewModel(), navController: NavCon
                 ) {
                     Column(modifier = Modifier.padding(8.dp)) {
                         Text(
-                            text = "Bienvenido ${user?.displayName}",
+                            text = "Bienvenid@, ${user?.displayName ?: "Usuario"}",
                             fontSize = 24.sp,
                             modifier = Modifier.padding(8.dp),
                             color = MaterialTheme.colorScheme.onSecondary,
@@ -162,8 +161,8 @@ fun HomeScreen(viewModel: HomeViewModel = hiltViewModel(), navController: NavCon
                         )
                     }
 
-                    Log.d("HomeScreen", "📊 Datos recibidos: $sessionsData")
-                    Log.d("HomeScreen", "🗓 Etiquetas en X: $xLabels")
+                    Timber.tag("HomeScreen").d("📊 Datos recibidos: $sessionsData")
+                    Timber.tag("HomeScreen").d("🗓 Etiquetas en X: $xLabels")
 
                     Column {
                         // Dropdown para seleccionar la vista
@@ -247,7 +246,7 @@ fun DailyChart(sessionsData: Map<String, Float>, xLabels: List<String>) {
 
 @Composable
 fun BarChartS(sessionsData: Map<String, Float>, xLabels: List<String>) {
-    Log.d("BarChartS", "📊 Datos recibidos en el gráfico: $sessionsData")
+    Timber.tag("BarChartS").d("📊 Datos recibidos en el gráfico: $sessionsData")
 
     if (sessionsData.isEmpty()) {
         Text("⚠️ No hay sesiones registradas", fontSize = 18.sp, fontWeight = FontWeight.Bold)
@@ -296,8 +295,6 @@ class IntegerValueFormatter : ValueFormatter() {
         return value.toInt().toString() // ✅ Muestra solo números enteros
     }
 }
-
-fun Color.Companion.parseColor(string: String): Int = android.graphics.Color.parseColor(string)
 
 @Composable
 fun MonthlyCalendar(sessionsData: Map<String, Float>) {
@@ -360,7 +357,7 @@ fun MonthlyCalendar(sessionsData: Map<String, Float>) {
 
 @Composable
 fun ShowSessionPopup(day: Int, sessionTime: Float, onDismiss: () -> Unit) {
-    Log.d("PopUp", "📅 Mostrando PopUp para el día $day, tiempo: $sessionTime minutos") // ✅ Verificar si se activa
+    Timber.tag("PopUp").d("📅 Mostrando PopUp para el día $day, tiempo: $sessionTime minutos") // ✅ Verificar si se activa
 
     AlertDialog(
         onDismissRequest = onDismiss,

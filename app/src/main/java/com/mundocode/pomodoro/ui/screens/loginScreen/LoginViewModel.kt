@@ -12,12 +12,14 @@ import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
+import com.google.firebase.auth.userProfileChangeRequest
 import com.mundocode.pomodoro.BuildConfig
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
@@ -37,6 +39,40 @@ class LoginViewModel @Inject constructor(
 
     init {
         checkUserSession() // Verifica si hay una sesión activa al iniciar
+    }
+
+    private val _errorMessage = MutableStateFlow<String?>(null)
+    val errorMessage: StateFlow<String?> = _errorMessage.asStateFlow()
+
+    fun registerWithEmail(name: String, email: String, password: String) {
+        firebaseAuth.createUserWithEmailAndPassword(email, password)
+            .addOnSuccessListener { authResult ->
+                val user = authResult.user
+                user?.updateProfile(
+                    userProfileChangeRequest {
+                        displayName = name // ✅ Guardar el nombre del usuario
+                    },
+                )?.addOnCompleteListener {
+                    if (it.isSuccessful) {
+                        _loginSuccess.value = true
+                    } else {
+                        _errorMessage.value = it.exception?.message
+                    }
+                }
+            }
+            .addOnFailureListener { exception ->
+                _errorMessage.value = exception.message
+            }
+    }
+
+    fun loginWithEmail(email: String, password: String) {
+        firebaseAuth.signInWithEmailAndPassword(email, password)
+            .addOnSuccessListener {
+                _loginSuccess.value = true
+            }
+            .addOnFailureListener { exception ->
+                _errorMessage.value = exception.message
+            }
     }
 
     private fun checkUserSession() {
@@ -98,7 +134,7 @@ class LoginViewModel @Inject constructor(
             } else {
                 throw RuntimeException("Received an invalid credential type")
             }
-        } catch (e: GetCredentialCancellationException) {
+        } catch (_: GetCredentialCancellationException) {
             trySend(Result.failure(Exception("Sign-in was canceled. Please try again.")))
         } catch (e: Exception) {
             trySend(Result.failure(e))
