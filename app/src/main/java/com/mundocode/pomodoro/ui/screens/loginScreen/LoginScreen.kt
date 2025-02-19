@@ -53,7 +53,6 @@ import com.kiwi.navigationcompose.typed.navigate as kiwiNavigation
 @OptIn(ExperimentalSerializationApi::class)
 @Composable
 fun LoginScreen(navController: NavController, viewModel: LoginViewModel = hiltViewModel()) {
-    val context = LocalContext.current
     val loginSuccess by viewModel.loginSuccess.collectAsState()
     val activity = LocalContext.current as? ComponentActivity
 

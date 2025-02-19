@@ -79,19 +79,7 @@ dependencies {
     // Kiwi
     implementation(libs.core)
     // Icons
-    implementation("androidx.compose.material:material-icons-extended:1.7.6")
-
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3")
-
-    // Room
-    implementation(libs.androidx.room.runtime)
-    ksp(libs.androidx.room.compiler)
-    implementation(libs.androidx.room.ktx)
-
-    implementation("androidx.compose.ui:ui:1.7.8") // Asegúrate de usar la última versión de Compose
-    implementation("com.google.accompanist:accompanist-appcompat-theme:0.30.1")
-
-    implementation("com.github.PhilJay:MPAndroidChart:v3.1.0") // Librería para gráficos
+    implementation("androidx.compose.material:material-icons-extended:1.7.7")
 
     // Room
     implementation(libs.androidx.room.runtime)
