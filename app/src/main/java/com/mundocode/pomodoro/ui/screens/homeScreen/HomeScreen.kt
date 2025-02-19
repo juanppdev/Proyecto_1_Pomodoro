@@ -37,6 +37,7 @@ import com.mundocode.pomodoro.R
 import com.mundocode.pomodoro.core.navigation.Destinations
 import com.mundocode.pomodoro.ui.components.CustomTopAppBar
 import kotlinx.serialization.ExperimentalSerializationApi
+import timber.log.Timber
 import com.kiwi.navigationcompose.typed.navigate as kiwiNavigation
 
 @OptIn(ExperimentalSerializationApi::class)
@@ -44,11 +45,14 @@ import com.kiwi.navigationcompose.typed.navigate as kiwiNavigation
 fun HomeScreen(navController: NavController) {
     val user = Firebase.auth.currentUser
 
+    Timber.tag("user").d("User: ${user?.photoUrl}")
+
     Scaffold(
         topBar = {
             CustomTopAppBar(
                 navController = navController,
                 title = "Pomodoro",
+                image = user?.photoUrl.toString(),
             )
         },
         modifier = Modifier.fillMaxSize(),

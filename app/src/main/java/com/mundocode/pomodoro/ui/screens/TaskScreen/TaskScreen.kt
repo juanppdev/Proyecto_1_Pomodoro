@@ -4,11 +4,8 @@ import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -22,24 +19,22 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import com.mundocode.pomodoro.R
 import com.mundocode.pomodoro.ui.components.CustomTopAppBar
 
 @Composable
-fun TaskItem(
-    task: String,
-    isCompleted: Boolean = false,
-    onTaskChecked: (Boolean) -> Unit
-) {
+fun TaskItem(task: String, isCompleted: Boolean = false, onTaskChecked: (Boolean) -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .background(
                 if (isCompleted) Color.LightGray else Color.White,
-                shape = RoundedCornerShape(8.dp)
+                shape = RoundedCornerShape(8.dp),
             )
             .padding(12.dp),
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         Checkbox(
             checked = isCompleted,
@@ -47,8 +42,8 @@ fun TaskItem(
             colors = CheckboxDefaults.colors(
                 checkedColor = Color(0xFFD32F2F),
                 uncheckedColor = Color(0xFF000000),
-                checkmarkColor = Color.White
-            )
+                checkmarkColor = Color.White,
+            ),
         )
         Spacer(modifier = Modifier.width(8.dp))
         Text(
@@ -57,7 +52,7 @@ fun TaskItem(
             fontWeight = FontWeight.Normal,
             color = if (isCompleted) Color(0xFF1E1E1E) else Color.Black,
             textDecoration = if (isCompleted) TextDecoration.LineThrough else TextDecoration.None,
-            modifier = Modifier.weight(1f)
+            modifier = Modifier.weight(1f),
         )
     }
 }
@@ -70,11 +65,14 @@ fun TaskScreen(navController: NavController) {
     var tasks by remember { mutableStateOf(listOf("Modo actual", "Modo actual 2")) }
     var completedTasks by remember { mutableStateOf(listOf<String>()) }
 
+    val user = Firebase.auth.currentUser
+
     Scaffold(
         topBar = {
             CustomTopAppBar(
                 navController = navController,
                 title = stringResource(id = R.string.app_name),
+                image = user?.photoUrl.toString(),
                 navigationIcon = {
                     IconButton(onClick = { navController.navigateUp() }) {
                         Icon(
@@ -93,14 +91,14 @@ fun TaskScreen(navController: NavController) {
                 .padding(padding)
                 .padding(16.dp),
             verticalArrangement = Arrangement.Top,
-            horizontalAlignment = Alignment.Start
+            horizontalAlignment = Alignment.Start,
         ) {
             // not finished tasks
             Text(
                 text = "Tareas no finalizadas",
                 fontSize = 24.sp,
                 fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(bottom = 16.dp)
+                modifier = Modifier.padding(bottom = 16.dp),
             )
 
             tasks.forEachIndexed { index, task ->
@@ -113,13 +111,12 @@ fun TaskScreen(navController: NavController) {
                             completedTasks = completedTasks + task
                             Toast.makeText(context, "Tarea completada", Toast.LENGTH_SHORT).show()
                         }
-                    }
+                    },
                 )
                 Spacer(modifier = Modifier.height(8.dp))
             }
 
             Spacer(modifier = Modifier.height(16.dp))
-
 
             // Tareas realizadas
             if (completedTasks.isNotEmpty()) {
@@ -127,7 +124,7 @@ fun TaskScreen(navController: NavController) {
                     text = "Tareas realizadas",
                     fontSize = 24.sp,
                     fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(vertical = 16.dp)
+                    modifier = Modifier.padding(vertical = 16.dp),
                 )
 
                 completedTasks.forEachIndexed { index, task ->
@@ -140,7 +137,7 @@ fun TaskScreen(navController: NavController) {
                                 tasks = tasks + task
                                 Toast.makeText(context, "Tarea movida a no finalizadas", Toast.LENGTH_SHORT).show()
                             }
-                        }
+                        },
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                 }
@@ -148,7 +145,6 @@ fun TaskScreen(navController: NavController) {
         }
     }
 }
-
 
 @Composable
 @Preview

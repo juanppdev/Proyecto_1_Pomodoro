@@ -71,6 +71,7 @@ dependencies {
     // Firebase
     implementation(platform(libs.firebase.bom))
     implementation(libs.bundles.firebaseBundle)
+    implementation(libs.firebase.database.ktx)
 
     // Google
     implementation(libs.bundles.googleBundle)
@@ -79,6 +80,21 @@ dependencies {
     implementation(libs.core)
     // Icons
     implementation("androidx.compose.material:material-icons-extended:1.7.7")
+
+    // Room
+    implementation(libs.androidx.room.runtime)
+    ksp(libs.androidx.room.compiler)
+    implementation(libs.androidx.room.ktx)
+
+    // Livedata
+    implementation(libs.androidx.lifecycle.runtime.ktx)
+    implementation(libs.androidx.runtime.livedata)
+
+    // Timber
+    implementation(libs.timber)
+
+    // Coil
+    implementation(libs.coil.compose)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.ui.test.junit4)

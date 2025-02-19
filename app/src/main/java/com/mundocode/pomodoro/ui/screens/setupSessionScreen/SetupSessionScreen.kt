@@ -34,6 +34,8 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import com.mundocode.pomodoro.R
 import com.mundocode.pomodoro.core.navigation.Destinations
 import com.mundocode.pomodoro.ui.components.CustomTopAppBar
@@ -44,12 +46,14 @@ import com.kiwi.navigationcompose.typed.navigate as kiwiNavigation
 @Composable
 fun SetupSessionScreen(viewModel: SetupSessionViewModel = hiltViewModel(), navController: NavController) {
     val state by viewModel.sessionState.collectAsStateWithLifecycle()
+    val user = Firebase.auth.currentUser
 
     Scaffold(
         topBar = {
             CustomTopAppBar(
                 navController = navController,
                 title = "Configurar sesión Pomodoro",
+                image = user?.photoUrl.toString(),
                 navigationIcon = {
                     IconButton(onClick = { navController.navigateUp() }) {
                         Icon(
