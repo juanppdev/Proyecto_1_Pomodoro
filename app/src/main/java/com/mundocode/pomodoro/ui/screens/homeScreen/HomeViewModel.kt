@@ -1,6 +1,5 @@
 package com.mundocode.pomodoro.ui.screens.homeScreen
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mundocode.pomodoro.data.sessionDb.SessionDao
@@ -10,6 +9,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
@@ -34,12 +34,6 @@ class HomeViewModel @Inject constructor(private val sessionDao: SessionDao) : Vi
                 // ✅ Se ejecuta solo cuando cambia el filtro
                 loadSessions(selectedFilter)
             }
-        }
-    }
-
-    fun setFilter(newFilter: String) {
-        if (_filter.value != newFilter) { // ✅ Solo cambiar si es diferente
-            _filter.value = newFilter
         }
     }
 
@@ -81,7 +75,7 @@ class HomeViewModel @Inject constructor(private val sessionDao: SessionDao) : Vi
                 val totalSeconds = sessionsToday.sumOf { it.duration.toIntOrNull() ?: 0 }
                 val totalMinutes = totalSeconds / 60f
 
-                Log.d("HomeViewModel", "📊 Daily: $today -> $totalMinutes minutos")
+                Timber.tag("HomeViewModel").d("📊 Daily: $today -> $totalMinutes minutos")
 
                 _sessionsData.value = mapOf(today to totalMinutes)
                 _xLabels.value = listOf(today)
@@ -94,19 +88,19 @@ class HomeViewModel @Inject constructor(private val sessionDao: SessionDao) : Vi
 
                 sessions.forEach { session ->
                     val parsedDate = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).parse(session.date)
-                    val dayName = dayFormat.format(parsedDate!!).capitalize(Locale.ROOT)
+                    val dayName = dayFormat.format(parsedDate!!).replaceFirstChar { it.uppercase() }
 
-                    Log.d("HomeViewModel", "📅 Día procesado: $dayName con duración: ${session.duration}")
+                    Timber.tag("HomeViewModel").d("📅 Día procesado: $dayName con duración: ${session.duration}")
 
                     if (weekDays.contains(dayName)) {
                         val durationMinutes = convertDurationToMinutes(session.duration)
                         sessionsByDay[dayName] = (sessionsByDay[dayName] ?: 0f) + durationMinutes
                     } else {
-                        Log.d("HomeViewModel", "⚠️ Día ignorado: $dayName no está en la lista de días válidos.")
+                        Timber.tag("HomeViewModel").d("⚠️ Día ignorado: $dayName no está en la lista de días válidos.")
                     }
                 }
 
-                Log.d("HomeViewModel", "📊 Weekly después de procesar: $sessionsByDay")
+                Timber.tag("HomeViewModel").d("📊 Weekly después de procesar: $sessionsByDay")
 
                 _sessionsData.value = sessionsByDay
                 _xLabels.value = weekDays
@@ -125,10 +119,8 @@ class HomeViewModel @Inject constructor(private val sessionDao: SessionDao) : Vi
                     val dayOfMonth = calendarFormat.format(parsedDate!!)
                     val durationMinutes = convertDurationToMinutes(session.duration)
 
-                    Log.d(
-                        "HomeViewModel",
-                        "📅 Día $dayOfMonth procesado con duración: ${session.duration} -> $durationMinutes minutos",
-                    )
+                    Timber.tag("HomeViewModel")
+                        .d("📅 Día $dayOfMonth procesado con duración: ${session.duration} -> $durationMinutes minutos")
 
                     sessionsByDay[dayOfMonth] = (sessionsByDay[dayOfMonth] ?: 0f) + durationMinutes
                 }
@@ -138,7 +130,7 @@ class HomeViewModel @Inject constructor(private val sessionDao: SessionDao) : Vi
                     sessionsByDay[today] = 0f
                 }
 
-                Log.d("HomeViewModel", "📊 Monthly después de procesar: $sessionsByDay")
+                Timber.tag("HomeViewModel").d("📊 Monthly después de procesar: $sessionsByDay")
 
                 _sessionsData.value = sessionsByDay
                 _xLabels.value = sessionsByDay.keys.toList()
