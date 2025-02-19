@@ -30,17 +30,14 @@ fun NavigationRoot() {
         }
 
         composable<Destinations.Login> {
-            LoginScreen(
-                navController = navController,
-            )
+            LoginScreen(navController = navController)
+        }
+
+        composable<Destinations.SetupSessionScreen> {
+            SetupSessionScreen(navController = navController)
         }
         composable<Destinations.HomeScreen> {
             HomeScreen(navController = navController)
-        }
-        composable<Destinations.SetupSessionScreen> {
-            SetupSessionScreen(
-                navController = navController,
-            )
         }
         composable<Destinations.Habits> {
             HabitsScreen(navController = navController)
