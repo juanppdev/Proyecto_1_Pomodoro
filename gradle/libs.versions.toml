@@ -26,6 +26,9 @@ kotlinxSerializationCore = "1.7.3"
 roomRuntime = "2.6.1"
 crashlytics = "3.0.3"
 timber = "5.0.1"
+services = "4.4.2"
+crashlytics = "3.0.2"
+navigationVersion = "2.8.6"
 
 [libraries]
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }

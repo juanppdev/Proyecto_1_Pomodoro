@@ -41,10 +41,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import com.mundocode.pomodoro.R
 import com.mundocode.pomodoro.core.navigation.Destinations
 import com.mundocode.pomodoro.ui.components.CustomTopAppBar
@@ -67,6 +70,8 @@ fun HomeScreen(viewModel: HomeViewModel = hiltViewModel(), navController: NavCon
 
     var selectedOption by remember { mutableStateOf("Weekly") }
     var expanded by remember { mutableStateOf(false) }
+    val user = Firebase.auth.currentUser
+
 
     Scaffold(
         topBar = {
@@ -78,6 +83,7 @@ fun HomeScreen(viewModel: HomeViewModel = hiltViewModel(), navController: NavCon
         },
         modifier = Modifier.fillMaxSize(),
     ) { padding ->
+      
         LazyColumn {
             item {
                 Column(
@@ -202,7 +208,6 @@ fun DailyChart(sessionsData: Map<String, Float>, xLabels: List<String>) {
         Text("⚠️ No hay datos de hoy", fontSize = 18.sp, fontWeight = FontWeight.Bold)
         return
     }
-
     val dataEntries = sessionsData.entries.mapIndexed { index, entry ->
         BarEntry(index.toFloat(), entry.value) // ✅ Mostrar datos en minutos
     }
@@ -267,7 +272,6 @@ fun BarChartS(sessionsData: Map<String, Float>, xLabels: List<String>) {
                 axisLeft.axisMinimum = 0f
                 axisRight.granularity = 1f
                 axisRight.axisMinimum = 0f
-
                 xAxis.valueFormatter = IndexAxisValueFormatter(xLabels)
                 xAxis.granularity = 1f
                 xAxis.position = XAxis.XAxisPosition.BOTTOM
