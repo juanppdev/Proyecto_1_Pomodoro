@@ -20,6 +20,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -96,7 +97,7 @@ class TimerViewModel @Inject constructor(private val sessionDao: SessionDao) : V
                     date = currentDate,
                 )
                 sessionDao.insertSession(session)
-                Log.d("TimerViewModel", "✅ Sesión de descanso guardada: $session")
+                Timber.tag("TimerViewModel").d("✅ Sesión de descanso guardada: $session")
 
                 showNotification(context, "Descanso Terminado", "Tiempo de descanso finalizado.") // ✅ Notificación
 

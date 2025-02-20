@@ -17,6 +17,8 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material3.AlertDialog
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.material3.Button
@@ -25,6 +27,7 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -167,8 +170,20 @@ fun HomeScreen(viewModel: HomeViewModel = hiltViewModel(), navController: NavCon
                     Column {
                         // Dropdown para seleccionar la vista
                         Box {
-                            Button(onClick = { expanded = true }) { Text(selectedOption, color = Color.White) }
-                            DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+                            OutlinedButton(
+                                modifier = Modifier.padding(10.dp),
+                                onClick = { expanded = true },
+                            ) {
+                                Row {
+                                    Text(selectedOption, color = Color.Black)
+                                    Icon(Icons.Default.KeyboardArrowDown, contentDescription = "Dropdown")
+                                }
+                            }
+                            DropdownMenu(
+                                modifier = Modifier.padding(10.dp),
+                                expanded = expanded,
+                                onDismissRequest = { expanded = false },
+                            ) {
                                 listOf("Daily", "Weekly", "Monthly").forEach { option ->
                                     DropdownMenuItem(
                                         text = { Text(option) },
@@ -301,18 +316,26 @@ fun MonthlyCalendar(sessionsData: Map<String, Float>) {
     val today = Calendar.getInstance()
     val currentDay = today.get(Calendar.DAY_OF_MONTH)
     val daysInMonth = today.getActualMaximum(Calendar.DAY_OF_MONTH)
-    val dayList = (1..daysInMonth).toList()
+
+    // 📌 Obtener el primer día del mes (Ej: Si es Miércoles, será 4)
+    val firstDayOfMonth = Calendar.getInstance().apply {
+        set(Calendar.DAY_OF_MONTH, 1)
+    }.get(Calendar.DAY_OF_WEEK) - 1 // 🔹 Restar 1 para que el Lunes sea `0`
+
+    // 📌 Lista que agrega espacios vacíos antes del primer día del mes
+    val dayList = List(firstDayOfMonth) { null } + (1..daysInMonth).toList() // 🔹 Agregar lista de días comenzando desde 1
 
     var selectedDay by remember { mutableStateOf<Int?>(null) }
     var selectedSessionTime by remember { mutableStateOf<Float?>(null) }
-    var showPopup by remember { mutableStateOf(false) } // ✅ Controlador para el PopUp
+    var showPopup by remember { mutableStateOf(false) }
 
     LazyVerticalGrid(
-        modifier = Modifier.height(100.dp),
+        modifier = Modifier.height(200.dp),
         columns = GridCells.Fixed(7),
     ) {
-        items(dayList.size) { day ->
-            val sessionTime = sessionsData[day.toString()] ?: 0f
+        items(dayList.size) { index ->
+            val day = dayList[index] // 🔹 Puede ser `null` para los espacios vacíos
+            val sessionTime = day?.let { sessionsData[it.toString()] } ?: 0f
 
             Box(
                 modifier = Modifier
@@ -320,37 +343,40 @@ fun MonthlyCalendar(sessionsData: Map<String, Float>) {
                     .size(40.dp)
                     .background(
                         when {
+                            day == null -> Color.Transparent // 🔹 No mostrar espacios vacíos
                             sessionTime > 0 -> Color.Green
                             day == currentDay -> Color.Yellow
                             else -> Color.LightGray
                         },
                         shape = CircleShape,
                     )
-                    .clickable {
-                        Timber.tag("Calendar").d("📅 Día $day clickeado, sesión: $sessionTime minutos") // ✅ Verifica si el evento de clic funciona
+                    .clickable(enabled = day != null) {
+                        // 🔹 Evita clics en espacios vacíos
+                        Timber.tag("Calendar").d("📅 Día $day clickeado, sesión: $sessionTime minutos")
                         if (sessionTime > 0) {
                             selectedDay = day
                             selectedSessionTime = sessionTime
-                            showPopup = true // ✅ Activar PopUp
+                            showPopup = true
                         }
                     },
                 contentAlignment = Alignment.Center,
             ) {
-                Text(
-                    text = day.toString(),
-                    color = Color.Black,
-                    fontWeight = if (day == currentDay) FontWeight.Bold else FontWeight.Normal,
-                )
+                if (day != null) { // 🔹 Solo mostrar texto si es un día válido
+                    Text(
+                        text = day.toString(),
+                        color = Color.Black,
+                        fontWeight = if (day == currentDay) FontWeight.Bold else FontWeight.Normal,
+                    )
+                }
             }
         }
     }
 
-    // ✅ Mostrar PopUp solo cuando `showPopup` sea `true`
     if (showPopup) {
         ShowSessionPopup(
             day = selectedDay!!,
             sessionTime = selectedSessionTime!!,
-            onDismiss = { showPopup = false }, // ✅ Cierra el PopUp correctamente
+            onDismiss = { showPopup = false },
         )
     }
 }

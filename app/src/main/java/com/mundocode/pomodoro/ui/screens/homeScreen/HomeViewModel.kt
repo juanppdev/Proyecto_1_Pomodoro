@@ -107,16 +107,18 @@ class HomeViewModel @Inject constructor(private val sessionDao: SessionDao) : Vi
             }
 
             "Monthly" -> {
-                val calendarFormat = SimpleDateFormat("dd", Locale.getDefault())
-                val sessionsByDay = mutableMapOf<String, Float>()
+                val calendarFormat = SimpleDateFormat("d", Locale.getDefault()) // ✅ Usa "d" en lugar de "dd" para evitar ceros a la izquierda
+                val sessionsByDay = mutableMapOf<Int, Float>()
 
-                for (i in 1..Calendar.getInstance().getActualMaximum(Calendar.DAY_OF_MONTH)) {
-                    sessionsByDay[i.toString()] = 0f
+                // ✅ Inicializar todos los días del mes con 0f
+                val daysInMonth = Calendar.getInstance().getActualMaximum(Calendar.DAY_OF_MONTH)
+                for (i in 1..daysInMonth) {
+                    sessionsByDay[i] = 0f
                 }
 
                 sessions.forEach { session ->
                     val parsedDate = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).parse(session.date)
-                    val dayOfMonth = calendarFormat.format(parsedDate!!)
+                    val dayOfMonth = calendarFormat.format(parsedDate!!).toInt() // ✅ Convertimos a Int para evitar problemas con claves de String
                     val durationMinutes = convertDurationToMinutes(session.duration)
 
                     Timber.tag("HomeViewModel")
@@ -125,15 +127,18 @@ class HomeViewModel @Inject constructor(private val sessionDao: SessionDao) : Vi
                     sessionsByDay[dayOfMonth] = (sessionsByDay[dayOfMonth] ?: 0f) + durationMinutes
                 }
 
-                val today = Calendar.getInstance().get(Calendar.DAY_OF_MONTH).toString()
+                val today = Calendar.getInstance().get(Calendar.DAY_OF_MONTH)
                 if (!sessionsByDay.containsKey(today)) {
                     sessionsByDay[today] = 0f
                 }
 
+                // ✅ Ordenamos los días en orden numérico antes de actualizar los valores
+                val sortedKeys = sessionsByDay.keys.sorted()
+
                 Timber.tag("HomeViewModel").d("📊 Monthly después de procesar: $sessionsByDay")
 
-                _sessionsData.value = sessionsByDay
-                _xLabels.value = sessionsByDay.keys.toList()
+                _sessionsData.value = sessionsByDay.mapKeys { it.key.toString() } // Convertimos las claves a String nuevamente
+                _xLabels.value = sortedKeys.map { it.toString() }
             }
         }
     }
