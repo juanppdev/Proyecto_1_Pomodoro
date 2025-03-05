@@ -30,4 +30,7 @@ sealed interface Destinations : Destination {
 
     @Serializable
     data object HabitsScreen : Destinations
+
+    @Serializable
+    data object StoreScreen : Destinations
 }

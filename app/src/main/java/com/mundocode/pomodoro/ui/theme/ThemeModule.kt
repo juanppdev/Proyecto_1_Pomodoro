@@ -1,6 +1,7 @@
-package com.mundocode.pomodoro.di
+package com.mundocode.pomodoro.ui.theme
 
 import android.content.Context
+import com.mundocode.pomodoro.ui.theme.ThemePreferences
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -10,9 +11,9 @@ import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
-object ApplicationModule {
+object ThemeModule {
 
     @Provides
     @Singleton
-    fun provideContext(@ApplicationContext context: Context): Context = context
+    fun provideThemePreferences(@ApplicationContext context: Context): ThemePreferences = ThemePreferences(context)
 }

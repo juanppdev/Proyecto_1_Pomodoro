@@ -54,11 +54,18 @@ import com.mundocode.pomodoro.R
 import com.mundocode.pomodoro.ui.components.CustomTopAppBar
 import com.mundocode.pomodoro.ui.components.DialogPopUp
 import com.mundocode.pomodoro.ui.components.SwipeBox
+import com.mundocode.pomodoro.ui.screens.SharedPointsViewModel
 import com.mundocode.pomodoro.ui.screens.habits.model.HabitsModel
+import com.mundocode.pomodoro.ui.screens.points.PointsViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HabitsScreen(viewModel: HabitsViewModel = hiltViewModel(), navController: NavController) {
+fun HabitsScreen(
+    viewModel: HabitsViewModel = hiltViewModel(),
+    navController: NavController,
+    pointsViewModel: PointsViewModel = hiltViewModel(),
+    sharedPointsViewModel: SharedPointsViewModel = hiltViewModel(),
+) {
     val showDialog: Boolean by viewModel.showDialog.observeAsState(false)
     val lifecycle = LocalLifecycleOwner.current.lifecycle
 
@@ -76,6 +83,12 @@ fun HabitsScreen(viewModel: HabitsViewModel = hiltViewModel(), navController: Na
         }
     }
 
+    LaunchedEffect(Unit) {
+        pointsViewModel.loadUserPoints(user?.displayName.toString())
+    }
+
+    val userPoints by sharedPointsViewModel.userPoints.collectAsState()
+
     MaterialTheme {
         Scaffold(
             topBar = {
@@ -92,6 +105,7 @@ fun HabitsScreen(viewModel: HabitsViewModel = hiltViewModel(), navController: Na
                             )
                         }
                     },
+                    texto = "Puntos: $userPoints",
                 )
             },
             floatingActionButton = {

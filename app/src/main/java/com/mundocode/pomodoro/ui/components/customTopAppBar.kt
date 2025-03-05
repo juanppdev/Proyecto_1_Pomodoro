@@ -1,6 +1,8 @@
 package com.mundocode.pomodoro.ui.components
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.Text
 import androidx.compose.material3.IconButton
@@ -19,6 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -28,6 +31,8 @@ fun CustomTopAppBar(
     title: String,
     image: String,
     navigationIcon: @Composable () -> Unit = {},
+    texto: String,
+    onNavPoints: () -> Unit = {},
 ) {
     var isMenuExpanded by remember { mutableStateOf(false) }
 
@@ -35,6 +40,15 @@ fun CustomTopAppBar(
         title = { Text(text = title) },
         navigationIcon = navigationIcon,
         actions = {
+            Text(
+                text = texto,
+                modifier = Modifier.padding(horizontal = 30.dp).clickable(
+                    onClick = {
+                        onNavPoints()
+                    },
+                ),
+            )
+
             IconButton(onClick = { isMenuExpanded = true }) {
                 AsyncImage(
                     model = image,
@@ -90,5 +104,6 @@ fun PreviewCustomTopAppBar() {
         navController = NavController(LocalContext.current),
         title = "Custom Top App Bar",
         image = "https://example.com/avatar.jpg",
+        texto = "Puntos: 50",
     )
 }

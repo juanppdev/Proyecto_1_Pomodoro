@@ -31,11 +31,13 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -60,19 +62,45 @@ import com.github.mikephil.charting.data.BarDataSet
 import com.github.mikephil.charting.data.BarEntry
 import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
 import com.github.mikephil.charting.formatter.ValueFormatter
+import com.google.firebase.auth.FirebaseUser
+import com.mundocode.pomodoro.ui.screens.SharedPointsViewModel
+import com.mundocode.pomodoro.ui.screens.points.PointsViewModel
+import com.mundocode.pomodoro.ui.screens.points.StoreViewModel
+import com.mundocode.pomodoro.ui.screens.timer.TimerViewModel
+import com.mundocode.pomodoro.ui.theme.ThemeViewModel
+import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.util.Calendar
 import com.kiwi.navigationcompose.typed.navigate as kiwiNavigation
 
 @OptIn(ExperimentalSerializationApi::class)
 @Composable
-fun HomeScreen(viewModel: HomeViewModel = hiltViewModel(), navController: NavController) {
+fun HomeScreen(
+    viewModel: HomeViewModel = hiltViewModel(),
+    navController: NavController,
+    pointsViewModel: PointsViewModel = hiltViewModel(),
+    sharedPointsViewModel: SharedPointsViewModel = hiltViewModel(),
+    timerViewModel: TimerViewModel = hiltViewModel(),
+    storeViewModel: StoreViewModel = hiltViewModel(),
+    themeViewModel: ThemeViewModel = hiltViewModel(),
+) {
     val sessionsData by viewModel.sessionsData.collectAsState()
     val xLabels by viewModel.xLabels.collectAsState()
 
     var selectedOption by remember { mutableStateOf("Weekly") }
     var expanded by remember { mutableStateOf(false) }
     val user = Firebase.auth.currentUser
+
+    val userPoints by sharedPointsViewModel.userPoints.collectAsState()
+    val pomodoroCount by timerViewModel.pomodoroCount.collectAsState()
+    val coroutineScope = rememberCoroutineScope()
+
+    LaunchedEffect(Unit) {
+        pointsViewModel.loadUserPoints(user?.displayName.toString())
+        coroutineScope.launch {
+            timerViewModel.loadPomodoroStats()
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -81,10 +109,22 @@ fun HomeScreen(viewModel: HomeViewModel = hiltViewModel(), navController: NavCon
                 title = "Pomodoro",
                 image = user?.photoUrl.toString(),
                 navigationIcon = {},
+                texto = "Puntos: $userPoints",
+                onNavPoints = {
+                    navController.kiwiNavigation(Destinations.StoreScreen)
+                },
             )
         },
         modifier = Modifier.fillMaxSize(),
     ) { padding ->
+
+        val userId = Firebase.auth.currentUser?.uid ?: ""
+        val unlockedThemes by storeViewModel.unlockedThemes.collectAsState()
+        val selectedTheme by storeViewModel.selectedTheme.collectAsState()
+
+        LaunchedEffect(Unit) {
+            storeViewModel.loadPurchasedItems(userId) // ✅ Cargar temas desbloqueados
+        }
 
         LazyColumn {
             item {
@@ -94,124 +134,151 @@ fun HomeScreen(viewModel: HomeViewModel = hiltViewModel(), navController: NavCon
                         .background(color = MaterialTheme.colorScheme.background)
                         .padding(padding),
                 ) {
-                    Column(modifier = Modifier.padding(8.dp)) {
-                        Text(
-                            text = "Bienvenid@, ${user?.displayName ?: "Usuario"}",
-                            fontSize = 24.sp,
-                            modifier = Modifier.padding(8.dp),
-                            color = MaterialTheme.colorScheme.onSecondary,
-                        )
-                        Text(
-                            text = "¿Qué quieres hacer hoy?",
-                            fontSize = 32.sp,
-                            fontWeight = FontWeight.Bold,
-                            modifier = Modifier.padding(8.dp),
-                            color = MaterialTheme.colorScheme.onSecondary,
-                        )
-                    }
+                    val selectedTheme by themeViewModel.selectedTheme.collectAsState()
 
-                    Column(modifier = Modifier.padding(8.dp)) {
-                        Text(
-                            text = "Tus favoritos",
-                            fontSize = 24.sp,
-                            modifier = Modifier.padding(8.dp),
-                            color = MaterialTheme.colorScheme.onSecondary,
-                        )
-
-                        Spacer(modifier = Modifier.padding(4.dp))
-
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceEvenly,
-                        ) {
-                            FavouritesButtons(0xFFFF4E21)
-                            FavouritesButtons(0xFF6366F1)
-                            FavouritesButtons(0xFF900300)
+                    unlockedThemes.forEach { theme ->
+                        Button(onClick = { themeViewModel.changeTheme(theme) }) {
+                            // ✅ Ahora cambia el tema globalmente
+                            Text(theme)
                         }
                     }
 
-                    Spacer(modifier = Modifier.padding(16.dp))
-
-                    Column(modifier = Modifier.padding(8.dp)) {
-                        OptionButtons(
-                            color = 0xFFB51C1C,
-                            textButton = "Empezar\nPomodoro",
-                            icon = R.drawable.timer_icon,
-                            descriptionIcon = "botón de Empezar Pomodoro",
-                            onClick = {
-                                navController.kiwiNavigation(Destinations.SetupSessionScreen)
-                            },
-                        )
-
-                        OptionButtons(
-                            color = 0xFF06B6D4,
-                            textButton = "Ver\nHábitos",
-                            icon = R.drawable.habit_icon,
-                            descriptionIcon = "botón Ver Hábitos",
-                            onClick = {
-                                navController.kiwiNavigation(Destinations.HabitsScreen)
-                            },
-                        )
-
-                        OptionButtons(
-                            color = 0xFF6366F1,
-                            textButton = "Ver\nTareas",
-                            icon = R.drawable.checklist_icon,
-                            descriptionIcon = "botón Ver Tareas",
-                            onClick = {
-                                navController.kiwiNavigation(Destinations.TaskScreen)
-                            },
-                        )
-                    }
-
-                    Timber.tag("HomeScreen").d("📊 Datos recibidos: $sessionsData")
-                    Timber.tag("HomeScreen").d("🗓 Etiquetas en X: $xLabels")
-
-                    Column {
-                        // Dropdown para seleccionar la vista
-                        Box {
-                            OutlinedButton(
-                                modifier = Modifier.padding(10.dp),
-                                onClick = { expanded = true },
-                            ) {
-                                Row {
-                                    Text(selectedOption, color = Color.Black)
-                                    Icon(Icons.Default.KeyboardArrowDown, contentDescription = "Dropdown")
-                                }
-                            }
-                            DropdownMenu(
-                                modifier = Modifier.padding(10.dp),
-                                expanded = expanded,
-                                onDismissRequest = { expanded = false },
-                            ) {
-                                listOf("Daily", "Weekly", "Monthly").forEach { option ->
-                                    DropdownMenuItem(
-                                        text = { Text(option) },
-                                        onClick = {
-                                            if (selectedOption != option) { // ✅ Solo actualizar si la opción cambia
-                                                selectedOption = option
-                                                expanded = false
-                                                viewModel.loadSessions(option) // ✅ Cargar los datos según la selección
-                                            } else {
-                                                expanded = false
-                                            }
-                                        },
-                                    )
-                                }
-                            }
-                        }
-
-                        Spacer(modifier = Modifier.height(16.dp))
-
-                        // ✅ Cambiar el contenido según la selección
-                        when (selectedOption) {
-                            "Daily" -> DailyChart(sessionsData, xLabels)
-                            "Weekly" -> BarChartS(sessionsData, xLabels)
-                            "Monthly" -> MonthlyCalendar(sessionsData)
-                        }
-                    }
+                    WelcomeSection(user)
+                    FavoritesSection()
+                    OptionsSection(navController)
+                    StatsSection(
+                        selectedOption,
+                        onOptionSelected = {
+                            selectedOption = it
+                            viewModel.loadSessions(it)
+                        },
+                        sessionsData,
+                        xLabels,
+                    )
                 }
             }
+        }
+    }
+}
+
+@Composable
+fun WelcomeSection(user: FirebaseUser?) {
+    Column(modifier = Modifier.padding(8.dp)) {
+        Text(
+            text = "Bienvenid@, ${user?.displayName ?: "Usuario"}",
+            fontSize = 24.sp,
+            modifier = Modifier.padding(8.dp),
+            color = MaterialTheme.colorScheme.onSecondary,
+        )
+        Text(
+            text = "¿Qué quieres hacer hoy?",
+            fontSize = 32.sp,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(8.dp),
+            color = MaterialTheme.colorScheme.onSecondary,
+        )
+    }
+}
+
+@Composable
+fun FavoritesSection() {
+    Column(modifier = Modifier.padding(8.dp)) {
+        Text(
+            text = "Tus favoritos",
+            fontSize = 24.sp,
+            modifier = Modifier.padding(8.dp),
+            color = MaterialTheme.colorScheme.onSecondary,
+        )
+
+        Spacer(modifier = Modifier.padding(4.dp))
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceEvenly,
+        ) {
+            FavouritesButtons(0xFFFF4E21)
+            FavouritesButtons(0xFF6366F1)
+            FavouritesButtons(0xFF900300)
+        }
+    }
+}
+
+@OptIn(ExperimentalSerializationApi::class)
+@Composable
+fun OptionsSection(navController: NavController) {
+    Column(modifier = Modifier.padding(8.dp)) {
+        OptionButtons(
+            color = 0xFFB51C1C,
+            textButton = "Empezar\nPomodoro",
+            icon = R.drawable.timer_icon,
+            descriptionIcon = "botón de Empezar Pomodoro",
+            onClick = { navController.kiwiNavigation(Destinations.SetupSessionScreen) },
+        )
+
+        OptionButtons(
+            color = 0xFF06B6D4,
+            textButton = "Ver\nHábitos",
+            icon = R.drawable.habit_icon,
+            descriptionIcon = "botón Ver Hábitos",
+            onClick = { navController.kiwiNavigation(Destinations.HabitsScreen) },
+        )
+
+        OptionButtons(
+            color = 0xFF6366F1,
+            textButton = "Ver\nTareas",
+            icon = R.drawable.checklist_icon,
+            descriptionIcon = "botón Ver Tareas",
+            onClick = { navController.kiwiNavigation(Destinations.TaskScreen) },
+        )
+    }
+}
+
+@Composable
+fun StatsSection(
+    selectedOption: String,
+    onOptionSelected: (String) -> Unit,
+    sessionsData: Map<String, Float>,
+    xLabels: List<String>,
+) {
+    var expanded by remember { mutableStateOf(false) }
+
+    Column {
+        // Dropdown para seleccionar la vista
+        Box {
+            OutlinedButton(
+                modifier = Modifier.padding(10.dp),
+                onClick = { expanded = true },
+            ) {
+                Row {
+                    Text(selectedOption, color = Color.Black)
+                    Icon(Icons.Default.KeyboardArrowDown, contentDescription = "Dropdown")
+                }
+            }
+            DropdownMenu(
+                modifier = Modifier.padding(10.dp),
+                expanded = expanded,
+                onDismissRequest = { expanded = false },
+            ) {
+                listOf("Daily", "Weekly", "Monthly").forEach { option ->
+                    DropdownMenuItem(
+                        text = { Text(option) },
+                        onClick = {
+                            if (selectedOption != option) {
+                                onOptionSelected(option)
+                            }
+                        },
+                    )
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Mostrar el gráfico según la opción seleccionada
+        when (selectedOption) {
+            "Daily" -> DailyChart(sessionsData, xLabels)
+            "Weekly" -> BarChartS(sessionsData, xLabels)
+            "Monthly" -> MonthlyCalendar(sessionsData)
         }
     }
 }

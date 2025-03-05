@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -23,8 +24,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.*
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -38,18 +41,29 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
+import com.airbnb.lottie.compose.LottieAnimation
+import com.airbnb.lottie.compose.LottieCompositionSpec
+import com.airbnb.lottie.compose.animateLottieCompositionAsState
+import com.airbnb.lottie.compose.rememberLottieComposition
 import com.google.firebase.auth.FirebaseAuth
 import com.mundocode.pomodoro.R
 import com.mundocode.pomodoro.core.navigation.Destinations
 import com.mundocode.pomodoro.model.local.Timer
 import com.mundocode.pomodoro.ui.components.CustomTopAppBar
+import com.mundocode.pomodoro.ui.screens.SharedPointsViewModel
+import com.mundocode.pomodoro.ui.screens.points.PointsViewModel
 import com.mundocode.pomodoro.ui.theme.PomodoroTheme
 import kotlinx.serialization.ExperimentalSerializationApi
 import com.kiwi.navigationcompose.typed.navigate as kiwiNavigate
 
 @OptIn(ExperimentalSerializationApi::class)
 @Composable
-fun TimerScreen(navController: NavController, viewModel: TimerViewModel = hiltViewModel()) {
+fun TimerScreen(
+    navController: NavController,
+    viewModel: TimerViewModel = hiltViewModel(),
+    pointsViewModel: PointsViewModel = hiltViewModel(),
+    sharedPointsViewModel: SharedPointsViewModel = hiltViewModel(),
+) {
     val savedStateHandle = navController.previousBackStackEntry?.savedStateHandle
     val timerJson = savedStateHandle?.get<String>("timer") ?: ""
     val timer = if (timerJson.isNotEmpty()) {
@@ -64,14 +78,21 @@ fun TimerScreen(navController: NavController, viewModel: TimerViewModel = hiltVi
     }
     val context = LocalContext.current // ✅ Obtener `context`
     val user = FirebaseAuth.getInstance().currentUser
+    val userPoints by sharedPointsViewModel.userPoints.collectAsState()
+
+    LaunchedEffect(Unit) {
+        pointsViewModel.loadUserPoints(user?.displayName.toString())
+    }
 
     LaunchedEffect(timer) {
         viewModel.setupTimer(timer)
     }
 
-    val timeState by viewModel.timerState.collectAsStateWithLifecycle()
     val sessionHistory by viewModel.sessionHistory.collectAsStateWithLifecycle()
     val navigateToHome by viewModel.navigateToHome.collectAsStateWithLifecycle()
+
+    val isPomodoroComplete by viewModel.isPomodoroComplete.collectAsState()
+    val showAnimation by viewModel.showAnimation.collectAsState()
 
     if (navigateToHome) {
         AlertDialog(
@@ -88,10 +109,12 @@ fun TimerScreen(navController: NavController, viewModel: TimerViewModel = hiltVi
                 }
             },
             confirmButton = {
-                Button(onClick = {
-                    viewModel.onPopupDismissed()
-                    navController.kiwiNavigate(Destinations.HomeScreen)
-                }) {
+                Button(
+                    onClick = {
+                        viewModel.onPopupDismissed()
+                        navController.kiwiNavigate(Destinations.HomeScreen)
+                    },
+                ) {
                     Text("Aceptar")
                 }
             },
@@ -113,20 +136,22 @@ fun TimerScreen(navController: NavController, viewModel: TimerViewModel = hiltVi
                         )
                     }
                 },
+                texto = "puntos: $userPoints",
             )
         },
     ) { paddingValues ->
-        TimerContent(
-            timerState = timeState,
-            modifier = Modifier.padding(paddingValues),
-            startTimer = { viewModel.startTimer(context) }, // ✅ Pasamos `context`
-            stopTimer = viewModel::stopTimer,
-            resetTimer = viewModel::resetTimer,
-        )
 
-        // ✅ Llamar onTimerFinished() con contexto cuando el temporizador llega a 0
-        if (timeState.remainingTime == 0L) {
-            viewModel.onTimerFinished(context)
+        Column(modifier = Modifier.fillMaxSize().padding(paddingValues)) {
+            if (showAnimation && isPomodoroComplete) {
+                LottieAnimationView { viewModel.hideAnimation() }
+            } else {
+                TimerContent(
+                    timerState = viewModel.timerState.collectAsState().value,
+                    startTimer = { viewModel.startTimer(context) },
+                    stopTimer = { viewModel.stopTimer(context) },
+                    resetTimer = { viewModel.resetTimer(context) },
+                )
+            }
         }
     }
 }
@@ -184,6 +209,27 @@ fun TimerContent(
             }
         }
     }
+}
+
+@Composable
+fun LottieAnimationView(onAnimationEnd: () -> Unit) {
+    val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.congratulations))
+    val progress by animateLottieCompositionAsState(
+        composition = composition,
+        iterations = 1,
+    )
+
+    LaunchedEffect(progress) {
+        if (progress >= 1f) {
+            onAnimationEnd()
+        }
+    }
+
+    LottieAnimation(
+        composition = composition,
+        progress = { progress },
+        modifier = Modifier.fillMaxWidth().height(250.dp),
+    )
 }
 
 @Preview

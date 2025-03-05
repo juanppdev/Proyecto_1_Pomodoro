@@ -24,6 +24,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -42,14 +43,26 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.mundocode.pomodoro.core.navigation.Destinations
 import com.mundocode.pomodoro.ui.components.CustomTopAppBar
+import com.mundocode.pomodoro.ui.screens.SharedPointsViewModel
+import com.mundocode.pomodoro.ui.screens.points.PointsViewModel
 import kotlinx.serialization.ExperimentalSerializationApi
 import com.kiwi.navigationcompose.typed.navigate as kiwiNavigate
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalSerializationApi::class)
 @Composable
-fun SetupSessionScreen(navController: NavController, viewModel: SetupSessionViewModel = hiltViewModel()) {
+fun SetupSessionScreen(
+    navController: NavController,
+    viewModel: SetupSessionViewModel = hiltViewModel(),
+    pointsViewModel: PointsViewModel = hiltViewModel(),
+    sharedPointsViewModel: SharedPointsViewModel = hiltViewModel(),
+) {
     val state by viewModel.sessionState.collectAsStateWithLifecycle()
     val user = Firebase.auth.currentUser
+    val userPoints by sharedPointsViewModel.userPoints.collectAsState()
+
+    LaunchedEffect(Unit) {
+        pointsViewModel.loadUserPoints(user?.displayName.toString())
+    }
 
     Scaffold(
         topBar = {
@@ -66,6 +79,7 @@ fun SetupSessionScreen(navController: NavController, viewModel: SetupSessionView
                         )
                     }
                 },
+                texto = "Puntos: $userPoints",
             )
         },
     ) { padding ->
