@@ -38,6 +38,7 @@ class StoreViewModel @Inject constructor(
             StoreTheme(1, "Tema Oscuro", 50, "Tema oscuro para la app"),
             StoreTheme(2, "Tema Azul", 100, "Tema azul para la app"),
             StoreTheme(3, "Tema Rojo", 150, "Tema rojo para la app"),
+            StoreTheme(4, "Tema Claro", 0, "Tema Claro para la app"),
         ),
     )
     val storeThemes: StateFlow<List<StoreTheme>> = _storeThemes.asStateFlow()
@@ -62,13 +63,6 @@ class StoreViewModel @Inject constructor(
             themePreferences.selectedTheme.collect { theme ->
                 _selectedTheme.value = theme
             }
-        }
-    }
-
-    fun setSelectedTheme(theme: String) {
-        viewModelScope.launch {
-            themePreferences.saveTheme(theme)
-            _selectedTheme.value = theme
         }
     }
 

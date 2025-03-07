@@ -168,14 +168,14 @@ fun WelcomeSection(user: FirebaseUser?) {
             text = "Bienvenid@, ${user?.displayName ?: "Usuario"}",
             fontSize = 24.sp,
             modifier = Modifier.padding(8.dp),
-            color = MaterialTheme.colorScheme.onSecondary,
+            color = MaterialTheme.colorScheme.onSurface,
         )
         Text(
             text = "¿Qué quieres hacer hoy?",
             fontSize = 32.sp,
             fontWeight = FontWeight.Bold,
             modifier = Modifier.padding(8.dp),
-            color = MaterialTheme.colorScheme.onSecondary,
+            color = MaterialTheme.colorScheme.onSurface,
         )
     }
 }
@@ -187,7 +187,7 @@ fun FavoritesSection() {
             text = "Tus favoritos",
             fontSize = 24.sp,
             modifier = Modifier.padding(8.dp),
-            color = MaterialTheme.colorScheme.onSecondary,
+            color = MaterialTheme.colorScheme.onSurface,
         )
 
         Spacer(modifier = Modifier.padding(4.dp))
@@ -208,7 +208,7 @@ fun FavoritesSection() {
 fun OptionsSection(navController: NavController) {
     Column(modifier = Modifier.padding(8.dp)) {
         OptionButtons(
-            color = 0xFFB51C1C,
+            color = MaterialTheme.colorScheme.primary,
             textButton = "Empezar\nPomodoro",
             icon = R.drawable.timer_icon,
             descriptionIcon = "botón de Empezar Pomodoro",
@@ -216,7 +216,7 @@ fun OptionsSection(navController: NavController) {
         )
 
         OptionButtons(
-            color = 0xFF06B6D4,
+            color = MaterialTheme.colorScheme.secondary,
             textButton = "Ver\nHábitos",
             icon = R.drawable.habit_icon,
             descriptionIcon = "botón Ver Hábitos",
@@ -224,7 +224,7 @@ fun OptionsSection(navController: NavController) {
         )
 
         OptionButtons(
-            color = 0xFF6366F1,
+            color = MaterialTheme.colorScheme.tertiary,
             textButton = "Ver\nTareas",
             icon = R.drawable.checklist_icon,
             descriptionIcon = "botón Ver Tareas",
@@ -247,10 +247,11 @@ fun StatsSection(
         Box {
             OutlinedButton(
                 modifier = Modifier.padding(10.dp),
+                colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.surface),
                 onClick = { expanded = true },
             ) {
                 Row {
-                    Text(selectedOption, color = Color.Black)
+                    Text(selectedOption, color = MaterialTheme.colorScheme.onSurface)
                     Icon(Icons.Default.KeyboardArrowDown, contentDescription = "Dropdown")
                 }
             }
@@ -286,7 +287,12 @@ fun StatsSection(
 @Composable
 fun DailyChart(sessionsData: Map<String, Float>, xLabels: List<String>) {
     if (sessionsData.isEmpty()) {
-        Text("⚠️ No hay datos de hoy", fontSize = 18.sp, fontWeight = FontWeight.Bold)
+        Text(
+            "⚠️ No hay datos de hoy",
+            fontSize = 18.sp,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.inverseSurface,
+        )
         return
     }
     val dataEntries = sessionsData.entries.mapIndexed { index, entry ->
@@ -454,8 +460,10 @@ fun ShowSessionPopup(day: Int, sessionTime: Float, onDismiss: () -> Unit) {
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Sesiones del día $day") },
-        text = { Text("Tiempo total: ${sessionTime.toInt()} minutos") },
+        title = { Text("Sesiones del día $day", color = MaterialTheme.colorScheme.inverseSurface) },
+        text = {
+            Text("Tiempo total: ${sessionTime.toInt()} minutos", color = MaterialTheme.colorScheme.inverseSurface)
+        },
         confirmButton = {
             Button(onClick = onDismiss) {
                 Text("Aceptar")
@@ -475,11 +483,11 @@ fun FavouritesButtons(color: Long) {
 }
 
 @Composable
-fun OptionButtons(color: Long, textButton: String, icon: Int, descriptionIcon: String, onClick: () -> Unit = {}) {
+fun OptionButtons(color: Color, textButton: String, icon: Int, descriptionIcon: String, onClick: () -> Unit = {}) {
     Button(
         onClick = onClick,
         shape = RoundedCornerShape(24.dp),
-        colors = ButtonDefaults.buttonColors(Color(color)),
+        colors = ButtonDefaults.buttonColors(color),
         modifier = Modifier.padding(8.dp),
     ) {
         Row(
@@ -498,7 +506,7 @@ fun OptionButtons(color: Long, textButton: String, icon: Int, descriptionIcon: S
                 text = textButton,
                 fontSize = 24.sp,
                 fontWeight = FontWeight.Black,
-                color = Color.White,
+                color = MaterialTheme.colorScheme.onPrimary,
                 lineHeight = 24.sp,
             )
             Icon(

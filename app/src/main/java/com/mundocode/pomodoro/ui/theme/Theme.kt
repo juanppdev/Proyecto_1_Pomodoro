@@ -34,8 +34,8 @@ fun PomodoroTheme(themeViewModel: ThemeViewModel = hiltViewModel(), content: @Co
 
     val colors = when (selectedTheme) {
         "Tema Oscuro" -> DarkColorScheme
-        "Tema Azul" -> BlueColorScheme
-        "Tema Rojo" -> RedColorScheme
+        // "Tema Azul" -> BlueColorScheme
+        // "Tema Rojo" -> RedColorScheme
         else -> LightColorScheme
     }
 

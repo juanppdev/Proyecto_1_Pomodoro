@@ -97,13 +97,16 @@ fun TimerScreen(
     if (navigateToHome) {
         AlertDialog(
             onDismissRequest = { viewModel.onPopupDismissed() },
-            title = { Text("Sesión Finalizada") },
+            title = { Text("Sesión Finalizada", color = MaterialTheme.colorScheme.inverseSurface) },
             text = {
                 Column {
-                    Text("Resumen de la sesión completada:")
-                    sessionHistory.takeLast(2).forEach { session ->
-                        Text("📌 ${session.type}: ${session.duration} min")
-                        Text("📅 Fecha: ${session.date}")
+                    Text("Resumen de la sesión completada:", color = MaterialTheme.colorScheme.inverseSurface)
+                    sessionHistory.forEach { session ->
+                        Text(
+                            "📌 ${session.type}: ${session.duration} min",
+                            color = MaterialTheme.colorScheme.inverseSurface,
+                        )
+                        Text("📅 Fecha: ${session.date}", color = MaterialTheme.colorScheme.inverseSurface)
                         Spacer(modifier = Modifier.height(8.dp))
                     }
                 }

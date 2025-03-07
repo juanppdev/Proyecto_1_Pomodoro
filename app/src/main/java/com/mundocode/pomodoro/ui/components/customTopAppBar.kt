@@ -37,7 +37,12 @@ fun CustomTopAppBar(
     var isMenuExpanded by remember { mutableStateOf(false) }
 
     TopAppBar(
-        title = { Text(text = title) },
+        title = {
+            Text(
+                text = title,
+                color = MaterialTheme.colorScheme.inverseSurface,
+            )
+        },
         navigationIcon = navigationIcon,
         actions = {
             Text(
@@ -47,6 +52,7 @@ fun CustomTopAppBar(
                         onNavPoints()
                     },
                 ),
+                color = MaterialTheme.colorScheme.inverseSurface,
             )
 
             IconButton(onClick = { isMenuExpanded = true }) {

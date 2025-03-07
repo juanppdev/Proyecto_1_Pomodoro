@@ -81,13 +81,22 @@ fun StoreScreen(
                         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
                     ) {
                         Column(modifier = Modifier.padding(16.dp)) {
-                            Text(text = item.name, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                            Text(
+                                text = item.name,
+                                fontSize = 20.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.onSurface,
+                            )
                             Text(
                                 text = item.description,
                                 fontSize = 14.sp,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                color = MaterialTheme.colorScheme.onSurface,
                             )
-                            Text(text = "Precio: ${item.price} puntos", fontSize = 16.sp)
+                            Text(
+                                text = "Precio: ${item.price} puntos",
+                                fontSize = 16.sp,
+                                color = MaterialTheme.colorScheme.onSurface,
+                            )
                             Spacer(modifier = Modifier.height(8.dp))
                             val isPurchased = purchasedItems.any { it.itemName == item.name }
 
@@ -123,8 +132,17 @@ fun StoreScreen(
                         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
                     ) {
                         Column(modifier = Modifier.padding(16.dp)) {
-                            Text(text = item.name, fontSize = 20.sp, fontWeight = FontWeight.Bold)
-                            Text(text = "Precio: ${item.price} puntos", fontSize = 16.sp)
+                            Text(
+                                text = item.name,
+                                fontSize = 20.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.onSurface,
+                            )
+                            Text(
+                                text = "Precio: ${item.price} puntos",
+                                fontSize = 16.sp,
+                                color = MaterialTheme.colorScheme.onSurface,
+                            )
 
                             LaunchedEffect(unlockedThemes) {
                                 Timber.tag("StoreScreen").d("🎨 Temas desbloqueados: $unlockedThemes")

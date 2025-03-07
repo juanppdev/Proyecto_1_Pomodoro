@@ -113,21 +113,23 @@ fun SetupSessionContent(
         modifier = modifier
             .fillMaxSize()
             .padding(16.dp)
-            .background(Color(0xFFF7F7F7)),
+            .background(MaterialTheme.colorScheme.background),
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
         Text(
             text = "Descripción de la Sesión",
             style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
-            color = Color(0xFF333333),
+            color = MaterialTheme.colorScheme.onSurface,
         )
         OutlinedTextField(
             value = state.timer.sessionName,
             onValueChange = updateSessionName,
             shape = RoundedCornerShape(18.dp),
-            label = { Text("Nombre de la sesión") },
+            label = { Text("Nombre de la sesión", color = MaterialTheme.colorScheme.onSurface) },
             modifier = Modifier.fillMaxWidth(),
-            leadingIcon = { Icon(Icons.Default.Edit, contentDescription = null) },
+            leadingIcon = {
+                Icon(Icons.Default.Edit, contentDescription = null, tint = MaterialTheme.colorScheme.secondary)
+            },
         )
 
         Row(
@@ -137,13 +139,13 @@ fun SetupSessionContent(
             Text(
                 text = "Temporizador Personalizado",
                 style = MaterialTheme.typography.bodyMedium,
-                color = Color(0xFF333333),
+                color = MaterialTheme.colorScheme.onSurface,
             )
             Button(
                 onClick = { showTimerPicker = true },
                 shape = MaterialTheme.shapes.medium,
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.onSurface,
+                    containerColor = MaterialTheme.colorScheme.onSurfaceVariant,
                 ),
             ) {
                 Text(state.timer.timer, color = Color.White)
@@ -165,13 +167,13 @@ fun SetupSessionContent(
             Text(
                 text = "Temporizador de Pausa",
                 style = MaterialTheme.typography.bodyMedium,
-                color = Color(0xFF333333),
+                color = MaterialTheme.colorScheme.onSurface,
             )
             Button(
                 onClick = { showPausePicker = true },
                 shape = MaterialTheme.shapes.medium,
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.onSurface,
+                    containerColor = MaterialTheme.colorScheme.onSurfaceVariant,
                 ),
             ) {
                 Text(state.timer.pause, color = Color.White)
@@ -193,13 +195,13 @@ fun SetupSessionContent(
                 .height(50.dp),
             shape = MaterialTheme.shapes.medium,
             colors = ButtonDefaults.buttonColors(
-                containerColor = MaterialTheme.colorScheme.error,
+                containerColor = MaterialTheme.colorScheme.primary,
             ),
         ) {
             Text(
                 text = "Iniciar Sesión", // TODO: Extract string
                 style = MaterialTheme.typography.bodyLarge,
-                color = Color.White,
+                color = MaterialTheme.colorScheme.onPrimary,
             )
         }
     }
