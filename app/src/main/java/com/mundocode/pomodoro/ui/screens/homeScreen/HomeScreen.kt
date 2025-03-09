@@ -6,6 +6,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -71,8 +72,9 @@ import com.mundocode.pomodoro.ui.screens.points.PointsViewModel
 import com.mundocode.pomodoro.ui.screens.points.StoreViewModel
 import com.mundocode.pomodoro.ui.screens.timer.TimerViewModel
 import kotlinx.coroutines.launch
-import timber.log.Timber
+import java.text.SimpleDateFormat
 import java.util.Calendar
+import java.util.Locale
 import com.kiwi.navigationcompose.typed.navigate as kiwiNavigation
 
 @OptIn(ExperimentalSerializationApi::class)
@@ -271,7 +273,7 @@ fun StatsSection(
         when (selectedOption) {
             "Daily" -> DailyChart(sessionsData = sessionsData, timeData = totalTime, xLabels = xLabels)
             "Weekly" -> WeeklyChart(sessionsData, xLabels)
-            "Monthly" -> MonthlyCalendar(sessionsData)
+            "Monthly" -> ProductivityCalendar(sessionsData)
         }
     }
 }
@@ -455,91 +457,113 @@ class IntegerValueFormatter : ValueFormatter() {
 }
 
 @Composable
-fun MonthlyCalendar(sessionsData: Map<String, Float>) {
+fun ProductivityCalendar(sessionsData: Map<String, Float>) {
     val today = Calendar.getInstance()
-    val currentDay = today.get(Calendar.DAY_OF_MONTH)
     val daysInMonth = today.getActualMaximum(Calendar.DAY_OF_MONTH)
+    val monthYearFormat = SimpleDateFormat("MMMM yyyy", Locale.getDefault())
 
-    // 📌 Obtener el primer día del mes (Ej: Si es Miércoles, será 4)
     val firstDayOfMonth = Calendar.getInstance().apply {
         set(Calendar.DAY_OF_MONTH, 1)
-    }.get(Calendar.DAY_OF_WEEK) - 1 // 🔹 Restar 1 para que el Lunes sea `0`
+    }.get(Calendar.DAY_OF_WEEK) - 1
 
-    // 📌 Lista que agrega espacios vacíos antes del primer día del mes
-    val dayList = List(firstDayOfMonth) { null } + (1..daysInMonth).toList() // 🔹 Agregar lista de días comenzando desde 1
+    val dayList = List(firstDayOfMonth) { null } + (1..daysInMonth).toList()
 
     var selectedDay by remember { mutableStateOf<Int?>(null) }
     var selectedSessionTime by remember { mutableStateOf<Float?>(null) }
     var showPopup by remember { mutableStateOf(false) }
 
-    LazyVerticalGrid(
-        modifier = Modifier.height(200.dp),
-        columns = GridCells.Fixed(7),
-    ) {
-        items(dayList.size) { index ->
-            val day = dayList[index] // 🔹 Puede ser `null` para los espacios vacíos
-            val sessionTime = day?.let { sessionsData[it.toString()] } ?: 0f
+    Column(modifier = Modifier.padding(16.dp)) {
+        // 📅 Cabecera con el nombre del mes y año
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.Center,
+        ) {
+            Text(
+                text = monthYearFormat.format(today.time).replaceFirstChar { it.uppercase() }, // Capitalizar mes
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onBackground,
+            )
+        }
 
-            Box(
-                modifier = Modifier
-                    .padding(4.dp)
-                    .size(40.dp)
-                    .background(
-                        when {
-                            day == null -> Color.Transparent // 🔹 No mostrar espacios vacíos
-                            sessionTime > 0 -> Color.Green
-                            day == currentDay -> Color.Yellow
-                            else -> Color.LightGray
+        Spacer(modifier = Modifier.height(8.dp))
+
+        // 📅 Días de la semana
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceAround) {
+            listOf("L", "M", "X", "J", "V", "S", "D").forEach {
+                Text(text = it, fontSize = 16.sp, fontWeight = FontWeight.Bold)
+            }
+        }
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        LazyVerticalGrid(
+            modifier = Modifier.height(300.dp),
+            columns = GridCells.Fixed(7),
+            contentPadding = PaddingValues(vertical = 8.dp),
+        ) {
+            items(dayList.size) { index ->
+                val day = dayList[index]
+                val sessionTime = day?.let { sessionsData.getOrDefault(it.toString(), 0f) } ?: 0f
+
+                Box(
+                    modifier = Modifier
+                        .padding(4.dp)
+                        .size(40.dp)
+                        .clip(CircleShape)
+                        .background(
+                            when {
+                                day == null -> Color.Transparent
+                                day == today.get(Calendar.DAY_OF_MONTH) -> Color(0xFF03A9F4) // 🔹 Azul para el día actual
+                                sessionTime >= 60 -> Color.Green // 🟢 Alta productividad
+                                sessionTime in 30f..59f -> Color.Yellow // 🟡 Media productividad
+                                sessionTime in 1f..29f -> Color.Red // 🔴 Baja productividad
+                                else -> Color.Gray
+                            },
+                        )
+                        .clickable(enabled = day != null) {
+                            if (sessionTime > 0) {
+                                selectedDay = day
+                                selectedSessionTime = sessionTime
+                                showPopup = true
+                            }
                         },
-                        shape = CircleShape,
-                    )
-                    .clickable(enabled = day != null) {
-                        // 🔹 Evita clics en espacios vacíos
-                        Timber.tag("Calendar").d("📅 Día $day clickeado, sesión: $sessionTime minutos")
-                        if (sessionTime > 0) {
-                            selectedDay = day
-                            selectedSessionTime = sessionTime
-                            showPopup = true
-                        }
-                    },
-                contentAlignment = Alignment.Center,
-            ) {
-                if (day != null) { // 🔹 Solo mostrar texto si es un día válido
-                    Text(
-                        text = day.toString(),
-                        color = Color.Black,
-                        fontWeight = if (day == currentDay) FontWeight.Bold else FontWeight.Normal,
-                    )
+                    contentAlignment = Alignment.Center,
+                ) {
+                    if (day != null) {
+                        Text(
+                            text = day.toString(),
+                            color = if (day == today.get(Calendar.DAY_OF_MONTH)) Color.White else Color.Black,
+                            fontWeight = if (day ==
+                                today.get(Calendar.DAY_OF_MONTH)
+                            ) {
+                                FontWeight.Bold
+                            } else {
+                                FontWeight.Normal
+                            },
+                        )
+                    }
                 }
             }
         }
     }
 
+    // 🎯 Mostrar popup cuando se selecciona un día con datos
     if (showPopup) {
-        ShowSessionPopup(
-            day = selectedDay!!,
-            sessionTime = selectedSessionTime!!,
-            onDismiss = { showPopup = false },
+        AlertDialog(
+            onDismissRequest = { showPopup = false },
+            title = { Text("Sesiones del día $selectedDay", color = MaterialTheme.colorScheme.onSurface) },
+            text = {
+                Text(
+                    "Tiempo total: ${selectedSessionTime!!.toInt()} minutos",
+                    color = MaterialTheme.colorScheme.onSurface,
+                )
+            },
+            confirmButton = {
+                Button(onClick = { showPopup = false }) { Text("Aceptar") }
+            },
         )
     }
-}
-
-@Composable
-fun ShowSessionPopup(day: Int, sessionTime: Float, onDismiss: () -> Unit) {
-    Timber.tag("PopUp").d("📅 Mostrando PopUp para el día $day, tiempo: $sessionTime minutos") // ✅ Verificar si se activa
-
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text("Sesiones del día $day", color = MaterialTheme.colorScheme.inverseSurface) },
-        text = {
-            Text("Tiempo total: ${sessionTime.toInt()} minutos", color = MaterialTheme.colorScheme.inverseSurface)
-        },
-        confirmButton = {
-            Button(onClick = onDismiss) {
-                Text("Aceptar")
-            }
-        },
-    )
 }
 
 @Composable
