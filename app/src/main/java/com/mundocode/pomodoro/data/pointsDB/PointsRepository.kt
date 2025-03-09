@@ -1,11 +1,12 @@
 package com.mundocode.pomodoro.data.pointsDB
 
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.firstOrNull
 
 class PointsRepository(private val pointsDao: PointsDao) {
 
-    fun getUserPoints(userId: String): Flow<UserPoints?> = pointsDao.getUserPoints(userId)
+    fun getUserPoints(userId: String): Flow<UserPoints> = pointsDao.getUserPoints(userId).filterNotNull()
 
     suspend fun addPoints(userId: String, points: Int) {
         val currentPoints = pointsDao.getUserPoints(userId).firstOrNull()

@@ -11,10 +11,10 @@ import androidx.core.app.NotificationCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
-import com.mundocode.pomodoro.data.sessionDb.SessionDao
-import com.mundocode.pomodoro.data.sessionDb.SessionEntity
 import com.mundocode.pomodoro.R
 import com.mundocode.pomodoro.data.pointsDB.PointsRepository
+import com.mundocode.pomodoro.data.sessionDb.SessionDao
+import com.mundocode.pomodoro.data.sessionDb.SessionEntity
 import com.mundocode.pomodoro.model.local.Timer
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
@@ -59,6 +59,12 @@ class TimerViewModel @Inject constructor(
 
     private val _isPomodoroComplete = MutableStateFlow(false)
     val isPomodoroComplete: StateFlow<Boolean> = _isPomodoroComplete.asStateFlow()
+
+    init {
+        viewModelScope.launch {
+            loadPomodoroStats()
+        }
+    }
 
     fun hideAnimation() {
         _showAnimation.value = false
@@ -212,7 +218,7 @@ class TimerViewModel @Inject constructor(
     private val _pomodoroCount = MutableStateFlow(0)
     val pomodoroCount: StateFlow<Int> = _pomodoroCount.asStateFlow()
 
-    fun loadPomodoroStats() {
+    private fun loadPomodoroStats() {
         val startDate = getStartDate()
         val endDate = getEndDate()
         viewModelScope.launch {

@@ -1,4 +1,4 @@
-package com.mundocode.pomodoro.ui.screens.TaskScreen
+package com.mundocode.pomodoro.ui.screens.taskScreen
 
 import android.widget.Toast
 import androidx.compose.foundation.background
@@ -23,7 +23,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -40,13 +39,14 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.mundocode.pomodoro.R
 import com.mundocode.pomodoro.ui.components.CustomTopAppBar
-import com.mundocode.pomodoro.ui.screens.SharedPointsViewModel
 import com.mundocode.pomodoro.ui.screens.points.PointsViewModel
+import com.mundocode.pomodoro.ui.screens.points.PointsViewModelFactoryProvider
 
 @Composable
 fun TaskItem(task: String, isCompleted: Boolean = false, onTaskChecked: (Boolean) -> Unit) {
@@ -85,20 +85,29 @@ fun TaskItem(task: String, isCompleted: Boolean = false, onTaskChecked: (Boolean
 @Composable
 fun TaskScreen(
     navController: NavController,
-    pointsViewModel: PointsViewModel = hiltViewModel(),
-    sharedPointsViewModel: SharedPointsViewModel = hiltViewModel(),
+//    sharedPointsViewModel: SharedPointsViewModel = hiltViewModel(),
+    factoryProvider: PointsViewModelFactoryProvider = hiltViewModel(),
 ) {
     val context = LocalContext.current
+    val user = Firebase.auth.currentUser
+    val userId = Firebase.auth.currentUser?.uid ?: ""
+
+    // Crear el ViewModel usando la factory del provider
+    val pointsViewModel: PointsViewModel = viewModel(
+        factory = PointsViewModel.provideFactory(
+            assistedFactory = factoryProvider.pointsViewModelFactory,
+            userId = userId,
+        ),
+    )
 
     var tasks by remember { mutableStateOf(listOf("Modo actual", "Modo actual 2")) }
     var completedTasks by remember { mutableStateOf(listOf<String>()) }
-    val user = Firebase.auth.currentUser
 
-    val userPoints by sharedPointsViewModel.userPoints.collectAsState()
+    val userPoints by pointsViewModel.userPoints.collectAsState()
 
-    LaunchedEffect(Unit) {
-        pointsViewModel.loadUserPoints(user?.displayName.toString())
-    }
+//    LaunchedEffect(Unit) {
+//        pointsViewModel.loadUserPoints(user?.displayName.toString())
+//    }
 
     Scaffold(
         topBar = {

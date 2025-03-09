@@ -54,7 +54,8 @@ fun SettingsScreen(
 ) {
     val user = Firebase.auth.currentUser
     val userPoints by sharedPointsViewModel.userPoints.collectAsState()
-    val unlockedThemes by storeViewModel.unlockedThemes.collectAsState() // ✅ Asegurar que los temas desbloqueados se actualicen
+    // ✅ Asegurar que los temas desbloqueados se actualicen
+    val unlockedThemes by storeViewModel.unlockedThemes.collectAsState()
     val currentTheme by themeViewModel.currentTheme.collectAsState()
     var expanded by remember { mutableStateOf(false) }
     var selectedOption by remember { mutableStateOf(currentTheme) }
