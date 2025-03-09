@@ -13,8 +13,11 @@ import javax.inject.Inject
 @HiltViewModel
 class ThemeViewModel @Inject constructor(private val themePreferences: ThemePreferences) : ViewModel() {
 
-    private val _selectedTheme = MutableStateFlow("Claro")
+    private val _selectedTheme = MutableStateFlow("Tema Claro")
     val selectedTheme: StateFlow<String> = _selectedTheme.asStateFlow()
+
+    private val _currentTheme = MutableStateFlow("Tema Claro") // Valor por defecto
+    val currentTheme: StateFlow<String> = _currentTheme.asStateFlow()
 
     init {
         viewModelScope.launch {

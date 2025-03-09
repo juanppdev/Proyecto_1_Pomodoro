@@ -67,7 +67,6 @@ import com.mundocode.pomodoro.ui.screens.SharedPointsViewModel
 import com.mundocode.pomodoro.ui.screens.points.PointsViewModel
 import com.mundocode.pomodoro.ui.screens.points.StoreViewModel
 import com.mundocode.pomodoro.ui.screens.timer.TimerViewModel
-import com.mundocode.pomodoro.ui.theme.ThemeViewModel
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.util.Calendar
@@ -82,17 +81,14 @@ fun HomeScreen(
     sharedPointsViewModel: SharedPointsViewModel = hiltViewModel(),
     timerViewModel: TimerViewModel = hiltViewModel(),
     storeViewModel: StoreViewModel = hiltViewModel(),
-    themeViewModel: ThemeViewModel = hiltViewModel(),
 ) {
     val sessionsData by viewModel.sessionsData.collectAsState()
     val xLabels by viewModel.xLabels.collectAsState()
 
     var selectedOption by remember { mutableStateOf("Weekly") }
-    var expanded by remember { mutableStateOf(false) }
     val user = Firebase.auth.currentUser
 
     val userPoints by sharedPointsViewModel.userPoints.collectAsState()
-    val pomodoroCount by timerViewModel.pomodoroCount.collectAsState()
     val coroutineScope = rememberCoroutineScope()
 
     LaunchedEffect(Unit) {
@@ -119,8 +115,6 @@ fun HomeScreen(
     ) { padding ->
 
         val userId = Firebase.auth.currentUser?.uid ?: ""
-        val unlockedThemes by storeViewModel.unlockedThemes.collectAsState()
-        val selectedTheme by storeViewModel.selectedTheme.collectAsState()
 
         LaunchedEffect(Unit) {
             storeViewModel.loadPurchasedItems(userId) // ✅ Cargar temas desbloqueados
@@ -134,15 +128,6 @@ fun HomeScreen(
                         .background(color = MaterialTheme.colorScheme.background)
                         .padding(padding),
                 ) {
-                    val selectedTheme by themeViewModel.selectedTheme.collectAsState()
-
-                    unlockedThemes.forEach { theme ->
-                        Button(onClick = { themeViewModel.changeTheme(theme) }) {
-                            // ✅ Ahora cambia el tema globalmente
-                            Text(theme)
-                        }
-                    }
-
                     WelcomeSection(user)
                     FavoritesSection()
                     OptionsSection(navController)

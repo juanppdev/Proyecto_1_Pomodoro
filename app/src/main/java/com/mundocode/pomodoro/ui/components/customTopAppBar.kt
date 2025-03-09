@@ -1,5 +1,6 @@
 package com.mundocode.pomodoro.ui.components
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -21,10 +22,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import com.mundocode.pomodoro.core.navigation.Destinations
+import kotlinx.serialization.ExperimentalSerializationApi
+import com.kiwi.navigationcompose.typed.navigate as kiwiNavigation
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalSerializationApi::class)
 @Composable
 fun CustomTopAppBar(
     navController: NavController,
@@ -66,29 +71,13 @@ fun CustomTopAppBar(
             DropdownMenu(
                 expanded = isMenuExpanded,
                 onDismissRequest = { isMenuExpanded = false },
+                offset = DpOffset(250.dp, 0.dp), // 🔹 Ajuste para mover el menú a la derecha si es necesario
+                modifier = Modifier.background(MaterialTheme.colorScheme.surface),
             ) {
                 DropdownMenuItem(
                     onClick = {
                         isMenuExpanded = false
-                        navController.navigate("screen1")
-                    },
-                    text = {
-                        Text("Screen 1")
-                    },
-                )
-                DropdownMenuItem(
-                    onClick = {
-                        isMenuExpanded = false
-                        navController.navigate("screen2")
-                    },
-                    text = {
-                        Text("Screen 2")
-                    },
-                )
-                DropdownMenuItem(
-                    onClick = {
-                        isMenuExpanded = false
-                        navController.navigate("screen3")
+                        navController.kiwiNavigation(Destinations.SettingsScreen)
                     },
                     text = {
                         Text("Configuración")

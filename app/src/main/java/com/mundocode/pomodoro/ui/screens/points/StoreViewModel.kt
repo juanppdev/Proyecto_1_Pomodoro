@@ -2,6 +2,8 @@ package com.mundocode.pomodoro.ui.screens.points
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.Firebase
+import com.google.firebase.auth.auth
 import com.mundocode.pomodoro.data.pointsDB.PointsRepository
 import com.mundocode.pomodoro.data.storeDB.PurchasedItem
 import com.mundocode.pomodoro.data.storeDB.PurchasedItemsDao
@@ -83,6 +85,16 @@ class StoreViewModel @Inject constructor(
                 Timber.tag("StoreViewModel").d("📌 Temas cargados desde la BD: $themes") // ✅ Debug
                 _purchasedThemes.value = themes
                 _unlockedThemes.value = themes.map { it.themeName }.toSet()
+            }
+        }
+    }
+
+    fun loadPurchasedThemes() {
+        viewModelScope.launch {
+            purchasedItemsDao.getUserPurchasedThemes(Firebase.auth.currentUser?.uid ?: "").collectLatest { themes ->
+                val updatedThemes = themes.map { it.themeName }.toSet()
+                _unlockedThemes.value = updatedThemes + "Tema Claro" // ✅ Siempre incluir el tema "Claro"
+                Timber.tag("StoreViewModel").d("🔓 Temas desbloqueados: $updatedThemes")
             }
         }
     }
