@@ -522,7 +522,8 @@ fun ProductivityCalendar(sessionsData: Map<String, Float>) {
                         .background(
                             when {
                                 day == null -> Color.Transparent
-                                day == today.get(Calendar.DAY_OF_MONTH) -> Color(0xFF03A9F4) // 🔹 Azul para el día que es actual
+                                // 🔹 Azul para el día que es actual
+                                day == today.get(Calendar.DAY_OF_MONTH) -> Color(0xFF03A9F4)
                                 sessionTime >= 60 -> Color.Green // 🟢 Alta productividad
                                 sessionTime in 30f..59f -> Color.Yellow // 🟡 Media productividad
                                 sessionTime in 1f..29f -> Color.Red // 🔴 Baja productividad
