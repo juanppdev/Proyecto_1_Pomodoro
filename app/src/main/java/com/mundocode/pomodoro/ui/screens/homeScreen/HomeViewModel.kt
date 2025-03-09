@@ -8,7 +8,6 @@ import com.mundocode.pomodoro.data.sessionDb.SessionEntity
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.text.SimpleDateFormat
@@ -20,17 +19,17 @@ import javax.inject.Inject
 @HiltViewModel
 class HomeViewModel @Inject constructor(private val sessionDao: SessionDao) : ViewModel() {
 
-    private val _filter = MutableStateFlow("Weekly") // ✅ Mantener el estado actual
-    val filter: StateFlow<String> = _filter.asStateFlow()
+    val filter: StateFlow<String>
+        field = MutableStateFlow("Weekly")
 
-    private val _sessionsData = MutableStateFlow<Map<String, Float>>(emptyMap())
-    val sessionsData: StateFlow<Map<String, Float>> = _sessionsData.asStateFlow()
+    val sessionsData: StateFlow<Map<String, Float>>
+        field = MutableStateFlow<Map<String, Float>>(emptyMap())
 
-    private val _xLabels = MutableStateFlow<List<String>>(emptyList())
-    val xLabels: StateFlow<List<String>> = _xLabels.asStateFlow()
+    val xLabels: StateFlow<List<String>>
+        field = MutableStateFlow<List<String>>(emptyList())
 
-    private val _totalTimeData = MutableStateFlow<Map<String, Float>>(emptyMap()) // 🔹 Nuevo dataset
-    val totalTimeData: StateFlow<Map<String, Float>> = _totalTimeData.asStateFlow()
+    val totalTimeData: StateFlow<Map<String, Float>>
+        field = MutableStateFlow<Map<String, Float>>(emptyMap())
 
     init {
         viewModelScope.launch {
@@ -73,7 +72,7 @@ class HomeViewModel @Inject constructor(private val sessionDao: SessionDao) : Vi
     }
 
     private fun processSessions(filter: String, sessions: List<SessionEntity>) {
-        Log.d("DailyChart", "📊 TotalTimeData (Daily): $_totalTimeData")
+        Log.d("DailyChart", "📊 TotalTimeData (Daily): $totalTimeData")
 
         when (filter) {
             "Daily" -> {
@@ -83,9 +82,9 @@ class HomeViewModel @Inject constructor(private val sessionDao: SessionDao) : Vi
                 val totalSessions = sessionsToday.size.toFloat() // 🔹 Cantidad de sesiones
                 val totalMinutes = sessionsToday.sumOf { convertDurationToMinutes(it.duration) } // 🔹 Total minutos
 
-                _sessionsData.value = mapOf(today to totalSessions) // 🔹 Sesiones por día
-                _totalTimeData.value = mapOf(today to totalMinutes.toFloat()) // 🔹 Minutos totales
-                _xLabels.value = listOf(today)
+                sessionsData.value = mapOf(today to totalSessions) // 🔹 Sesiones por día
+                totalTimeData.value = mapOf(today to totalMinutes.toFloat()) // 🔹 Minutos totales
+                xLabels.value = listOf(today)
             }
 
             "Weekly" -> {
@@ -107,8 +106,8 @@ class HomeViewModel @Inject constructor(private val sessionDao: SessionDao) : Vi
 
                 Timber.tag("HomeViewModel").d("📊 Weekly después de procesar: $sessionsByDay")
 
-                _sessionsData.value = sessionsByDay
-                _xLabels.value = weekDays
+                sessionsData.value = sessionsByDay
+                xLabels.value = weekDays
             }
 
             "Monthly" -> {
@@ -137,8 +136,8 @@ class HomeViewModel @Inject constructor(private val sessionDao: SessionDao) : Vi
 
                 Log.d("HomeViewModel", "📊 Monthly después de procesar: $sessionsByDay")
 
-                _sessionsData.value = sessionsByDay.mapKeys { it.key.toString() }
-                _xLabels.value = sortedKeys.map { it.toString() }
+                sessionsData.value = sessionsByDay.mapKeys { it.key.toString() }
+                xLabels.value = sortedKeys.map { it.toString() }
             }
         }
     }

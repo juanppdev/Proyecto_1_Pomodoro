@@ -63,7 +63,6 @@ fun StoreScreen(
     LaunchedEffect(Unit) {
         storeViewModel.loadUserPoints(userId)
         storeViewModel.loadPurchasedItems(userId)
-//        pointsViewModel.loadUserPoints(user?.displayName.toString())
     }
 
     Scaffold(

@@ -38,8 +38,8 @@ class TimerViewModel @Inject constructor(
     private val pointsRepository: PointsRepository,
 ) : ViewModel() {
 
-    private val _isPomodoroActive = MutableStateFlow(false)
-    val isPomodoroActive: StateFlow<Boolean> = _isPomodoroActive.asStateFlow()
+    val isPomodoroActive: StateFlow<Boolean>
+        field = MutableStateFlow(false)
 
     val userId = FirebaseAuth.getInstance().currentUser?.uid
 
@@ -48,17 +48,17 @@ class TimerViewModel @Inject constructor(
 
     private var timerJob: Job? = null
 
-    private val _navigateToHome = MutableStateFlow(false)
-    val navigateToHome: StateFlow<Boolean> = _navigateToHome.asStateFlow()
+    val navigateToHome: StateFlow<Boolean>
+        field = MutableStateFlow(false)
 
-    private val _sessionHistory = MutableStateFlow<List<SessionHistory>>(emptyList())
-    val sessionHistory: StateFlow<List<SessionHistory>> = _sessionHistory.asStateFlow()
+    val sessionHistory: StateFlow<List<SessionHistory>>
+        field = MutableStateFlow<List<SessionHistory>>(emptyList())
 
-    private val _showAnimation = MutableStateFlow(false)
-    val showAnimation: StateFlow<Boolean> = _showAnimation.asStateFlow()
+    val showAnimation: StateFlow<Boolean>
+        field = MutableStateFlow(false)
 
-    private val _isPomodoroComplete = MutableStateFlow(false)
-    val isPomodoroComplete: StateFlow<Boolean> = _isPomodoroComplete.asStateFlow()
+    val isPomodoroComplete: StateFlow<Boolean>
+        field = MutableStateFlow(false)
 
     init {
         viewModelScope.launch {
@@ -67,14 +67,14 @@ class TimerViewModel @Inject constructor(
     }
 
     fun hideAnimation() {
-        _showAnimation.value = false
-        _isPomodoroComplete.value = false
+        showAnimation.value = false
+        isPomodoroComplete.value = false
     }
 
     fun startTimer(context: Context) {
         if (timerState.value.isRunning) return
 
-        _isPomodoroActive.value = true
+        isPomodoroActive.value = true
         cancelReminderNotification(context) // ✅ Si inicia un Pomodoro, cancelamos la notificación
 
         timerJob?.cancel()
@@ -103,14 +103,14 @@ class TimerViewModel @Inject constructor(
 
     fun onTimerFinished(context: Context) {
         stopTimer(context)
-        _isPomodoroActive.value = false
+        isPomodoroActive.value = false
 
         val currentDate = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(Date())
 
         viewModelScope.launch {
             if (!timerState.value.isWorking) { // ✅ Solo marcar Pomodoro completo cuando termina el descanso
-                _isPomodoroComplete.value = true
-                _showAnimation.value = true
+                isPomodoroComplete.value = true
+                showAnimation.value = true
             }
 
             Timber.tag("Points").e("⏳ Intentando agregar puntos para el usuario: $userId")
@@ -139,13 +139,13 @@ class TimerViewModel @Inject constructor(
                 )
                 sessionDao.insertSession(session)
                 showNotification(context, "Descanso Terminado", "Tiempo de descanso finalizado.")
-                _navigateToHome.value = true
+                navigateToHome.value = true
             }
         }
 
         viewModelScope.launch {
             delay(3000) // ✅ Mostrar la animación por 3 segundos antes de ocultarla
-            _showAnimation.value = false
+            showAnimation.value = false
         }
     }
 
@@ -182,7 +182,7 @@ class TimerViewModel @Inject constructor(
     }
 
     fun onPopupDismissed() {
-        _navigateToHome.value = false
+        navigateToHome.value = false
     }
 
     fun scheduleReminderNotification(context: Context) {
