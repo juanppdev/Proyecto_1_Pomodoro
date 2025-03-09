@@ -1,5 +1,6 @@
 package com.mundocode.pomodoro.ui.screens.homeScreen
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -37,6 +38,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -56,6 +58,7 @@ import com.mundocode.pomodoro.core.navigation.Destinations
 import com.mundocode.pomodoro.ui.components.CustomTopAppBar
 import kotlinx.serialization.ExperimentalSerializationApi
 import com.github.mikephil.charting.charts.BarChart
+import com.github.mikephil.charting.components.Legend
 import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.data.BarData
 import com.github.mikephil.charting.data.BarDataSet
@@ -90,6 +93,8 @@ fun HomeScreen(
 
     val userPoints by sharedPointsViewModel.userPoints.collectAsState()
     val coroutineScope = rememberCoroutineScope()
+
+    val totalTime = viewModel.totalTimeData.collectAsState().value
 
     LaunchedEffect(Unit) {
         pointsViewModel.loadUserPoints(user?.displayName.toString())
@@ -139,6 +144,7 @@ fun HomeScreen(
                         },
                         sessionsData,
                         xLabels,
+                        totalTime,
                     )
                 }
             }
@@ -224,6 +230,7 @@ fun StatsSection(
     onOptionSelected: (String) -> Unit,
     sessionsData: Map<String, Float>,
     xLabels: List<String>,
+    totalTime: Map<String, Float> = emptyMap(),
 ) {
     var expanded by remember { mutableStateOf(false) }
 
@@ -262,104 +269,182 @@ fun StatsSection(
 
         // Mostrar el gráfico según la opción seleccionada
         when (selectedOption) {
-            "Daily" -> DailyChart(sessionsData, xLabels)
-            "Weekly" -> BarChartS(sessionsData, xLabels)
+            "Daily" -> DailyChart(sessionsData = sessionsData, timeData = totalTime, xLabels = xLabels)
+            "Weekly" -> WeeklyChart(sessionsData, xLabels)
             "Monthly" -> MonthlyCalendar(sessionsData)
         }
     }
 }
 
 @Composable
-fun DailyChart(sessionsData: Map<String, Float>, xLabels: List<String>) {
-    if (sessionsData.isEmpty()) {
+fun DailyChart(sessionsData: Map<String, Float>, timeData: Map<String, Float>, xLabels: List<String>) {
+    Log.d("DailyChart", "📊 SessionsData: $sessionsData")
+    Log.d("DailyChart", "⏳ TotalTimeData: $timeData")
+
+    if (sessionsData.isEmpty() || timeData.isEmpty()) {
         Text(
-            "⚠️ No hay datos de hoy",
+            text = "⚠️ No hay datos de hoy",
             fontSize = 18.sp,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.inverseSurface,
+            modifier = Modifier.padding(16.dp),
         )
         return
     }
-    val dataEntries = sessionsData.entries.mapIndexed { index, entry ->
-        BarEntry(index.toFloat(), entry.value) // ✅ Mostrar datos en minutos
-    }
 
-    AndroidView(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(200.dp),
-        factory = { context ->
-            BarChart(context).apply {
-                description.isEnabled = false
-                legend.isEnabled = true
-                setTouchEnabled(true)
+    val legendColor = MaterialTheme.colorScheme.inverseSurface.toArgb()
+    val axisTextColor = MaterialTheme.colorScheme.inverseSurface.toArgb()
+    var valueTextColor = MaterialTheme.colorScheme.onSurface.toArgb()
 
-                axisLeft.granularity = 1f
-                axisLeft.axisMinimum = 0f
-                axisRight.granularity = 1f
-                axisRight.axisMinimum = 0f
+    val sessionsBarColor = Color(0xFF81D4FA).toArgb() // Azul claro
+    val timeBarColor = Color(0xFFD1C4E9).toArgb() // Morado claro
 
-                xAxis.valueFormatter = IndexAxisValueFormatter(xLabels)
-                xAxis.granularity = 1f
-                xAxis.position = XAxis.XAxisPosition.BOTTOM
-                xAxis.setDrawGridLines(false)
-                xAxis.setLabelCount(xLabels.size, true)
-
-                data = BarData(
-                    BarDataSet(dataEntries, "Sesión de hoy").apply {
-                        colors = listOf(Color.Blue.toArgb(), Color.Red.toArgb())
-                        valueFormatter = IntegerValueFormatter()
-                    },
-                )
-                invalidate()
-            }
-        },
-    )
-}
-
-@Composable
-fun BarChartS(sessionsData: Map<String, Float>, xLabels: List<String>) {
-    Timber.tag("BarChartS").d("📊 Datos recibidos en el gráfico: $sessionsData")
-
-    if (sessionsData.isEmpty()) {
-        Text("⚠️ No hay sesiones registradas", fontSize = 18.sp, fontWeight = FontWeight.Bold)
-        return
-    }
-
-    val dataEntries = sessionsData.entries.mapIndexed { index, entry ->
+    val sessionEntries = sessionsData.entries.mapIndexed { index, entry ->
         BarEntry(index.toFloat(), entry.value)
     }
 
-    AndroidView(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(200.dp),
-        factory = { context ->
-            BarChart(context).apply {
-                description.isEnabled = false
-                legend.isEnabled = true
-                setTouchEnabled(true)
+    val timeEntries = timeData.entries.mapIndexed { index, entry ->
+        BarEntry(index.toFloat(), entry.value)
+    }
 
-                axisLeft.granularity = 1f
-                axisLeft.axisMinimum = 0f
-                axisRight.granularity = 1f
-                axisRight.axisMinimum = 0f
-                xAxis.valueFormatter = IndexAxisValueFormatter(xLabels)
-                xAxis.granularity = 1f
-                xAxis.position = XAxis.XAxisPosition.BOTTOM
-                xAxis.setDrawGridLines(false)
-                xAxis.setLabelCount(xLabels.size, true)
+    key(sessionsData, timeData) {
+        AndroidView(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(250.dp)
+                .padding(8.dp),
+            factory = { context ->
+                BarChart(context).apply {
+                    description.isEnabled = false
+                    setTouchEnabled(true)
+                    setDrawGridBackground(false)
 
-                data = BarData(
-                    BarDataSet(dataEntries, "Sesiones").apply {
-                        colors = listOf(Color.Blue.toArgb(), Color.Red.toArgb())
+                    legend.apply {
+                        isEnabled = true
+                        textColor = legendColor
+                        form = Legend.LegendForm.SQUARE
+                    }
+
+                    axisLeft.apply {
+                        axisMinimum = 0f
+                        axisMaximum = maxOf(
+                            sessionsData.values.maxOrNull() ?: 0f,
+                            timeData.values.maxOrNull() ?: 0f,
+                        ) + 1f
+                        textColor = axisTextColor
+                        setDrawGridLines(false)
+                    }
+
+                    axisRight.isEnabled = false
+
+                    xAxis.apply {
+                        valueFormatter = IndexAxisValueFormatter(xLabels)
+                        position = XAxis.XAxisPosition.BOTTOM
+                        setDrawGridLines(false)
+                        textColor = axisTextColor
+                        setLabelCount(xLabels.size, true)
+                        granularity = 1f
+                        axisMinimum = -0.5f // 🔹 Evita desajustes en la alineación
+                    }
+
+                    // 🔹 **Dataset de Sessions**
+                    val sessionsDataSet = BarDataSet(sessionEntries, "Sessions").apply {
+                        color = sessionsBarColor
+                        valueTextColor = valueTextColor
                         valueFormatter = IntegerValueFormatter()
-                    },
-                )
-                invalidate()
-            }
-        },
-    )
+                    }
+
+                    // 🔹 **Dataset de Total Time**
+                    val timeDataSet = BarDataSet(timeEntries, "Total Time (minutes)").apply {
+                        color = timeBarColor
+                        valueTextColor = valueTextColor
+                        valueFormatter = IntegerValueFormatter()
+                    }
+
+                    Log.d("DailyChart", "🟣 TotalTimeDataSet: $timeDataSet")
+
+                    val barData = BarData(sessionsDataSet, timeDataSet).apply {
+                        barWidth = 0.1f // 🔹 Ajusta el ancho de las barras
+                    }
+
+                    data = barData
+
+                    // ✅ **Agrupar barras correctamente**
+                    barData.groupBars(0f, 0.2f, 0.05f)
+
+                    notifyDataSetChanged()
+                    invalidate()
+                }
+            },
+        )
+    }
+}
+
+@Composable
+fun WeeklyChart(sessionsData: Map<String, Float>, xLabels: List<String>) {
+    if (sessionsData.isEmpty()) {
+        Text(
+            text = "⚠️ No hay sesiones registradas",
+            fontSize = 18.sp,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.inverseSurface,
+            modifier = Modifier.padding(16.dp),
+        )
+        return
+    }
+
+    val legendColor = MaterialTheme.colorScheme.inverseSurface.toArgb()
+    val axisTextColor = MaterialTheme.colorScheme.inverseSurface.toArgb()
+    var valueTextColor = MaterialTheme.colorScheme.inverseSurface.toArgb()
+    val barColor = MaterialTheme.colorScheme.secondary.toArgb()
+
+    val dataEntries = remember(sessionsData) {
+        sessionsData.entries.mapIndexed { index, entry -> BarEntry(index.toFloat(), entry.value) }
+    }
+
+    key(sessionsData) {
+        AndroidView(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(200.dp)
+                .padding(8.dp),
+            factory = { context ->
+                BarChart(context).apply {
+                    description.isEnabled = false
+                    legend.apply {
+                        isEnabled = true
+                        textColor = legendColor
+                    }
+                    setTouchEnabled(true)
+
+                    axisLeft.apply {
+                        axisMinimum = 0f
+                        textColor = axisTextColor
+                        setDrawGridLines(false)
+                    }
+
+                    axisRight.isEnabled = false
+
+                    xAxis.apply {
+                        valueFormatter = IndexAxisValueFormatter(xLabels)
+                        position = XAxis.XAxisPosition.BOTTOM
+                        setDrawGridLines(false)
+                        textColor = axisTextColor
+                        setLabelCount(xLabels.size, true)
+                    }
+
+                    data = BarData(
+                        BarDataSet(dataEntries, "Sesiones").apply {
+                            color = barColor
+                            valueTextColor = valueTextColor
+                            valueFormatter = IntegerValueFormatter()
+                        },
+                    )
+                    invalidate()
+                }
+            },
+        )
+    }
 }
 
 /** ✅ Formateador para evitar decimales en los valores del gráfico */
