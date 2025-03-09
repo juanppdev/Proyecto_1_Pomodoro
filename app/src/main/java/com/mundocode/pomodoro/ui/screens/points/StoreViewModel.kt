@@ -78,7 +78,8 @@ class StoreViewModel @Inject constructor(
 
     fun loadPurchasedItems(userId: String) {
         viewModelScope.launch {
-            val count = purchasedItemsDao.countUserPurchasedThemes(userId) // ✅ Verifica si existen temas en la base de datos
+            // ✅ Verifica si existen temas en la base de datos
+            val count = purchasedItemsDao.countUserPurchasedThemes(userId)
             Timber.tag("StoreViewModel").d("🔍 Temas comprados en la BD: $count") // ✅ Debug
 
             purchasedItemsDao.getUserPurchasedThemes(userId).collectLatest { themes ->

@@ -22,7 +22,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material3.AlertDialog
-import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenu
@@ -35,12 +34,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.key
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -50,14 +48,10 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.ktx.Firebase
-import com.mundocode.pomodoro.R
-import com.mundocode.pomodoro.core.navigation.Destinations
-import com.mundocode.pomodoro.ui.components.CustomTopAppBar
-import kotlinx.serialization.ExperimentalSerializationApi
 import com.github.mikephil.charting.charts.BarChart
 import com.github.mikephil.charting.components.Legend
 import com.github.mikephil.charting.components.XAxis
@@ -67,11 +61,15 @@ import com.github.mikephil.charting.data.BarEntry
 import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
 import com.github.mikephil.charting.formatter.ValueFormatter
 import com.google.firebase.auth.FirebaseUser
-import com.mundocode.pomodoro.ui.screens.SharedPointsViewModel
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
+import com.mundocode.pomodoro.R
+import com.mundocode.pomodoro.core.navigation.Destinations
+import com.mundocode.pomodoro.ui.components.CustomTopAppBar
 import com.mundocode.pomodoro.ui.screens.points.PointsViewModel
+import com.mundocode.pomodoro.ui.screens.points.PointsViewModelFactoryProvider
 import com.mundocode.pomodoro.ui.screens.points.StoreViewModel
-import com.mundocode.pomodoro.ui.screens.timer.TimerViewModel
-import kotlinx.coroutines.launch
+import kotlinx.serialization.ExperimentalSerializationApi
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
@@ -82,28 +80,38 @@ import com.kiwi.navigationcompose.typed.navigate as kiwiNavigation
 fun HomeScreen(
     viewModel: HomeViewModel = hiltViewModel(),
     navController: NavController,
-    pointsViewModel: PointsViewModel = hiltViewModel(),
-    sharedPointsViewModel: SharedPointsViewModel = hiltViewModel(),
-    timerViewModel: TimerViewModel = hiltViewModel(),
+    factoryProvider: PointsViewModelFactoryProvider = hiltViewModel(),
+//    sharedPointsViewModel: SharedPointsViewModel = hiltViewModel(),
+//    timerViewModel: TimerViewModel = hiltViewModel(),
     storeViewModel: StoreViewModel = hiltViewModel(),
 ) {
+//    val coroutineScope = rememberCoroutineScope()
+
+    val user = Firebase.auth.currentUser
+    val userId = Firebase.auth.currentUser?.uid ?: ""
+
+    // Crear el ViewModel usando la factory del provider
+    val pointsViewModel: PointsViewModel = viewModel(
+        factory = PointsViewModel.provideFactory(
+            assistedFactory = factoryProvider.pointsViewModelFactory,
+            userId = userId,
+        ),
+    )
+
     val sessionsData by viewModel.sessionsData.collectAsState()
     val xLabels by viewModel.xLabels.collectAsState()
 
     var selectedOption by remember { mutableStateOf("Weekly") }
-    val user = Firebase.auth.currentUser
 
-    val userPoints by sharedPointsViewModel.userPoints.collectAsState()
-    val coroutineScope = rememberCoroutineScope()
-
+    val userPoints by pointsViewModel.userPoints.collectAsState()
     val totalTime = viewModel.totalTimeData.collectAsState().value
 
-    LaunchedEffect(Unit) {
-        pointsViewModel.loadUserPoints(user?.displayName.toString())
-        coroutineScope.launch {
-            timerViewModel.loadPomodoroStats()
-        }
-    }
+//    LaunchedEffect(Unit) {
+//        pointsViewModel.loadUserPoints(user?.displayName.toString())
+//        coroutineScope.launch {
+//            timerViewModel.loadPomodoroStats()
+//        }
+//    }
 
     Scaffold(
         topBar = {
@@ -514,7 +522,8 @@ fun ProductivityCalendar(sessionsData: Map<String, Float>) {
                         .background(
                             when {
                                 day == null -> Color.Transparent
-                                day == today.get(Calendar.DAY_OF_MONTH) -> Color(0xFF03A9F4) // 🔹 Azul para el día actual
+                                // 🔹 Azul para el día actual
+                                day == today.get(Calendar.DAY_OF_MONTH) -> Color(0xFF03A9F4)
                                 sessionTime >= 60 -> Color.Green // 🟢 Alta productividad
                                 sessionTime in 30f..59f -> Color.Yellow // 🟡 Media productividad
                                 sessionTime in 1f..29f -> Color.Red // 🔴 Baja productividad
