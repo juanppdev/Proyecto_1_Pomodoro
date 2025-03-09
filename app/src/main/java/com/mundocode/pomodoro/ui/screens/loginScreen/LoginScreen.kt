@@ -62,9 +62,7 @@ fun LoginScreen(navController: NavController, viewModel: LoginViewModel = hiltVi
 
     LaunchedEffect(loginSuccess) {
         if (loginSuccess) {
-            navController.kiwiNavigation(Destinations.HomeScreen) {
-                popUpTo(Destinations.Login) { inclusive = true }
-            }
+            navController.kiwiNavigation(Destinations.HomeScreen)
         }
     }
 
@@ -78,6 +76,7 @@ fun LoginScreen(navController: NavController, viewModel: LoginViewModel = hiltVi
             onLoginClicked = { viewModel.loginWithEmail(email, password) },
             loginGoogleClicked = { activity?.let { viewModel.handleGoogleSignIn(it) } },
             errorMessage = errorMessage,
+            navController = navController,
         )
     }
 }
@@ -93,7 +92,7 @@ private fun LoginContent(
     onLoginClicked: () -> Unit,
     loginGoogleClicked: () -> Unit,
     errorMessage: String?,
-    navController: NavController = NavController(LocalContext.current),
+    navController: NavController,
 ) {
     Box(
         modifier = modifier
@@ -249,6 +248,7 @@ private fun LoginContent(
                         buildAnnotatedString {
                             append("¿No tienes cuenta aún? ¡Regístrate!")
                         },
+                        color = Color.White,
                     )
                 }
             }
