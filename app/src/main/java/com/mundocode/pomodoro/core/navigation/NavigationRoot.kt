@@ -11,7 +11,7 @@ import com.mundocode.pomodoro.ui.screens.homeScreen.HomeScreen
 import com.mundocode.pomodoro.ui.screens.loginScreen.LoginScreen
 import com.mundocode.pomodoro.ui.screens.loginScreen.RegisterScreen
 import com.mundocode.pomodoro.ui.screens.setupSessionScreen.SetupSessionScreen
-import com.mundocode.pomodoro.ui.screens.TaskScreen.TaskScreen
+import com.mundocode.pomodoro.ui.screens.taskScreen.TaskScreen
 import com.mundocode.pomodoro.ui.screens.points.StoreScreen
 import com.mundocode.pomodoro.ui.screens.settings.SettingsScreen
 import com.mundocode.pomodoro.ui.screens.timer.TimerScreen

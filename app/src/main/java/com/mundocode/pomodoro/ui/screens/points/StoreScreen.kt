@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -21,8 +20,8 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -30,6 +29,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
@@ -40,21 +40,30 @@ import timber.log.Timber
 fun StoreScreen(
     navController: NavController,
     storeViewModel: StoreViewModel = hiltViewModel(),
-    pointsViewModel: PointsViewModel = hiltViewModel(),
+    factoryProvider: PointsViewModelFactoryProvider = hiltViewModel(),
 ) {
+    val userId = Firebase.auth.currentUser?.uid ?: ""
+    val user = Firebase.auth.currentUser
+
+    // Crear el ViewModel usando la factory del provider
+    val pointsViewModel: PointsViewModel = viewModel(
+        factory = PointsViewModel.provideFactory(
+            assistedFactory = factoryProvider.pointsViewModelFactory,
+            userId = userId,
+        ),
+    )
+
     val storeItems by storeViewModel.storeItems.collectAsState()
     val storeThemes by storeViewModel.storeThemes.collectAsState()
-    val userPoints by storeViewModel.userPoints.collectAsState()
+    val userPoints by pointsViewModel.userPoints.collectAsState()
     val purchasedItems by storeViewModel.purchasedItems.collectAsState()
     val unlockedThemes by storeViewModel.unlockedThemes.collectAsState()
     val context = LocalContext.current
-    val userId = Firebase.auth.currentUser?.uid ?: ""
-    val user = Firebase.auth.currentUser
 
     LaunchedEffect(Unit) {
         storeViewModel.loadUserPoints(userId)
         storeViewModel.loadPurchasedItems(userId)
-        pointsViewModel.loadUserPoints(user?.displayName.toString())
+//        pointsViewModel.loadUserPoints(user?.displayName.toString())
     }
 
     Scaffold(
@@ -72,12 +81,18 @@ fun StoreScreen(
             )
         },
     ) { paddingValues ->
-        Column(modifier = Modifier.fillMaxSize().padding(paddingValues)) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues),
+        ) {
             LazyColumn {
                 items(storeItems.size) { item ->
                     val item = storeItems[item]
                     Card(
-                        modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 8.dp),
                         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
                     ) {
                         Column(modifier = Modifier.padding(16.dp)) {
@@ -128,7 +143,9 @@ fun StoreScreen(
                 items(storeThemes.size) { index ->
                     val item = storeThemes[index]
                     Card(
-                        modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 8.dp),
                         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
                     ) {
                         Column(modifier = Modifier.padding(16.dp)) {

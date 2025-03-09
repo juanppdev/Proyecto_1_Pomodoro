@@ -38,13 +38,14 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.mundocode.pomodoro.core.navigation.Destinations
 import com.mundocode.pomodoro.ui.components.CustomTopAppBar
-import com.mundocode.pomodoro.ui.screens.SharedPointsViewModel
 import com.mundocode.pomodoro.ui.screens.points.PointsViewModel
+import com.mundocode.pomodoro.ui.screens.points.PointsViewModelFactoryProvider
 import kotlinx.serialization.ExperimentalSerializationApi
 import com.kiwi.navigationcompose.typed.navigate as kiwiNavigate
 
@@ -53,16 +54,26 @@ import com.kiwi.navigationcompose.typed.navigate as kiwiNavigate
 fun SetupSessionScreen(
     navController: NavController,
     viewModel: SetupSessionViewModel = hiltViewModel(),
-    pointsViewModel: PointsViewModel = hiltViewModel(),
-    sharedPointsViewModel: SharedPointsViewModel = hiltViewModel(),
+    factoryProvider: PointsViewModelFactoryProvider = hiltViewModel(),
+//    sharedPointsViewModel: SharedPointsViewModel = hiltViewModel(),
 ) {
-    val state by viewModel.sessionState.collectAsStateWithLifecycle()
     val user = Firebase.auth.currentUser
-    val userPoints by sharedPointsViewModel.userPoints.collectAsState()
+    val userId = Firebase.auth.currentUser?.uid ?: ""
 
-    LaunchedEffect(Unit) {
-        pointsViewModel.loadUserPoints(user?.displayName.toString())
-    }
+    // Crear el ViewModel usando la factory del provider
+    val pointsViewModel: PointsViewModel = viewModel(
+        factory = PointsViewModel.provideFactory(
+            assistedFactory = factoryProvider.pointsViewModelFactory,
+            userId = userId,
+        ),
+    )
+
+    val state by viewModel.sessionState.collectAsStateWithLifecycle()
+    val userPoints by pointsViewModel.userPoints.collectAsState()
+
+//    LaunchedEffect(Unit) {
+//        pointsViewModel.loadUserPoints(user?.displayName.toString())
+//    }
 
     Scaffold(
         topBar = {
