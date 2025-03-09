@@ -14,8 +14,9 @@ import com.mundocode.pomodoro.ui.theme.ThemePreferences
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
@@ -27,52 +28,54 @@ class StoreViewModel @Inject constructor(
     private val themePreferences: ThemePreferences,
 ) : ViewModel() {
 
-    private val _storeItems = MutableStateFlow(
-        listOf(
-            StoreItem(1, "Sonido Especial", 30, "Activa un sonido único al terminar un Pomodoro"),
-            StoreItem(2, "Fondo Personalizado", 70, "Elige un fondo exclusivo para la app"),
-        ),
-    )
-    val storeItems: StateFlow<List<StoreItem>> = _storeItems.asStateFlow()
+    val storeItems: StateFlow<List<StoreItem>>
+        field = MutableStateFlow(
+            listOf(
+                StoreItem(1, "Sonido Especial", 30, "Activa un sonido único al terminar un Pomodoro"),
+                StoreItem(2, "Fondo Personalizado", 70, "Elige un fondo exclusivo para la app"),
+            ),
+        )
 
-    private val _storeThemes = MutableStateFlow(
-        listOf(
-            StoreTheme(1, "Tema Oscuro", 50, "Tema oscuro para la app"),
-            StoreTheme(2, "Tema Azul", 100, "Tema azul para la app"),
-            StoreTheme(3, "Tema Rojo", 150, "Tema rojo para la app"),
-            StoreTheme(4, "Tema Claro", 0, "Tema Claro para la app"),
-        ),
-    )
-    val storeThemes: StateFlow<List<StoreTheme>> = _storeThemes.asStateFlow()
+    val storeThemes: StateFlow<List<StoreTheme>>
+        field = MutableStateFlow(
+            listOf(
+                StoreTheme(1, "Tema Oscuro", 50, "Tema oscuro para la app"),
+                StoreTheme(2, "Tema Azul", 100, "Tema azul para la app"),
+                StoreTheme(3, "Tema Rojo", 150, "Tema rojo para la app"),
+                StoreTheme(4, "Tema Claro", 0, "Tema Claro para la app"),
+            ),
+        )
 
-    private val _userPoints = MutableStateFlow(0)
-    val userPoints: StateFlow<Int> = _userPoints.asStateFlow()
+    val userPoints: StateFlow<Int>
+        field = MutableStateFlow(0)
 
-    private val _purchasedItems = MutableStateFlow<List<PurchasedItem>>(emptyList())
-    val purchasedItems: StateFlow<List<PurchasedItem>> = _purchasedItems.asStateFlow()
+    val purchasedItems: StateFlow<List<PurchasedItem>>
+        field = MutableStateFlow<List<PurchasedItem>>(emptyList())
 
-    private val _purchasedThemes = MutableStateFlow<List<PurchasedTheme>>(emptyList())
-    val purchasedThemes: StateFlow<List<PurchasedTheme>> = _purchasedThemes.asStateFlow()
+    val purchasedThemes: StateFlow<List<PurchasedTheme>>
+        field = MutableStateFlow<List<PurchasedTheme>>(emptyList())
 
-    private val _unlockedThemes = MutableStateFlow(setOf<String>())
-    val unlockedThemes: StateFlow<Set<String>> = _unlockedThemes
+    val unlockedThemes: StateFlow<Set<String>>
+        field = MutableStateFlow(setOf<String>())
 
-    private val _selectedTheme = MutableStateFlow("Tema Claro")
-    val selectedTheme: StateFlow<String> = _selectedTheme
+    val selectedTheme: StateFlow<String>
+        field = MutableStateFlow("Tema Claro")
 
     init {
         viewModelScope.launch {
             themePreferences.selectedTheme.collect { theme ->
-                _selectedTheme.value = theme
+                selectedTheme.value = theme
             }
         }
     }
 
     fun loadUserPoints(userId: String) {
         viewModelScope.launch {
-            pointsRepository.getUserPoints(userId).collectLatest { userPoints ->
-                _userPoints.value = userPoints?.points ?: 0
-            }
+            pointsRepository.getUserPoints(userId).map { it.points }.stateIn(
+                scope = viewModelScope,
+                started = kotlinx.coroutines.flow.SharingStarted.WhileSubscribed(5_000),
+                initialValue = 0,
+            )
         }
     }
 
@@ -84,8 +87,8 @@ class StoreViewModel @Inject constructor(
 
             purchasedItemsDao.getUserPurchasedThemes(userId).collectLatest { themes ->
                 Timber.tag("StoreViewModel").d("📌 Temas cargados desde la BD: $themes") // ✅ Debug
-                _purchasedThemes.value = themes
-                _unlockedThemes.value = themes.map { it.themeName }.toSet()
+                purchasedThemes.value = themes
+                unlockedThemes.value = themes.map { it.themeName }.toSet()
             }
         }
     }
@@ -94,14 +97,14 @@ class StoreViewModel @Inject constructor(
         viewModelScope.launch {
             purchasedItemsDao.getUserPurchasedThemes(Firebase.auth.currentUser?.uid ?: "").collectLatest { themes ->
                 val updatedThemes = themes.map { it.themeName }.toSet()
-                _unlockedThemes.value = updatedThemes + "Tema Claro" // ✅ Siempre incluir el tema "Claro"
+                unlockedThemes.value = updatedThemes + "Tema Claro" // ✅ Siempre incluir el tema "Claro"
                 Timber.tag("StoreViewModel").d("🔓 Temas desbloqueados: $updatedThemes")
             }
         }
     }
 
     fun purchaseItem(userId: String, item: StoreItem): Boolean {
-        if (_userPoints.value >= item.price) {
+        if (userPoints.value >= item.price) {
             viewModelScope.launch {
                 pointsRepository.spendPoints(userId, item.price)
                 val purchasedItem = PurchasedItem(
@@ -111,7 +114,7 @@ class StoreViewModel @Inject constructor(
                     price = item.price,
                 )
                 purchasedItemsDao.insertPurchasedItem(purchasedItem)
-                _userPoints.value -= item.price
+                userPoints.value -= item.price
                 loadPurchasedItems(userId)
             }
             return true
@@ -120,7 +123,7 @@ class StoreViewModel @Inject constructor(
     }
 
     fun purchaseTheme(userId: String, item: StoreTheme): Boolean {
-        if (_userPoints.value >= item.price) {
+        if (userPoints.value >= item.price) {
             viewModelScope.launch {
                 pointsRepository.spendPoints(userId, item.price)
                 val purchasedTheme = PurchasedTheme(
@@ -131,10 +134,10 @@ class StoreViewModel @Inject constructor(
                 )
                 purchasedItemsDao.insertPurchasedTheme(purchasedTheme)
 
-                _userPoints.value -= item.price
+                userPoints.value -= item.price
 
                 // ✅ Actualizar `unlockedThemes` inmediatamente en la UI antes de cargar de Room
-                _unlockedThemes.value = _unlockedThemes.value + item.name
+                unlockedThemes.value = unlockedThemes.value + item.name
 
                 // ✅ Asegurar que los datos persistan en la base de datos
                 loadPurchasedItems(userId)

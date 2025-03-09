@@ -26,12 +26,6 @@ class PointsViewModel @AssistedInject constructor(
         initialValue = 0,
     )
 
-//            pointsRepository.getUserPoints(userId).collectLatest { userPoints ->
-//                this@PointsViewModel.userPoints.update { userPoints.points }
-//            }
-//        }
-//    }
-
     fun addPoints(userId: String, points: Int) {
         viewModelScope.launch {
             pointsRepository.addPoints(userId, points)

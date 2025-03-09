@@ -17,7 +17,6 @@ import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.debounce
@@ -44,15 +43,15 @@ class HabitsViewModel @Inject constructor(
         habitsRepository.syncFromFirestore(viewModelScope, "")
     }
 
-    private val _showDialog = MutableLiveData<Boolean>()
-    val showDialog: LiveData<Boolean> = _showDialog
+    val showDialog: LiveData<Boolean>
+        field = MutableLiveData<Boolean>()
 
-    private val _searchQuery = MutableStateFlow("")
-    val searchQuery: StateFlow<String> = _searchQuery.asStateFlow()
+    val searchQuery: StateFlow<String>
+        field = MutableStateFlow("")
 
     init {
         viewModelScope.launch {
-            _searchQuery
+            searchQuery
                 .debounce(500) // Espera 500ms después del último cambio antes de consultar Firestore
                 .collectLatest { query ->
                     habitsRepository.syncFromFirestore(viewModelScope, query)
@@ -61,15 +60,15 @@ class HabitsViewModel @Inject constructor(
     }
 
     fun onSearchQueryChanged(query: String) {
-        _searchQuery.value = query // Se actualiza el StateFlow, lo que dispara la búsqueda con debounce
+        searchQuery.value = query // Se actualiza el StateFlow, lo que dispara la búsqueda con debounce
     }
 
     fun onDialogClose() {
-        _showDialog.value = false
+        showDialog.value = false
     }
 
     fun onTaskCreated(title: String, description: String) {
-        _showDialog.value = false
+        showDialog.value = false
 
         viewModelScope.launch {
             addTaskUserCase(HabitsModel(title = title, description = description))
@@ -77,7 +76,7 @@ class HabitsViewModel @Inject constructor(
     }
 
     fun onShowDialogSelected() {
-        _showDialog.value = true
+        showDialog.value = true
     }
 
     fun onItemRemove(taskModel: HabitsModel) {

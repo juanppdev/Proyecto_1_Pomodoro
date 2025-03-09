@@ -19,7 +19,6 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
@@ -34,15 +33,15 @@ class LoginViewModel @Inject constructor(
     private val credentialManager: CredentialManager,
 ) : ViewModel() {
 
-    private val _loginSuccess = MutableStateFlow(false)
-    val loginSuccess: StateFlow<Boolean> = _loginSuccess
+    val loginSuccess: StateFlow<Boolean>
+        field = MutableStateFlow(false)
+
+    val errorMessage: StateFlow<String?>
+        field = MutableStateFlow<String?>(null)
 
     init {
         checkUserSession() // Verifica si hay una sesión activa al iniciar
     }
-
-    private val _errorMessage = MutableStateFlow<String?>(null)
-    val errorMessage: StateFlow<String?> = _errorMessage.asStateFlow()
 
     fun registerWithEmail(name: String, email: String, password: String) {
         firebaseAuth.createUserWithEmailAndPassword(email, password)
@@ -54,30 +53,30 @@ class LoginViewModel @Inject constructor(
                     },
                 )?.addOnCompleteListener {
                     if (it.isSuccessful) {
-                        _loginSuccess.value = true
+                        loginSuccess.value = true
                     } else {
-                        _errorMessage.value = it.exception?.message
+                        errorMessage.value = it.exception?.message
                     }
                 }
             }
             .addOnFailureListener { exception ->
-                _errorMessage.value = exception.message
+                errorMessage.value = exception.message
             }
     }
 
     fun loginWithEmail(email: String, password: String) {
         firebaseAuth.signInWithEmailAndPassword(email, password)
             .addOnSuccessListener {
-                _loginSuccess.value = true
+                loginSuccess.value = true
             }
             .addOnFailureListener { exception ->
-                _errorMessage.value = exception.message
+                errorMessage.value = exception.message
             }
     }
 
     private fun checkUserSession() {
         val currentUser = firebaseAuth.currentUser
-        _loginSuccess.value = currentUser != null
+        loginSuccess.value = currentUser != null
         if (currentUser != null) {
             Timber.tag("LoginViewModel").d("Usuario autenticado: ${currentUser.email}")
         } else {
@@ -91,11 +90,11 @@ class LoginViewModel @Inject constructor(
                 result.fold(
                     onSuccess = {
                         Timber.tag("LoginViewModel").d("Google sign-in successful")
-                        _loginSuccess.value = true
+                        loginSuccess.value = true
                     },
                     onFailure = { e ->
                         Timber.tag("LoginViewModel").e(e, "Google sign-in failed")
-                        _loginSuccess.value = false
+                        loginSuccess.value = false
                     },
                 )
             }
