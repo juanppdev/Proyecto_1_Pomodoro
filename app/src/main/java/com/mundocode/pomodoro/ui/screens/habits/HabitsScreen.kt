@@ -54,24 +54,34 @@ import com.mundocode.pomodoro.R
 import com.mundocode.pomodoro.ui.components.CustomTopAppBar
 import com.mundocode.pomodoro.ui.components.DialogPopUp
 import com.mundocode.pomodoro.ui.components.SwipeBox
-import com.mundocode.pomodoro.ui.screens.SharedPointsViewModel
 import com.mundocode.pomodoro.ui.screens.habits.model.HabitsModel
 import com.mundocode.pomodoro.ui.screens.points.PointsViewModel
+import com.mundocode.pomodoro.ui.screens.points.PointsViewModelFactoryProvider
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HabitsScreen(
     viewModel: HabitsViewModel = hiltViewModel(),
     navController: NavController,
-    pointsViewModel: PointsViewModel = hiltViewModel(),
-    sharedPointsViewModel: SharedPointsViewModel = hiltViewModel(),
+    factoryProvider: PointsViewModelFactoryProvider = hiltViewModel(),
+//    sharedPointsViewModel: SharedPointsViewModel = hiltViewModel(),
 ) {
-    val showDialog: Boolean by viewModel.showDialog.observeAsState(false)
     val lifecycle = LocalLifecycleOwner.current.lifecycle
 
     val user = Firebase.auth.currentUser
+    val userId = Firebase.auth.currentUser?.uid ?: ""
+
+    // Crear el ViewModel usando la factory del provider
+    val pointsViewModel: PointsViewModel = viewModel(
+        factory = PointsViewModel.provideFactory(
+            assistedFactory = factoryProvider.pointsViewModelFactory,
+            userId = userId,
+        ),
+    )
 
     val searchQuery by viewModel.searchQuery.collectAsState()
+    val showDialog by viewModel.showDialog.observeAsState(false)
+    val userPoints by pointsViewModel.userPoints.collectAsState()
 
     val uiState by produceState<HabitsUIState>(
         initialValue = HabitsUIState.Loading,
@@ -83,11 +93,9 @@ fun HabitsScreen(
         }
     }
 
-    LaunchedEffect(Unit) {
-        pointsViewModel.loadUserPoints(user?.displayName.toString())
-    }
-
-    val userPoints by sharedPointsViewModel.userPoints.collectAsState()
+//    LaunchedEffect(Unit) {
+//        pointsViewModel.loadUserPoints(user?.displayName.toString())
+//    }
 
     MaterialTheme {
         Scaffold(

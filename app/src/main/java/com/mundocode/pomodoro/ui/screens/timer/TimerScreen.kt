@@ -40,18 +40,20 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.animateLottieCompositionAsState
 import com.airbnb.lottie.compose.rememberLottieComposition
-import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import com.mundocode.pomodoro.R
 import com.mundocode.pomodoro.core.navigation.Destinations
 import com.mundocode.pomodoro.model.local.Timer
 import com.mundocode.pomodoro.ui.components.CustomTopAppBar
-import com.mundocode.pomodoro.ui.screens.SharedPointsViewModel
 import com.mundocode.pomodoro.ui.screens.points.PointsViewModel
+import com.mundocode.pomodoro.ui.screens.points.PointsViewModelFactoryProvider
 import com.mundocode.pomodoro.ui.theme.PomodoroTheme
 import kotlinx.serialization.ExperimentalSerializationApi
 import com.kiwi.navigationcompose.typed.navigate as kiwiNavigate
@@ -61,9 +63,19 @@ import com.kiwi.navigationcompose.typed.navigate as kiwiNavigate
 fun TimerScreen(
     navController: NavController,
     viewModel: TimerViewModel = hiltViewModel(),
-    pointsViewModel: PointsViewModel = hiltViewModel(),
-    sharedPointsViewModel: SharedPointsViewModel = hiltViewModel(),
+    factoryProvider: PointsViewModelFactoryProvider = hiltViewModel(),
 ) {
+    val user = Firebase.auth.currentUser
+    val userId = Firebase.auth.currentUser?.uid ?: ""
+
+    // Crear el ViewModel usando la factory del provider
+    val pointsViewModel: PointsViewModel = viewModel(
+        factory = PointsViewModel.provideFactory(
+            assistedFactory = factoryProvider.pointsViewModelFactory,
+            userId = userId,
+        ),
+    )
+
     val savedStateHandle = navController.previousBackStackEntry?.savedStateHandle
     val timerJson = savedStateHandle?.get<String>("timer") ?: ""
     val timer = if (timerJson.isNotEmpty()) {
@@ -77,12 +89,11 @@ fun TimerScreen(
         ) // ✅ Usar fromJson()
     }
     val context = LocalContext.current // ✅ Obtener `context`
-    val user = FirebaseAuth.getInstance().currentUser
-    val userPoints by sharedPointsViewModel.userPoints.collectAsState()
+    val userPoints by pointsViewModel.userPoints.collectAsState()
 
-    LaunchedEffect(Unit) {
-        pointsViewModel.loadUserPoints(user?.displayName.toString())
-    }
+//    LaunchedEffect(Unit) {
+//        pointsViewModel.loadUserPoints(user?.displayName.toString())
+//    }
 
     LaunchedEffect(timer) {
         viewModel.setupTimer(timer)
