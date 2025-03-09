@@ -54,11 +54,18 @@ import com.mundocode.pomodoro.R
 import com.mundocode.pomodoro.ui.components.CustomTopAppBar
 import com.mundocode.pomodoro.ui.components.DialogPopUp
 import com.mundocode.pomodoro.ui.components.SwipeBox
+import com.mundocode.pomodoro.ui.screens.SharedPointsViewModel
 import com.mundocode.pomodoro.ui.screens.habits.model.HabitsModel
+import com.mundocode.pomodoro.ui.screens.points.PointsViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HabitsScreen(viewModel: HabitsViewModel = hiltViewModel(), navController: NavController) {
+fun HabitsScreen(
+    viewModel: HabitsViewModel = hiltViewModel(),
+    navController: NavController,
+    pointsViewModel: PointsViewModel = hiltViewModel(),
+    sharedPointsViewModel: SharedPointsViewModel = hiltViewModel(),
+) {
     val showDialog: Boolean by viewModel.showDialog.observeAsState(false)
     val lifecycle = LocalLifecycleOwner.current.lifecycle
 
@@ -76,6 +83,12 @@ fun HabitsScreen(viewModel: HabitsViewModel = hiltViewModel(), navController: Na
         }
     }
 
+    LaunchedEffect(Unit) {
+        pointsViewModel.loadUserPoints(user?.displayName.toString())
+    }
+
+    val userPoints by sharedPointsViewModel.userPoints.collectAsState()
+
     MaterialTheme {
         Scaffold(
             topBar = {
@@ -92,6 +105,7 @@ fun HabitsScreen(viewModel: HabitsViewModel = hiltViewModel(), navController: Na
                             )
                         }
                     },
+                    texto = "Puntos: $userPoints",
                 )
             },
             floatingActionButton = {
@@ -113,7 +127,7 @@ fun HabitsScreen(viewModel: HabitsViewModel = hiltViewModel(), navController: Na
                 searchQuery = searchQuery,
                 onSearchQueryChangedIT = viewModel::onSearchQueryChanged,
                 onSearchQueryChanged = viewModel::onSearchQueryChanged,
-                onDialogClose = viewModel::onDialogClose,
+                onDialogClose = { viewModel.onDialogClose() },
                 onTaskCreated = viewModel::onTaskCreated,
             )
         }
@@ -149,7 +163,7 @@ fun HabitsContent(
                 localSearchQuery = it
                 onSearchQueryChangedIT(it)
             },
-            label = { Text("Buscar") },
+            label = { Text("Buscar", color = MaterialTheme.colorScheme.onSurface) },
             keyboardOptions = KeyboardOptions.Default.copy(
                 imeAction = ImeAction.Search,
             ),
@@ -207,6 +221,9 @@ fun MyCard(taskModel: HabitsModel, habitsViewModel: HabitsViewModel) {
                 .padding(8.dp),
             shape = RoundedCornerShape(8.dp),
             elevation = CardDefaults.cardElevation(4.dp),
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.secondary,
+            ),
         ) {
             Column(
                 modifier = Modifier.padding(16.dp),
@@ -218,7 +235,7 @@ fun MyCard(taskModel: HabitsModel, habitsViewModel: HabitsViewModel) {
                     text = taskModel.title,
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color.Black,
+                    color = MaterialTheme.colorScheme.onSecondary,
                 )
 
                 Spacer(modifier = Modifier.height(4.dp))
@@ -227,7 +244,7 @@ fun MyCard(taskModel: HabitsModel, habitsViewModel: HabitsViewModel) {
                 Text(
                     text = taskModel.description,
                     fontSize = 16.sp,
-                    color = Color.Gray,
+                    color = MaterialTheme.colorScheme.onSecondary,
                 )
             }
         }

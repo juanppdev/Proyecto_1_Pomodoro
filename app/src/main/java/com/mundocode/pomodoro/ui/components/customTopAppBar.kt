@@ -1,6 +1,9 @@
 package com.mundocode.pomodoro.ui.components
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.Text
 import androidx.compose.material3.IconButton
@@ -19,22 +22,44 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.DpOffset
+import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import com.mundocode.pomodoro.core.navigation.Destinations
+import kotlinx.serialization.ExperimentalSerializationApi
+import com.kiwi.navigationcompose.typed.navigate as kiwiNavigation
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalSerializationApi::class)
 @Composable
 fun CustomTopAppBar(
     navController: NavController,
     title: String,
     image: String,
     navigationIcon: @Composable () -> Unit = {},
+    texto: String,
+    onNavPoints: () -> Unit = {},
 ) {
     var isMenuExpanded by remember { mutableStateOf(false) }
 
     TopAppBar(
-        title = { Text(text = title) },
+        title = {
+            Text(
+                text = title,
+                color = MaterialTheme.colorScheme.inverseSurface,
+            )
+        },
         navigationIcon = navigationIcon,
         actions = {
+            Text(
+                text = texto,
+                modifier = Modifier.padding(horizontal = 30.dp).clickable(
+                    onClick = {
+                        onNavPoints()
+                    },
+                ),
+                color = MaterialTheme.colorScheme.inverseSurface,
+            )
+
             IconButton(onClick = { isMenuExpanded = true }) {
                 AsyncImage(
                     model = image,
@@ -46,29 +71,13 @@ fun CustomTopAppBar(
             DropdownMenu(
                 expanded = isMenuExpanded,
                 onDismissRequest = { isMenuExpanded = false },
+                offset = DpOffset(250.dp, 0.dp), // 🔹 Ajuste para mover el menú a la derecha si es necesario
+                modifier = Modifier.background(MaterialTheme.colorScheme.surface),
             ) {
                 DropdownMenuItem(
                     onClick = {
                         isMenuExpanded = false
-                        navController.navigate("screen1")
-                    },
-                    text = {
-                        Text("Screen 1")
-                    },
-                )
-                DropdownMenuItem(
-                    onClick = {
-                        isMenuExpanded = false
-                        navController.navigate("screen2")
-                    },
-                    text = {
-                        Text("Screen 2")
-                    },
-                )
-                DropdownMenuItem(
-                    onClick = {
-                        isMenuExpanded = false
-                        navController.navigate("screen3")
+                        navController.kiwiNavigation(Destinations.SettingsScreen)
                     },
                     text = {
                         Text("Configuración")
@@ -90,5 +99,6 @@ fun PreviewCustomTopAppBar() {
         navController = NavController(LocalContext.current),
         title = "Custom Top App Bar",
         image = "https://example.com/avatar.jpg",
+        texto = "Puntos: 50",
     )
 }

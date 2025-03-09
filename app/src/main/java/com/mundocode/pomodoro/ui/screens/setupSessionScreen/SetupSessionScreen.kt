@@ -24,6 +24,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -42,14 +43,26 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.mundocode.pomodoro.core.navigation.Destinations
 import com.mundocode.pomodoro.ui.components.CustomTopAppBar
+import com.mundocode.pomodoro.ui.screens.SharedPointsViewModel
+import com.mundocode.pomodoro.ui.screens.points.PointsViewModel
 import kotlinx.serialization.ExperimentalSerializationApi
 import com.kiwi.navigationcompose.typed.navigate as kiwiNavigate
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalSerializationApi::class)
 @Composable
-fun SetupSessionScreen(navController: NavController, viewModel: SetupSessionViewModel = hiltViewModel()) {
+fun SetupSessionScreen(
+    navController: NavController,
+    viewModel: SetupSessionViewModel = hiltViewModel(),
+    pointsViewModel: PointsViewModel = hiltViewModel(),
+    sharedPointsViewModel: SharedPointsViewModel = hiltViewModel(),
+) {
     val state by viewModel.sessionState.collectAsStateWithLifecycle()
     val user = Firebase.auth.currentUser
+    val userPoints by sharedPointsViewModel.userPoints.collectAsState()
+
+    LaunchedEffect(Unit) {
+        pointsViewModel.loadUserPoints(user?.displayName.toString())
+    }
 
     Scaffold(
         topBar = {
@@ -66,6 +79,7 @@ fun SetupSessionScreen(navController: NavController, viewModel: SetupSessionView
                         )
                     }
                 },
+                texto = "Puntos: $userPoints",
             )
         },
     ) { padding ->
@@ -99,21 +113,23 @@ fun SetupSessionContent(
         modifier = modifier
             .fillMaxSize()
             .padding(16.dp)
-            .background(Color(0xFFF7F7F7)),
+            .background(MaterialTheme.colorScheme.background),
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
         Text(
             text = "Descripción de la Sesión",
             style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
-            color = Color(0xFF333333),
+            color = MaterialTheme.colorScheme.onSurface,
         )
         OutlinedTextField(
             value = state.timer.sessionName,
             onValueChange = updateSessionName,
             shape = RoundedCornerShape(18.dp),
-            label = { Text("Nombre de la sesión") },
+            label = { Text("Nombre de la sesión", color = MaterialTheme.colorScheme.onSurface) },
             modifier = Modifier.fillMaxWidth(),
-            leadingIcon = { Icon(Icons.Default.Edit, contentDescription = null) },
+            leadingIcon = {
+                Icon(Icons.Default.Edit, contentDescription = null, tint = MaterialTheme.colorScheme.secondary)
+            },
         )
 
         Row(
@@ -123,13 +139,13 @@ fun SetupSessionContent(
             Text(
                 text = "Temporizador Personalizado",
                 style = MaterialTheme.typography.bodyMedium,
-                color = Color(0xFF333333),
+                color = MaterialTheme.colorScheme.onSurface,
             )
             Button(
                 onClick = { showTimerPicker = true },
                 shape = MaterialTheme.shapes.medium,
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.onSurface,
+                    containerColor = MaterialTheme.colorScheme.onSurfaceVariant,
                 ),
             ) {
                 Text(state.timer.timer, color = Color.White)
@@ -151,13 +167,13 @@ fun SetupSessionContent(
             Text(
                 text = "Temporizador de Pausa",
                 style = MaterialTheme.typography.bodyMedium,
-                color = Color(0xFF333333),
+                color = MaterialTheme.colorScheme.onSurface,
             )
             Button(
                 onClick = { showPausePicker = true },
                 shape = MaterialTheme.shapes.medium,
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.onSurface,
+                    containerColor = MaterialTheme.colorScheme.onSurfaceVariant,
                 ),
             ) {
                 Text(state.timer.pause, color = Color.White)
@@ -179,13 +195,13 @@ fun SetupSessionContent(
                 .height(50.dp),
             shape = MaterialTheme.shapes.medium,
             colors = ButtonDefaults.buttonColors(
-                containerColor = MaterialTheme.colorScheme.error,
+                containerColor = MaterialTheme.colorScheme.primary,
             ),
         ) {
             Text(
                 text = "Iniciar Sesión", // TODO: Extract string
                 style = MaterialTheme.typography.bodyLarge,
-                color = Color.White,
+                color = MaterialTheme.colorScheme.onPrimary,
             )
         }
     }
