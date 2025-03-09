@@ -1,5 +1,6 @@
 package com.mundocode.pomodoro.ui.screens.homeScreen
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mundocode.pomodoro.data.sessionDb.SessionDao
@@ -27,6 +28,9 @@ class HomeViewModel @Inject constructor(private val sessionDao: SessionDao) : Vi
 
     private val _xLabels = MutableStateFlow<List<String>>(emptyList())
     val xLabels: StateFlow<List<String>> = _xLabels.asStateFlow()
+
+    private val _totalTimeData = MutableStateFlow<Map<String, Float>>(emptyMap()) // 🔹 Nuevo dataset
+    val totalTimeData: StateFlow<Map<String, Float>> = _totalTimeData.asStateFlow()
 
     init {
         viewModelScope.launch {
@@ -58,26 +62,29 @@ class HomeViewModel @Inject constructor(private val sessionDao: SessionDao) : Vi
             else -> endDate
         }
 
+        Log.d("HomeViewModel", "🔍 Buscando sesiones entre: $startDate y $endDate")
+
         viewModelScope.launch {
             sessionDao.getSessionsBetweenDatesFlow(startDate, endDate).collect { sessions ->
-                // ✅ Se actualiza en tiempo real
+                Log.d("HomeViewModel", "📊 Sesiones recibidas de Room: $sessions")
                 processSessions(filter, sessions)
             }
         }
     }
 
     private fun processSessions(filter: String, sessions: List<SessionEntity>) {
+        Log.d("DailyChart", "📊 TotalTimeData (Daily): $_totalTimeData")
+
         when (filter) {
             "Daily" -> {
                 val today = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
                 val sessionsToday = sessions.filter { it.date.startsWith(today) }
 
-                val totalSeconds = sessionsToday.sumOf { it.duration.toIntOrNull() ?: 0 }
-                val totalMinutes = totalSeconds / 60f
+                val totalSessions = sessionsToday.size.toFloat() // 🔹 Cantidad de sesiones
+                val totalMinutes = sessionsToday.sumOf { convertDurationToMinutes(it.duration) } // 🔹 Total minutos
 
-                Timber.tag("HomeViewModel").d("📊 Daily: $today -> $totalMinutes minutos")
-
-                _sessionsData.value = mapOf(today to totalMinutes)
+                _sessionsData.value = mapOf(today to totalSessions) // 🔹 Sesiones por día
+                _totalTimeData.value = mapOf(today to totalMinutes.toFloat()) // 🔹 Minutos totales
                 _xLabels.value = listOf(today)
             }
 
@@ -94,9 +101,7 @@ class HomeViewModel @Inject constructor(private val sessionDao: SessionDao) : Vi
 
                     if (weekDays.contains(dayName)) {
                         val durationMinutes = convertDurationToMinutes(session.duration)
-                        sessionsByDay[dayName] = (sessionsByDay[dayName] ?: 0f) + durationMinutes
-                    } else {
-                        Timber.tag("HomeViewModel").d("⚠️ Día ignorado: $dayName no está en la lista de días válidos.")
+                        sessionsByDay[dayName] = ((sessionsByDay[dayName] ?: 0f) + durationMinutes).toFloat()
                     }
                 }
 
@@ -107,44 +112,44 @@ class HomeViewModel @Inject constructor(private val sessionDao: SessionDao) : Vi
             }
 
             "Monthly" -> {
-                val calendarFormat = SimpleDateFormat("dd", Locale.getDefault())
-                val sessionsByDay = mutableMapOf<String, Float>()
+                val calendarFormat = SimpleDateFormat("d", Locale.getDefault())
+                val sessionsByDay = mutableMapOf<Int, Float>()
+                val daysInMonth = Calendar.getInstance().getActualMaximum(Calendar.DAY_OF_MONTH)
 
-                for (i in 1..Calendar.getInstance().getActualMaximum(Calendar.DAY_OF_MONTH)) {
-                    sessionsByDay[i.toString()] = 0f
+                for (i in 1..daysInMonth) {
+                    sessionsByDay[i] = 0f
                 }
 
                 sessions.forEach { session ->
                     val parsedDate = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).parse(session.date)
-                    val dayOfMonth = calendarFormat.format(parsedDate!!)
+                    val dayOfMonth = calendarFormat.format(parsedDate!!).toInt()
                     val durationMinutes = convertDurationToMinutes(session.duration)
 
-                    Timber.tag("HomeViewModel")
-                        .d("📅 Día $dayOfMonth procesado con duración: ${session.duration} -> $durationMinutes minutos")
-
-                    sessionsByDay[dayOfMonth] = (sessionsByDay[dayOfMonth] ?: 0f) + durationMinutes
+                    sessionsByDay[dayOfMonth] = ((sessionsByDay[dayOfMonth] ?: 0f) + durationMinutes).toFloat()
                 }
 
-                val today = Calendar.getInstance().get(Calendar.DAY_OF_MONTH).toString()
+                val today = Calendar.getInstance().get(Calendar.DAY_OF_MONTH)
                 if (!sessionsByDay.containsKey(today)) {
                     sessionsByDay[today] = 0f
                 }
 
-                Timber.tag("HomeViewModel").d("📊 Monthly después de procesar: $sessionsByDay")
+                val sortedKeys = sessionsByDay.keys.sorted()
 
-                _sessionsData.value = sessionsByDay
-                _xLabels.value = sessionsByDay.keys.toList()
+                Log.d("HomeViewModel", "📊 Monthly después de procesar: $sessionsByDay")
+
+                _sessionsData.value = sessionsByDay.mapKeys { it.key.toString() }
+                _xLabels.value = sortedKeys.map { it.toString() }
             }
         }
     }
 }
 
-fun convertDurationToMinutes(duration: String): Float {
+fun convertDurationToMinutes(duration: String): Double {
     val parts = duration.split(":")
-    if (parts.size != 2) return 0f
+    if (parts.size != 2) return 0.0
 
-    val minutes = parts[0].toFloatOrNull() ?: 0f
-    val seconds = parts[1].toFloatOrNull() ?: 0f
+    val minutes = parts[0].toDoubleOrNull() ?: 0.0
+    val seconds = parts[1].toDoubleOrNull() ?: 0.0
 
-    return minutes + (seconds / 60f) // ✅ Convertir segundos a minutos
+    return minutes + (seconds / 60.0) // ✅ Ahora devuelve `Double`
 }

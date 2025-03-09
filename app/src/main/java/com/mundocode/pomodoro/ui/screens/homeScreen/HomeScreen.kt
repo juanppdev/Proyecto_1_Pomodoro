@@ -18,6 +18,8 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material3.AlertDialog
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.material3.Button
@@ -26,14 +28,18 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -52,25 +58,50 @@ import com.mundocode.pomodoro.core.navigation.Destinations
 import com.mundocode.pomodoro.ui.components.CustomTopAppBar
 import kotlinx.serialization.ExperimentalSerializationApi
 import com.github.mikephil.charting.charts.BarChart
+import com.github.mikephil.charting.components.Legend
 import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.data.BarData
 import com.github.mikephil.charting.data.BarDataSet
 import com.github.mikephil.charting.data.BarEntry
 import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
 import com.github.mikephil.charting.formatter.ValueFormatter
+import com.google.firebase.auth.FirebaseUser
+import com.mundocode.pomodoro.ui.screens.SharedPointsViewModel
+import com.mundocode.pomodoro.ui.screens.points.PointsViewModel
+import com.mundocode.pomodoro.ui.screens.points.StoreViewModel
+import com.mundocode.pomodoro.ui.screens.timer.TimerViewModel
+import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.util.Calendar
 import com.kiwi.navigationcompose.typed.navigate as kiwiNavigation
 
 @OptIn(ExperimentalSerializationApi::class)
 @Composable
-fun HomeScreen(viewModel: HomeViewModel = hiltViewModel(), navController: NavController) {
+fun HomeScreen(
+    viewModel: HomeViewModel = hiltViewModel(),
+    navController: NavController,
+    pointsViewModel: PointsViewModel = hiltViewModel(),
+    sharedPointsViewModel: SharedPointsViewModel = hiltViewModel(),
+    timerViewModel: TimerViewModel = hiltViewModel(),
+    storeViewModel: StoreViewModel = hiltViewModel(),
+) {
     val sessionsData by viewModel.sessionsData.collectAsState()
     val xLabels by viewModel.xLabels.collectAsState()
 
     var selectedOption by remember { mutableStateOf("Weekly") }
-    var expanded by remember { mutableStateOf(false) }
     val user = Firebase.auth.currentUser
+
+    val userPoints by sharedPointsViewModel.userPoints.collectAsState()
+    val coroutineScope = rememberCoroutineScope()
+
+    val totalTime = viewModel.totalTimeData.collectAsState().value
+
+    LaunchedEffect(Unit) {
+        pointsViewModel.loadUserPoints(user?.displayName.toString())
+        coroutineScope.launch {
+            timerViewModel.loadPomodoroStats()
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -79,10 +110,20 @@ fun HomeScreen(viewModel: HomeViewModel = hiltViewModel(), navController: NavCon
                 title = "Pomodoro",
                 image = user?.photoUrl.toString(),
                 navigationIcon = {},
+                texto = "Puntos: $userPoints",
+                onNavPoints = {
+                    navController.kiwiNavigation(Destinations.StoreScreen)
+                },
             )
         },
         modifier = Modifier.fillMaxSize(),
     ) { padding ->
+
+        val userId = Firebase.auth.currentUser?.uid ?: ""
+
+        LaunchedEffect(Unit) {
+            storeViewModel.loadPurchasedItems(userId) // ✅ Cargar temas desbloqueados
+        }
 
         LazyColumn {
             item {
@@ -92,110 +133,19 @@ fun HomeScreen(viewModel: HomeViewModel = hiltViewModel(), navController: NavCon
                         .background(color = MaterialTheme.colorScheme.background)
                         .padding(padding),
                 ) {
-                    Column(modifier = Modifier.padding(8.dp)) {
-                        Text(
-                            text = "Bienvenido ${user?.displayName}",
-                            fontSize = 24.sp,
-                            modifier = Modifier.padding(8.dp),
-                            color = MaterialTheme.colorScheme.onSecondary,
-                        )
-                        Text(
-                            text = "¿Qué quieres hacer hoy?",
-                            fontSize = 32.sp,
-                            fontWeight = FontWeight.Bold,
-                            modifier = Modifier.padding(8.dp),
-                            color = MaterialTheme.colorScheme.onSecondary,
-                        )
-                    }
-
-                    Column(modifier = Modifier.padding(8.dp)) {
-                        Text(
-                            text = "Tus favoritos",
-                            fontSize = 24.sp,
-                            modifier = Modifier.padding(8.dp),
-                            color = MaterialTheme.colorScheme.onSecondary,
-                        )
-
-                        Spacer(modifier = Modifier.padding(4.dp))
-
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceEvenly,
-                        ) {
-                            FavouritesButtons(0xFFFF4E21)
-                            FavouritesButtons(0xFF6366F1)
-                            FavouritesButtons(0xFF900300)
-                        }
-                    }
-
-                    Spacer(modifier = Modifier.padding(16.dp))
-
-                    Column(modifier = Modifier.padding(8.dp)) {
-                        OptionButtons(
-                            color = 0xFFB51C1C,
-                            textButton = "Empezar\nPomodoro",
-                            icon = R.drawable.timer_icon,
-                            descriptionIcon = "botón de Empezar Pomodoro",
-                            onClick = {
-                                navController.kiwiNavigation(Destinations.SetupSessionScreen)
-                            },
-                        )
-
-                        OptionButtons(
-                            color = 0xFF06B6D4,
-                            textButton = "Ver\nHábitos",
-                            icon = R.drawable.habit_icon,
-                            descriptionIcon = "botón Ver Hábitos",
-                            onClick = {
-                                navController.kiwiNavigation(Destinations.HabitsScreen)
-                            },
-                        )
-
-                        OptionButtons(
-                            color = 0xFF6366F1,
-                            textButton = "Ver\nTareas",
-                            icon = R.drawable.checklist_icon,
-                            descriptionIcon = "botón Ver Tareas",
-                            onClick = {
-                                navController.kiwiNavigation(Destinations.TaskScreen)
-                            },
-                        )
-                    }
-
-                    Log.d("HomeScreen", "📊 Datos recibidos: $sessionsData")
-                    Log.d("HomeScreen", "🗓 Etiquetas en X: $xLabels")
-
-                    Column {
-                        // Dropdown para seleccionar la vista
-                        Box {
-                            Button(onClick = { expanded = true }) { Text(selectedOption, color = Color.White) }
-                            DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-                                listOf("Daily", "Weekly", "Monthly").forEach { option ->
-                                    DropdownMenuItem(
-                                        text = { Text(option) },
-                                        onClick = {
-                                            if (selectedOption != option) { // ✅ Solo actualizar si la opción cambia
-                                                selectedOption = option
-                                                expanded = false
-                                                viewModel.loadSessions(option) // ✅ Cargar los datos según la selección
-                                            } else {
-                                                expanded = false
-                                            }
-                                        },
-                                    )
-                                }
-                            }
-                        }
-
-                        Spacer(modifier = Modifier.height(16.dp))
-
-                        // ✅ Cambiar el contenido según la selección
-                        when (selectedOption) {
-                            "Daily" -> DailyChart(sessionsData, xLabels)
-                            "Weekly" -> BarChartS(sessionsData, xLabels)
-                            "Monthly" -> MonthlyCalendar(sessionsData)
-                        }
-                    }
+                    WelcomeSection(user)
+                    FavoritesSection()
+                    OptionsSection(navController)
+                    StatsSection(
+                        selectedOption,
+                        onOptionSelected = {
+                            selectedOption = it
+                            viewModel.loadSessions(it)
+                        },
+                        sessionsData,
+                        xLabels,
+                        totalTime,
+                    )
                 }
             }
         }
@@ -203,91 +153,298 @@ fun HomeScreen(viewModel: HomeViewModel = hiltViewModel(), navController: NavCon
 }
 
 @Composable
-fun DailyChart(sessionsData: Map<String, Float>, xLabels: List<String>) {
-    if (sessionsData.isEmpty()) {
-        Text("⚠️ No hay datos de hoy", fontSize = 18.sp, fontWeight = FontWeight.Bold)
-        return
+fun WelcomeSection(user: FirebaseUser?) {
+    Column(modifier = Modifier.padding(8.dp)) {
+        Text(
+            text = "Bienvenid@, ${user?.displayName ?: "Usuario"}",
+            fontSize = 24.sp,
+            modifier = Modifier.padding(8.dp),
+            color = MaterialTheme.colorScheme.onSurface,
+        )
+        Text(
+            text = "¿Qué quieres hacer hoy?",
+            fontSize = 32.sp,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(8.dp),
+            color = MaterialTheme.colorScheme.onSurface,
+        )
     }
-    val dataEntries = sessionsData.entries.mapIndexed { index, entry ->
-        BarEntry(index.toFloat(), entry.value) // ✅ Mostrar datos en minutos
-    }
-
-    AndroidView(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(200.dp),
-        factory = { context ->
-            BarChart(context).apply {
-                description.isEnabled = false
-                legend.isEnabled = true
-                setTouchEnabled(true)
-
-                axisLeft.granularity = 1f
-                axisLeft.axisMinimum = 0f
-                axisRight.granularity = 1f
-                axisRight.axisMinimum = 0f
-
-                xAxis.valueFormatter = IndexAxisValueFormatter(xLabels)
-                xAxis.granularity = 1f
-                xAxis.position = XAxis.XAxisPosition.BOTTOM
-                xAxis.setDrawGridLines(false)
-                xAxis.setLabelCount(xLabels.size, true)
-
-                data = BarData(
-                    BarDataSet(dataEntries, "Sesión de hoy").apply {
-                        colors = listOf(Color.Blue.toArgb(), Color.Red.toArgb())
-                        valueFormatter = IntegerValueFormatter()
-                    },
-                )
-                invalidate()
-            }
-        },
-    )
 }
 
 @Composable
-fun BarChartS(sessionsData: Map<String, Float>, xLabels: List<String>) {
-    Log.d("BarChartS", "📊 Datos recibidos en el gráfico: $sessionsData")
+fun FavoritesSection() {
+    Column(modifier = Modifier.padding(8.dp)) {
+        Text(
+            text = "Tus favoritos",
+            fontSize = 24.sp,
+            modifier = Modifier.padding(8.dp),
+            color = MaterialTheme.colorScheme.onSurface,
+        )
 
-    if (sessionsData.isEmpty()) {
-        Text("⚠️ No hay sesiones registradas", fontSize = 18.sp, fontWeight = FontWeight.Bold)
+        Spacer(modifier = Modifier.padding(4.dp))
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceEvenly,
+        ) {
+            FavouritesButtons(0xFFFF4E21)
+            FavouritesButtons(0xFF6366F1)
+            FavouritesButtons(0xFF900300)
+        }
+    }
+}
+
+@OptIn(ExperimentalSerializationApi::class)
+@Composable
+fun OptionsSection(navController: NavController) {
+    Column(modifier = Modifier.padding(8.dp)) {
+        OptionButtons(
+            color = MaterialTheme.colorScheme.primary,
+            textButton = "Empezar\nPomodoro",
+            icon = R.drawable.timer_icon,
+            descriptionIcon = "botón de Empezar Pomodoro",
+            onClick = { navController.kiwiNavigation(Destinations.SetupSessionScreen) },
+        )
+
+        OptionButtons(
+            color = MaterialTheme.colorScheme.secondary,
+            textButton = "Ver\nHábitos",
+            icon = R.drawable.habit_icon,
+            descriptionIcon = "botón Ver Hábitos",
+            onClick = { navController.kiwiNavigation(Destinations.HabitsScreen) },
+        )
+
+        OptionButtons(
+            color = MaterialTheme.colorScheme.tertiary,
+            textButton = "Ver\nTareas",
+            icon = R.drawable.checklist_icon,
+            descriptionIcon = "botón Ver Tareas",
+            onClick = { navController.kiwiNavigation(Destinations.TaskScreen) },
+        )
+    }
+}
+
+@Composable
+fun StatsSection(
+    selectedOption: String,
+    onOptionSelected: (String) -> Unit,
+    sessionsData: Map<String, Float>,
+    xLabels: List<String>,
+    totalTime: Map<String, Float> = emptyMap(),
+) {
+    var expanded by remember { mutableStateOf(false) }
+
+    Column {
+        // Dropdown para seleccionar la vista
+        Box {
+            OutlinedButton(
+                modifier = Modifier.padding(10.dp),
+                colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.surface),
+                onClick = { expanded = true },
+            ) {
+                Row {
+                    Text(selectedOption, color = MaterialTheme.colorScheme.onSurface)
+                    Icon(Icons.Default.KeyboardArrowDown, contentDescription = "Dropdown")
+                }
+            }
+            DropdownMenu(
+                modifier = Modifier.padding(10.dp),
+                expanded = expanded,
+                onDismissRequest = { expanded = false },
+            ) {
+                listOf("Daily", "Weekly", "Monthly").forEach { option ->
+                    DropdownMenuItem(
+                        text = { Text(option) },
+                        onClick = {
+                            if (selectedOption != option) {
+                                onOptionSelected(option)
+                            }
+                        },
+                    )
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Mostrar el gráfico según la opción seleccionada
+        when (selectedOption) {
+            "Daily" -> DailyChart(sessionsData = sessionsData, timeData = totalTime, xLabels = xLabels)
+            "Weekly" -> WeeklyChart(sessionsData, xLabels)
+            "Monthly" -> MonthlyCalendar(sessionsData)
+        }
+    }
+}
+
+@Composable
+fun DailyChart(sessionsData: Map<String, Float>, timeData: Map<String, Float>, xLabels: List<String>) {
+    Log.d("DailyChart", "📊 SessionsData: $sessionsData")
+    Log.d("DailyChart", "⏳ TotalTimeData: $timeData")
+
+    if (sessionsData.isEmpty() || timeData.isEmpty()) {
+        Text(
+            text = "⚠️ No hay datos de hoy",
+            fontSize = 18.sp,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.inverseSurface,
+            modifier = Modifier.padding(16.dp),
+        )
         return
     }
 
-    val dataEntries = sessionsData.entries.mapIndexed { index, entry ->
+    val legendColor = MaterialTheme.colorScheme.inverseSurface.toArgb()
+    val axisTextColor = MaterialTheme.colorScheme.inverseSurface.toArgb()
+    var valueTextColor = MaterialTheme.colorScheme.onSurface.toArgb()
+
+    val sessionsBarColor = Color(0xFF81D4FA).toArgb() // Azul claro
+    val timeBarColor = Color(0xFFD1C4E9).toArgb() // Morado claro
+
+    val sessionEntries = sessionsData.entries.mapIndexed { index, entry ->
         BarEntry(index.toFloat(), entry.value)
     }
 
-    AndroidView(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(200.dp),
-        factory = { context ->
-            BarChart(context).apply {
-                description.isEnabled = false
-                legend.isEnabled = true
-                setTouchEnabled(true)
+    val timeEntries = timeData.entries.mapIndexed { index, entry ->
+        BarEntry(index.toFloat(), entry.value)
+    }
 
-                axisLeft.granularity = 1f
-                axisLeft.axisMinimum = 0f
-                axisRight.granularity = 1f
-                axisRight.axisMinimum = 0f
-                xAxis.valueFormatter = IndexAxisValueFormatter(xLabels)
-                xAxis.granularity = 1f
-                xAxis.position = XAxis.XAxisPosition.BOTTOM
-                xAxis.setDrawGridLines(false)
-                xAxis.setLabelCount(xLabels.size, true)
+    key(sessionsData, timeData) {
+        AndroidView(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(250.dp)
+                .padding(8.dp),
+            factory = { context ->
+                BarChart(context).apply {
+                    description.isEnabled = false
+                    setTouchEnabled(true)
+                    setDrawGridBackground(false)
 
-                data = BarData(
-                    BarDataSet(dataEntries, "Sesiones").apply {
-                        colors = listOf(Color.Blue.toArgb(), Color.Red.toArgb())
+                    legend.apply {
+                        isEnabled = true
+                        textColor = legendColor
+                        form = Legend.LegendForm.SQUARE
+                    }
+
+                    axisLeft.apply {
+                        axisMinimum = 0f
+                        axisMaximum = maxOf(
+                            sessionsData.values.maxOrNull() ?: 0f,
+                            timeData.values.maxOrNull() ?: 0f,
+                        ) + 1f
+                        textColor = axisTextColor
+                        setDrawGridLines(false)
+                    }
+
+                    axisRight.isEnabled = false
+
+                    xAxis.apply {
+                        valueFormatter = IndexAxisValueFormatter(xLabels)
+                        position = XAxis.XAxisPosition.BOTTOM
+                        setDrawGridLines(false)
+                        textColor = axisTextColor
+                        setLabelCount(xLabels.size, true)
+                        granularity = 1f
+                        axisMinimum = -0.5f // 🔹 Evita desajustes en la alineación
+                    }
+
+                    // 🔹 **Dataset de Sessions**
+                    val sessionsDataSet = BarDataSet(sessionEntries, "Sessions").apply {
+                        color = sessionsBarColor
+                        valueTextColor = valueTextColor
                         valueFormatter = IntegerValueFormatter()
-                    },
-                )
-                invalidate()
-            }
-        },
-    )
+                    }
+
+                    // 🔹 **Dataset de Total Time**
+                    val timeDataSet = BarDataSet(timeEntries, "Total Time (minutes)").apply {
+                        color = timeBarColor
+                        valueTextColor = valueTextColor
+                        valueFormatter = IntegerValueFormatter()
+                    }
+
+                    Log.d("DailyChart", "🟣 TotalTimeDataSet: $timeDataSet")
+
+                    val barData = BarData(sessionsDataSet, timeDataSet).apply {
+                        barWidth = 0.1f // 🔹 Ajusta el ancho de las barras
+                    }
+
+                    data = barData
+
+                    // ✅ **Agrupar barras correctamente**
+                    barData.groupBars(0f, 0.2f, 0.05f)
+
+                    notifyDataSetChanged()
+                    invalidate()
+                }
+            },
+        )
+    }
+}
+
+@Composable
+fun WeeklyChart(sessionsData: Map<String, Float>, xLabels: List<String>) {
+    if (sessionsData.isEmpty()) {
+        Text(
+            text = "⚠️ No hay sesiones registradas",
+            fontSize = 18.sp,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.inverseSurface,
+            modifier = Modifier.padding(16.dp),
+        )
+        return
+    }
+
+    val legendColor = MaterialTheme.colorScheme.inverseSurface.toArgb()
+    val axisTextColor = MaterialTheme.colorScheme.inverseSurface.toArgb()
+    var valueTextColor = MaterialTheme.colorScheme.inverseSurface.toArgb()
+    val barColor = MaterialTheme.colorScheme.secondary.toArgb()
+
+    val dataEntries = remember(sessionsData) {
+        sessionsData.entries.mapIndexed { index, entry -> BarEntry(index.toFloat(), entry.value) }
+    }
+
+    key(sessionsData) {
+        AndroidView(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(200.dp)
+                .padding(8.dp),
+            factory = { context ->
+                BarChart(context).apply {
+                    description.isEnabled = false
+                    legend.apply {
+                        isEnabled = true
+                        textColor = legendColor
+                    }
+                    setTouchEnabled(true)
+
+                    axisLeft.apply {
+                        axisMinimum = 0f
+                        textColor = axisTextColor
+                        setDrawGridLines(false)
+                    }
+
+                    axisRight.isEnabled = false
+
+                    xAxis.apply {
+                        valueFormatter = IndexAxisValueFormatter(xLabels)
+                        position = XAxis.XAxisPosition.BOTTOM
+                        setDrawGridLines(false)
+                        textColor = axisTextColor
+                        setLabelCount(xLabels.size, true)
+                    }
+
+                    data = BarData(
+                        BarDataSet(dataEntries, "Sesiones").apply {
+                            color = barColor
+                            valueTextColor = valueTextColor
+                            valueFormatter = IntegerValueFormatter()
+                        },
+                    )
+                    invalidate()
+                }
+            },
+        )
+    }
 }
 
 /** ✅ Formateador para evitar decimales en los valores del gráfico */
@@ -297,25 +454,31 @@ class IntegerValueFormatter : ValueFormatter() {
     }
 }
 
-fun Color.Companion.parseColor(string: String): Int = android.graphics.Color.parseColor(string)
-
 @Composable
 fun MonthlyCalendar(sessionsData: Map<String, Float>) {
     val today = Calendar.getInstance()
     val currentDay = today.get(Calendar.DAY_OF_MONTH)
     val daysInMonth = today.getActualMaximum(Calendar.DAY_OF_MONTH)
-    val dayList = (1..daysInMonth).toList()
+
+    // 📌 Obtener el primer día del mes (Ej: Si es Miércoles, será 4)
+    val firstDayOfMonth = Calendar.getInstance().apply {
+        set(Calendar.DAY_OF_MONTH, 1)
+    }.get(Calendar.DAY_OF_WEEK) - 1 // 🔹 Restar 1 para que el Lunes sea `0`
+
+    // 📌 Lista que agrega espacios vacíos antes del primer día del mes
+    val dayList = List(firstDayOfMonth) { null } + (1..daysInMonth).toList() // 🔹 Agregar lista de días comenzando desde 1
 
     var selectedDay by remember { mutableStateOf<Int?>(null) }
     var selectedSessionTime by remember { mutableStateOf<Float?>(null) }
-    var showPopup by remember { mutableStateOf(false) } // ✅ Controlador para el PopUp
+    var showPopup by remember { mutableStateOf(false) }
 
     LazyVerticalGrid(
-        modifier = Modifier.height(100.dp),
+        modifier = Modifier.height(200.dp),
         columns = GridCells.Fixed(7),
     ) {
-        items(dayList.size) { day ->
-            val sessionTime = sessionsData[day.toString()] ?: 0f
+        items(dayList.size) { index ->
+            val day = dayList[index] // 🔹 Puede ser `null` para los espacios vacíos
+            val sessionTime = day?.let { sessionsData[it.toString()] } ?: 0f
 
             Box(
                 modifier = Modifier
@@ -323,49 +486,54 @@ fun MonthlyCalendar(sessionsData: Map<String, Float>) {
                     .size(40.dp)
                     .background(
                         when {
+                            day == null -> Color.Transparent // 🔹 No mostrar espacios vacíos
                             sessionTime > 0 -> Color.Green
                             day == currentDay -> Color.Yellow
                             else -> Color.LightGray
                         },
                         shape = CircleShape,
                     )
-                    .clickable {
-                        Timber.tag("Calendar").d("📅 Día $day clickeado, sesión: $sessionTime minutos") // ✅ Verifica si el evento de clic funciona
+                    .clickable(enabled = day != null) {
+                        // 🔹 Evita clics en espacios vacíos
+                        Timber.tag("Calendar").d("📅 Día $day clickeado, sesión: $sessionTime minutos")
                         if (sessionTime > 0) {
                             selectedDay = day
                             selectedSessionTime = sessionTime
-                            showPopup = true // ✅ Activar PopUp
+                            showPopup = true
                         }
                     },
                 contentAlignment = Alignment.Center,
             ) {
-                Text(
-                    text = day.toString(),
-                    color = Color.Black,
-                    fontWeight = if (day == currentDay) FontWeight.Bold else FontWeight.Normal,
-                )
+                if (day != null) { // 🔹 Solo mostrar texto si es un día válido
+                    Text(
+                        text = day.toString(),
+                        color = Color.Black,
+                        fontWeight = if (day == currentDay) FontWeight.Bold else FontWeight.Normal,
+                    )
+                }
             }
         }
     }
 
-    // ✅ Mostrar PopUp solo cuando `showPopup` sea `true`
     if (showPopup) {
         ShowSessionPopup(
             day = selectedDay!!,
             sessionTime = selectedSessionTime!!,
-            onDismiss = { showPopup = false }, // ✅ Cierra el PopUp correctamente
+            onDismiss = { showPopup = false },
         )
     }
 }
 
 @Composable
 fun ShowSessionPopup(day: Int, sessionTime: Float, onDismiss: () -> Unit) {
-    Log.d("PopUp", "📅 Mostrando PopUp para el día $day, tiempo: $sessionTime minutos") // ✅ Verificar si se activa
+    Timber.tag("PopUp").d("📅 Mostrando PopUp para el día $day, tiempo: $sessionTime minutos") // ✅ Verificar si se activa
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Sesiones del día $day") },
-        text = { Text("Tiempo total: ${sessionTime.toInt()} minutos") },
+        title = { Text("Sesiones del día $day", color = MaterialTheme.colorScheme.inverseSurface) },
+        text = {
+            Text("Tiempo total: ${sessionTime.toInt()} minutos", color = MaterialTheme.colorScheme.inverseSurface)
+        },
         confirmButton = {
             Button(onClick = onDismiss) {
                 Text("Aceptar")
@@ -385,11 +553,11 @@ fun FavouritesButtons(color: Long) {
 }
 
 @Composable
-fun OptionButtons(color: Long, textButton: String, icon: Int, descriptionIcon: String, onClick: () -> Unit = {}) {
+fun OptionButtons(color: Color, textButton: String, icon: Int, descriptionIcon: String, onClick: () -> Unit = {}) {
     Button(
         onClick = onClick,
         shape = RoundedCornerShape(24.dp),
-        colors = ButtonDefaults.buttonColors(Color(color)),
+        colors = ButtonDefaults.buttonColors(color),
         modifier = Modifier.padding(8.dp),
     ) {
         Row(
@@ -408,7 +576,7 @@ fun OptionButtons(color: Long, textButton: String, icon: Int, descriptionIcon: S
                 text = textButton,
                 fontSize = 24.sp,
                 fontWeight = FontWeight.Black,
-                color = Color.White,
+                color = MaterialTheme.colorScheme.onPrimary,
                 lineHeight = 24.sp,
             )
             Icon(

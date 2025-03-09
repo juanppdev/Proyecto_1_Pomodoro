@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -40,7 +41,7 @@ fun DialogPopUp(show: Boolean, onDismiss: () -> Unit = {}, onTaskAdded: (String,
                         onValueChange = { title = it },
                         singleLine = true,
                         maxLines = 1,
-                        label = { Text("Title") },
+                        label = { Text("Title", color = MaterialTheme.colorScheme.inverseSurface) },
                     )
 
                     Spacer(modifier = Modifier.height(4.dp))
@@ -49,7 +50,7 @@ fun DialogPopUp(show: Boolean, onDismiss: () -> Unit = {}, onTaskAdded: (String,
                         value = description,
                         onValueChange = { description = it },
                         maxLines = 20,
-                        label = { Text("Description") },
+                        label = { Text("Description", color = MaterialTheme.colorScheme.inverseSurface) },
                     )
 
                     Spacer(modifier = Modifier.height(4.dp))

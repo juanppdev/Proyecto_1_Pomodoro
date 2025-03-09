@@ -14,6 +14,9 @@ sealed interface Destinations : Destination {
     data object Login : Destinations
 
     @Serializable
+    data object Register : Destinations
+
+    @Serializable
     data object HomeScreen : Destinations
 
     @Serializable
@@ -27,4 +30,10 @@ sealed interface Destinations : Destination {
 
     @Serializable
     data object HabitsScreen : Destinations
+
+    @Serializable
+    data object StoreScreen : Destinations
+
+    @Serializable
+    data object SettingsScreen : Destinations
 }

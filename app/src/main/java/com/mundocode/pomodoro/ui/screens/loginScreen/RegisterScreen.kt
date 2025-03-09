@@ -22,6 +22,8 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -33,14 +35,29 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import com.mundocode.pomodoro.R
+import com.mundocode.pomodoro.core.navigation.Destinations
+import kotlinx.serialization.ExperimentalSerializationApi
+import com.kiwi.navigationcompose.typed.navigate as kiwiNavigation
 
-@Preview
+@OptIn(ExperimentalSerializationApi::class)
 @Composable
-fun RegisterScreen() {
+fun RegisterScreen(viewModel: LoginViewModel = hiltViewModel(), navController: NavController) {
+    var email by rememberSaveable { mutableStateOf("") }
+    var name by rememberSaveable { mutableStateOf("") }
+    var password by rememberSaveable { mutableStateOf("") }
+    val loginSuccess by viewModel.loginSuccess.collectAsState()
+    val errorMessage by viewModel.errorMessage.collectAsState()
+
+    LaunchedEffect(loginSuccess) {
+        if (loginSuccess) {
+            navController.kiwiNavigation(Destinations.HomeScreen)
+        }
+    }
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -74,15 +91,79 @@ fun RegisterScreen() {
 
                 Spacer(modifier = Modifier.padding(16.dp))
 
-                DataRegister("Nombre:")
+                OutlinedTextField(
+                    value = name,
+                    onValueChange = { name = it },
+                    shape = RoundedCornerShape(16.dp),
+                    singleLine = true,
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = Color.Cyan,
+                        focusedTextColor = Color.White,
+                        unfocusedContainerColor = Color.Gray,
+                        unfocusedLabelColor = Color.LightGray,
+                    ),
+                    label = { Text("Nombre Completo") },
+                )
 
                 Spacer(modifier = Modifier.padding(8.dp))
 
-                DataRegister("Usuario / correo electrónico")
+                OutlinedTextField(
+                    value = email,
+                    onValueChange = { email = it },
+                    shape = RoundedCornerShape(16.dp),
+                    singleLine = true,
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = Color.Cyan,
+                        focusedTextColor = Color.White,
+                        unfocusedContainerColor = Color.Gray,
+                        unfocusedLabelColor = Color.LightGray,
+                    ),
+                    label = { Text("Correo Electronico") },
+                )
 
                 Spacer(modifier = Modifier.padding(8.dp))
 
-                PasswordRegister("Contraseña")
+                var hidden by rememberSaveable { mutableStateOf(true) }
+
+                OutlinedTextField(
+                    value = password,
+                    onValueChange = { password = it },
+                    shape = RoundedCornerShape(16.dp),
+                    singleLine = true,
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = Color.Cyan,
+                        focusedTextColor = Color.White,
+                        unfocusedContainerColor = Color.Gray,
+                        unfocusedLabelColor = Color.LightGray,
+                    ),
+                    label = { Text("Contraseña") },
+
+                    visualTransformation =
+                    if (hidden) PasswordVisualTransformation() else VisualTransformation.None,
+
+                    trailingIcon = {
+                        IconButton(onClick = { hidden = !hidden }) {
+                            val hiddenPassword = painterResource(
+                                if (hidden) {
+                                    R.drawable.visible
+                                } else {
+                                    R.drawable.no_visible
+                                },
+                            )
+                            Icon(
+                                painter = hiddenPassword,
+                                contentDescription = "",
+                                tint = Color.White,
+                            )
+                        }
+                    },
+                )
+
+                Spacer(modifier = Modifier.padding(8.dp))
+
+                if (errorMessage != null) {
+                    Text(text = errorMessage!!, color = Color.Red)
+                }
 
                 Spacer(modifier = Modifier.padding(8.dp))
 
@@ -92,7 +173,9 @@ fun RegisterScreen() {
                     horizontalArrangement = Arrangement.Center,
                 ) {
                     Button(
-                        onClick = {},
+                        onClick = {
+                            navController.kiwiNavigation(Destinations.Login)
+                        },
                         modifier = Modifier
                             .padding(8.dp)
                             .size(
@@ -106,7 +189,9 @@ fun RegisterScreen() {
                     }
 
                     Button(
-                        onClick = {},
+                        onClick = {
+                            viewModel.registerWithEmail(name, email, password)
+                        },
                         modifier = Modifier
                             .padding(8.dp)
                             .size(
@@ -123,63 +208,4 @@ fun RegisterScreen() {
             }
         }
     }
-}
-
-@Composable
-fun DataRegister(label: String) {
-    var state by rememberSaveable { mutableStateOf("") }
-
-    OutlinedTextField(
-        value = state,
-        onValueChange = { state = it },
-        shape = RoundedCornerShape(16.dp),
-        singleLine = true,
-        colors = OutlinedTextFieldDefaults.colors(
-            focusedBorderColor = Color.Cyan,
-            focusedTextColor = Color.White,
-            unfocusedContainerColor = Color.Gray,
-            unfocusedLabelColor = Color.LightGray,
-        ),
-        label = { Text(label) },
-    )
-}
-
-@Composable
-fun PasswordRegister(label: String) {
-    var password by rememberSaveable { mutableStateOf("") }
-    var hidden by rememberSaveable { mutableStateOf(true) }
-
-    OutlinedTextField(
-        value = password,
-        onValueChange = { password = it },
-        shape = RoundedCornerShape(16.dp),
-        singleLine = true,
-        colors = OutlinedTextFieldDefaults.colors(
-            focusedBorderColor = Color.Cyan,
-            focusedTextColor = Color.White,
-            unfocusedContainerColor = Color.Gray,
-            unfocusedLabelColor = Color.LightGray,
-        ),
-        label = { Text(label) },
-
-        visualTransformation =
-        if (hidden) PasswordVisualTransformation() else VisualTransformation.None,
-
-        trailingIcon = {
-            IconButton(onClick = { hidden = !hidden }) {
-                val hiddenPassword = painterResource(
-                    if (hidden) {
-                        R.drawable.visible
-                    } else {
-                        R.drawable.no_visible
-                    },
-                )
-                Icon(
-                    painter = hiddenPassword,
-                    contentDescription = "",
-                    tint = Color.White,
-                )
-            }
-        },
-    )
 }

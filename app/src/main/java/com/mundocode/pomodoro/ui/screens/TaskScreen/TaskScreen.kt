@@ -1,4 +1,4 @@
-package com.mundocode.pomodoro.ui.screens.taskScreen
+package com.mundocode.pomodoro.ui.screens.TaskScreen
 
 import android.widget.Toast
 import androidx.compose.foundation.background
@@ -23,6 +23,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -37,11 +39,14 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.mundocode.pomodoro.R
 import com.mundocode.pomodoro.ui.components.CustomTopAppBar
+import com.mundocode.pomodoro.ui.screens.SharedPointsViewModel
+import com.mundocode.pomodoro.ui.screens.points.PointsViewModel
 
 @Composable
 fun TaskItem(task: String, isCompleted: Boolean = false, onTaskChecked: (Boolean) -> Unit) {
@@ -78,12 +83,22 @@ fun TaskItem(task: String, isCompleted: Boolean = false, onTaskChecked: (Boolean
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TaskScreen(navController: NavController) {
+fun TaskScreen(
+    navController: NavController,
+    pointsViewModel: PointsViewModel = hiltViewModel(),
+    sharedPointsViewModel: SharedPointsViewModel = hiltViewModel(),
+) {
     val context = LocalContext.current
 
     var tasks by remember { mutableStateOf(listOf("Modo actual", "Modo actual 2")) }
     var completedTasks by remember { mutableStateOf(listOf<String>()) }
     val user = Firebase.auth.currentUser
+
+    val userPoints by sharedPointsViewModel.userPoints.collectAsState()
+
+    LaunchedEffect(Unit) {
+        pointsViewModel.loadUserPoints(user?.displayName.toString())
+    }
 
     Scaffold(
         topBar = {
@@ -100,6 +115,7 @@ fun TaskScreen(navController: NavController) {
                         )
                     }
                 },
+                texto = "Puntos: $userPoints",
             )
         },
     ) { padding ->
