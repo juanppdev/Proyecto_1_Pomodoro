@@ -62,9 +62,9 @@ fun LoginScreen(navController: NavController, viewModel: LoginViewModel = hiltVi
 
     LaunchedEffect(loginSuccess) {
         if (loginSuccess) {
-            navController.kiwiNavigation(Destinations.HomeScreen) { popUpTo("login") { inclusive = true } }
-        } else {
-            navController.kiwiNavigation(Destinations.Login) { popUpTo("home") { inclusive = true } }
+            navController.kiwiNavigation(Destinations.HomeScreen) {
+                popUpTo(Destinations.Login) { inclusive = true }
+            }
         }
     }
 
