@@ -114,7 +114,7 @@ class TimerViewModel @Inject constructor(
             }
 
             Timber.tag("Points").e("⏳ Intentando agregar puntos para el usuario: $userId")
-            pointsRepository.addPoints(userId.toString(), 100)
+            pointsRepository.addPoints(userId.toString(), 2)
             Timber.tag("Points").e("✅ Puntos agregados correctamente")
 
             if (timerState.value.isWorking) {

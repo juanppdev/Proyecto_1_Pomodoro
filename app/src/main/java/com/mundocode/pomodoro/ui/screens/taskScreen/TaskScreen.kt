@@ -1,8 +1,8 @@
 package com.mundocode.pomodoro.ui.screens.taskScreen
 
-import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -11,28 +11,38 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
-import androidx.compose.material3.CheckboxDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SwipeToDismissBox
+import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
@@ -41,152 +51,168 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.ktx.Firebase
-import com.mundocode.pomodoro.R
-import com.mundocode.pomodoro.ui.components.CustomTopAppBar
-import com.mundocode.pomodoro.ui.screens.points.PointsViewModel
-import com.mundocode.pomodoro.ui.screens.points.PointsViewModelFactoryProvider
+import com.mundocode.pomodoro.data.taskDB.TaskEntity
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TaskItem(task: String, isCompleted: Boolean = false, onTaskChecked: (Boolean) -> Unit) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(
-                if (isCompleted) Color.LightGray else Color.White,
-                shape = RoundedCornerShape(8.dp),
-            )
-            .padding(12.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Checkbox(
-            checked = isCompleted,
-            onCheckedChange = { onTaskChecked(it) },
-            colors = CheckboxDefaults.colors(
-                checkedColor = Color(0xFFD32F2F),
-                uncheckedColor = Color(0xFF000000),
-                checkmarkColor = Color.White,
-            ),
-        )
-        Spacer(modifier = Modifier.width(8.dp))
-        Text(
-            text = task,
-            fontSize = 16.sp,
-            fontWeight = FontWeight.Normal,
-            color = if (isCompleted) Color(0xFF1E1E1E) else Color.Black,
-            textDecoration = if (isCompleted) TextDecoration.LineThrough else TextDecoration.None,
-            modifier = Modifier.weight(1f),
+fun TaskScreen(navController: NavController, viewModel: TaskViewModel = hiltViewModel()) {
+    val tasks by viewModel.tasks.collectAsState()
+    var showDialog by remember { mutableStateOf(false) }
+
+    Scaffold(
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = { showDialog = true },
+                containerColor = MaterialTheme.colorScheme.primary,
+            ) {
+                Icon(Icons.Default.Add, contentDescription = "Agregar tarea")
+            }
+        },
+    ) { padding ->
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            items(tasks.size) { task ->
+                val task = tasks[task]
+                TaskItem(
+                    task = task,
+                    onTaskChecked = { viewModel.toggleTask(it) },
+                    onDelete = { viewModel.deleteTask(it) },
+                )
+            }
+        }
+    }
+
+    if (showDialog) {
+        AddTaskDialog(
+            onDismiss = { showDialog = false },
+            onTaskAdded = { title, category ->
+                viewModel.addTask(title, category)
+                showDialog = false
+            },
         )
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TaskScreen(
-    navController: NavController,
-//    sharedPointsViewModel: SharedPointsViewModel = hiltViewModel(),
-    factoryProvider: PointsViewModelFactoryProvider = hiltViewModel(),
-) {
-    val context = LocalContext.current
-    val user = Firebase.auth.currentUser
-    val userId = Firebase.auth.currentUser?.uid ?: ""
-
-    // Crear el ViewModel usando la factory del provider
-    val pointsViewModel: PointsViewModel = viewModel(
-        factory = PointsViewModel.provideFactory(
-            assistedFactory = factoryProvider.pointsViewModelFactory,
-            userId = userId,
-        ),
+fun TaskItem(task: TaskEntity, onTaskChecked: (TaskEntity) -> Unit, onDelete: (TaskEntity) -> Unit) {
+    val dismissState = rememberSwipeToDismissBoxState(
+        confirmValueChange = {
+            if (it == SwipeToDismissBoxValue.EndToStart) {
+                onDelete(task)
+                true
+            } else {
+                false
+            }
+        },
     )
 
-    var tasks by remember { mutableStateOf(listOf("Modo actual", "Modo actual 2")) }
-    var completedTasks by remember { mutableStateOf(listOf<String>()) }
+    SwipeToDismissBox(
+        state = dismissState,
+        enableDismissFromEndToStart = true, // Habilita deslizamiento de derecha a izquierda
+        enableDismissFromStartToEnd = false, // No permite deslizamiento de izquierda a derecha
+        backgroundContent = {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Red)
+                    .padding(16.dp),
+                contentAlignment = Alignment.CenterEnd,
+            ) {
+                Icon(Icons.Default.Delete, contentDescription = "Eliminar", tint = Color.White)
+            }
+        },
+        content = {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(MaterialTheme.colorScheme.surface)
+                    .padding(12.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Checkbox(
+                    checked = task.completed,
+                    onCheckedChange = { onTaskChecked(task) },
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = task.title,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Medium,
+                    textDecoration = if (task.completed) TextDecoration.LineThrough else TextDecoration.None,
+                )
+            }
+        },
+    )
+}
 
-    val userPoints by pointsViewModel.userPoints.collectAsState()
+@Composable
+fun AddTaskDialog(onDismiss: () -> Unit, onTaskAdded: (String, String) -> Unit) {
+    var newTask by rememberSaveable { mutableStateOf("") }
+    val categories = listOf("General", "Trabajo", "Estudio", "Personal")
+    var selectedCategory by rememberSaveable { mutableStateOf(categories.first()) }
 
-//    LaunchedEffect(Unit) {
-//        pointsViewModel.loadUserPoints(user?.displayName.toString())
-//    }
-
-    Scaffold(
-        topBar = {
-            CustomTopAppBar(
-                navController = navController,
-                title = stringResource(id = R.string.app_name),
-                image = user?.photoUrl.toString(),
-                navigationIcon = {
-                    IconButton(onClick = { navController.navigateUp() }) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            tint = MaterialTheme.colorScheme.onSurface,
-                            contentDescription = "Localized description",
-                        )
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        confirmButton = {
+            Button(
+                onClick = {
+                    if (newTask.isNotBlank()) {
+                        onTaskAdded(newTask.trim(), selectedCategory)
                     }
                 },
-                texto = "Puntos: $userPoints",
-            )
-        },
-    ) { padding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
-                .padding(16.dp),
-            verticalArrangement = Arrangement.Top,
-            horizontalAlignment = Alignment.Start,
-        ) {
-            // not finished tasks
-            Text(
-                text = "Tareas no finalizadas",
-                fontSize = 24.sp,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(bottom = 16.dp),
-            )
-
-            tasks.forEachIndexed { index, task ->
-                TaskItem(
-                    task = task,
-                    isCompleted = false,
-                    onTaskChecked = { isChecked ->
-                        if (isChecked) {
-                            tasks = tasks.toMutableList().apply { removeAt(index) }
-                            completedTasks = completedTasks + task
-                            Toast.makeText(context, "Tarea completada", Toast.LENGTH_SHORT).show()
-                        }
-                    },
-                )
-                Spacer(modifier = Modifier.height(8.dp))
+                enabled = newTask.isNotBlank(),
+            ) {
+                Text("Agregar")
             }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Tareas realizadas
-            if (completedTasks.isNotEmpty()) {
-                Text(
-                    text = "Tareas realizadas",
-                    fontSize = 24.sp,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(vertical = 16.dp),
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancelar")
+            }
+        },
+        title = { Text("Agregar nueva tarea") },
+        text = {
+            Column {
+                OutlinedTextField(
+                    value = newTask,
+                    onValueChange = { newTask = it },
+                    label = { Text("Descripción de la tarea") },
+                    singleLine = true,
                 )
 
-                completedTasks.forEachIndexed { index, task ->
-                    TaskItem(
-                        task = task,
-                        isCompleted = true,
-                        onTaskChecked = { isChecked ->
-                            if (!isChecked) {
-                                completedTasks = completedTasks.toMutableList().apply { removeAt(index) }
-                                tasks = tasks + task
-                                Toast.makeText(context, "Tarea movida a no finalizadas", Toast.LENGTH_SHORT).show()
-                            }
-                        },
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(8.dp))
+
+                var expanded by remember { mutableStateOf(false) }
+
+                Text("Categoría:")
+                Box {
+                    OutlinedButton(onClick = { expanded = true }) {
+                        Text(selectedCategory)
+                    }
+                    DropdownMenu(
+                        expanded = expanded,
+                        onDismissRequest = { expanded = false },
+                    ) {
+                        categories.forEach { category ->
+                            DropdownMenuItem(
+                                text = { Text(category) },
+                                onClick = {
+                                    selectedCategory = category
+                                    expanded = false
+                                },
+                            )
+                        }
+                    }
                 }
             }
-        }
-    }
+        },
+    )
 }
 
 @Composable
