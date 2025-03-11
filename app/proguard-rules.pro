@@ -20,4 +20,4 @@
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
 
--keep class com.mundocode.pomodoro.ui.screens.habits.model.HabitsModel { *; }
+-keep class com.mundocode.pomodoro.model.local.** {  *; }

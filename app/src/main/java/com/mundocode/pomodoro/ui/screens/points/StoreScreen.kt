@@ -56,7 +56,7 @@ fun StoreScreen(
     val storeItems by storeViewModel.storeItems.collectAsState()
     val storeThemes by storeViewModel.storeThemes.collectAsState()
     val userPoints by pointsViewModel.userPoints.collectAsState()
-    val purchasedItems by storeViewModel.purchasedItems.collectAsState()
+    val purchasedItems by storeViewModel.purchasedItemsEntity.collectAsState()
     val unlockedThemes by storeViewModel.unlockedThemes.collectAsState()
     val context = LocalContext.current
 

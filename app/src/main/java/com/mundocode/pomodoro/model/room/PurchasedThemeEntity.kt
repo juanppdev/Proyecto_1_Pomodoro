@@ -1,20 +1,12 @@
-package com.mundocode.pomodoro.data.storeDB
+package com.mundocode.pomodoro.model.room
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.mundocode.pomodoro.core.room.PomodoroDatabase.Companion.PURCHASED_THEME_TABLE_NAME
 
-@Entity(tableName = "purchased_items")
-data class PurchasedItem(
-    @PrimaryKey(autoGenerate = true) val id: Int = 0,
-    val userId: String,
-    val itemName: String,
-    val itemDescription: String,
-    val price: Int,
-)
-
-@Entity(tableName = "purchased_themes")
-data class PurchasedTheme(
+@Entity(tableName = PURCHASED_THEME_TABLE_NAME)
+data class PurchasedThemeEntity(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
     @ColumnInfo(name = "userId") val userId: String,
     @ColumnInfo(name = "themeName") val themeName: String,

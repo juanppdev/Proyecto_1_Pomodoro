@@ -144,7 +144,7 @@ fun HomeScreen(
                         .padding(padding),
                 ) {
                     WelcomeSection(user)
-                    FavoritesSection()
+//                    FavoritesSection()
                     OptionsSection(navController)
                     StatsSection(
                         selectedOption,

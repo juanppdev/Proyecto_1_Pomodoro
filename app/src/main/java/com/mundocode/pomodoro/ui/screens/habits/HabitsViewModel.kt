@@ -4,14 +4,10 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.mundocode.pomodoro.data.habitsDB.HabitsRepository
-import com.mundocode.pomodoro.data.habitsDB.domain.AddTaskUserCase
-import com.mundocode.pomodoro.data.habitsDB.domain.DeleteTaskUseCase
-import com.mundocode.pomodoro.data.habitsDB.domain.GetTasksUserCase
-import com.mundocode.pomodoro.data.habitsDB.domain.UpdateTaskUseCase
+import com.mundocode.pomodoro.domain.repositories.HabitsRepository
+import com.mundocode.pomodoro.model.local.Habits
 import com.mundocode.pomodoro.ui.screens.habits.HabitsUIState.Loading
 import com.mundocode.pomodoro.ui.screens.habits.HabitsUIState.Success
-import com.mundocode.pomodoro.ui.screens.habits.model.HabitsModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -27,15 +23,9 @@ import javax.inject.Inject
 
 @OptIn(FlowPreview::class)
 @HiltViewModel
-class HabitsViewModel @Inject constructor(
-    private val addTaskUserCase: AddTaskUserCase,
-    private val updateTaskUseCase: UpdateTaskUseCase,
-    private val deleteTaskUseCase: DeleteTaskUseCase,
-    private val habitsRepository: HabitsRepository,
-    getTasksUserCase: GetTasksUserCase,
-) : ViewModel() {
+class HabitsViewModel @Inject constructor(private val habitsRepository: HabitsRepository) : ViewModel() {
 
-    val uiState: StateFlow<HabitsUIState> = getTasksUserCase().map(::Success)
+    val uiState: StateFlow<HabitsUIState> = habitsRepository.getHabits().map(::Success)
         .catch { Error(it) }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), Loading)
 
@@ -71,7 +61,7 @@ class HabitsViewModel @Inject constructor(
         showDialog.value = false
 
         viewModelScope.launch {
-            addTaskUserCase(HabitsModel(title = title, description = description))
+            habitsRepository.addHabit(Habits(title = title, description = description))
         }
     }
 
@@ -79,15 +69,15 @@ class HabitsViewModel @Inject constructor(
         showDialog.value = true
     }
 
-    fun onItemRemove(taskModel: HabitsModel) {
+    fun onItemRemove(taskModel: Habits) {
         viewModelScope.launch {
-            deleteTaskUseCase(taskModel)
+            habitsRepository.deleteHabit(taskModel)
         }
     }
 
-    fun onTaskUpdated(taskModel: HabitsModel) {
+    fun onTaskUpdated(taskModel: Habits) {
         viewModelScope.launch {
-            updateTaskUseCase(taskModel)
+            habitsRepository.updateHabit(taskModel)
         }
     }
 }

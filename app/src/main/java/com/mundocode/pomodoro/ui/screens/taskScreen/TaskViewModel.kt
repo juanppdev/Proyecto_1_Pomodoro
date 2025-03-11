@@ -2,13 +2,13 @@ package com.mundocode.pomodoro.ui.screens.taskScreen
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.mundocode.pomodoro.data.taskDB.TaskEntity
-import com.mundocode.pomodoro.data.taskDB.TaskRepository
+import com.mundocode.pomodoro.domain.repositories.TaskRepository
+import com.mundocode.pomodoro.model.room.TaskEntity
 import dagger.hilt.android.lifecycle.HiltViewModel
-import jakarta.inject.Inject
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 @HiltViewModel
 class TaskViewModel @Inject constructor(private val repository: TaskRepository) : ViewModel() {

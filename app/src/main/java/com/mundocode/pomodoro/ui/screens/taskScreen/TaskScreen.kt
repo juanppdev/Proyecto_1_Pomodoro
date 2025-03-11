@@ -51,7 +51,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.mundocode.pomodoro.data.taskDB.TaskEntity
+import com.mundocode.pomodoro.model.room.TaskEntity
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

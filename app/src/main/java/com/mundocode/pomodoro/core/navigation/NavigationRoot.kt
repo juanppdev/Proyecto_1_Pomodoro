@@ -5,17 +5,18 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
 import com.kiwi.navigationcompose.typed.composable
 import com.kiwi.navigationcompose.typed.createRoutePattern
-import com.mundocode.pomodoro.ui.screens.splashScreen.SplashScreen
 import com.mundocode.pomodoro.ui.screens.habits.HabitsScreen
 import com.mundocode.pomodoro.ui.screens.homeScreen.HomeScreen
 import com.mundocode.pomodoro.ui.screens.loginScreen.LoginScreen
 import com.mundocode.pomodoro.ui.screens.loginScreen.RegisterScreen
-import com.mundocode.pomodoro.ui.screens.setupSessionScreen.SetupSessionScreen
-import com.mundocode.pomodoro.ui.screens.taskScreen.TaskScreen
 import com.mundocode.pomodoro.ui.screens.points.StoreScreen
 import com.mundocode.pomodoro.ui.screens.settings.SettingsScreen
+import com.mundocode.pomodoro.ui.screens.setupSessionScreen.SetupSessionScreen
+import com.mundocode.pomodoro.ui.screens.splashScreen.SplashScreen
+import com.mundocode.pomodoro.ui.screens.taskScreen.TaskScreen
 import com.mundocode.pomodoro.ui.screens.timer.TimerScreen
 import kotlinx.serialization.ExperimentalSerializationApi
+import com.mundocode.pomodoro.core.navigation.Destinations.TaskScreen as TaskScreenDestination
 
 @OptIn(ExperimentalSerializationApi::class)
 @Composable
@@ -54,7 +55,7 @@ fun NavigationRoot() {
             HabitsScreen(navController = navController)
         }
 
-        composable<Destinations.TaskScreen> {
+        composable<TaskScreenDestination> {
             TaskScreen(navController = navController)
         }
 

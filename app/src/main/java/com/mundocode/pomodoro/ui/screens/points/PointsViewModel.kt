@@ -3,7 +3,7 @@ package com.mundocode.pomodoro.ui.screens.points
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.mundocode.pomodoro.data.pointsDB.PointsRepository
+import com.mundocode.pomodoro.domain.repositories.PointsRepository
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject

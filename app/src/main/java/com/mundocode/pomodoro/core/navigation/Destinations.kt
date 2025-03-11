@@ -5,6 +5,8 @@ import com.mundocode.pomodoro.model.local.Timer
 import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
 
+// FIXME: Rename Destinations to get rid of "Screen" at the end
+
 sealed interface Destinations : Destination {
 
     @Serializable

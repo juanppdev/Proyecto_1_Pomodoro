@@ -4,12 +4,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
-import com.mundocode.pomodoro.data.pointsDB.PointsRepository
-import com.mundocode.pomodoro.data.storeDB.PurchasedItem
-import com.mundocode.pomodoro.data.storeDB.PurchasedItemsDao
-import com.mundocode.pomodoro.data.storeDB.PurchasedTheme
+import com.mundocode.pomodoro.domain.repositories.PointsRepository
+import com.mundocode.pomodoro.domain.repositories.PurchaseRepository
 import com.mundocode.pomodoro.model.local.StoreItem
 import com.mundocode.pomodoro.model.local.StoreTheme
+import com.mundocode.pomodoro.model.room.PurchasedItemEntity
+import com.mundocode.pomodoro.model.room.PurchasedThemeEntity
 import com.mundocode.pomodoro.ui.theme.ThemePreferences
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -17,6 +17,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
@@ -24,7 +25,9 @@ import javax.inject.Inject
 @HiltViewModel
 class StoreViewModel @Inject constructor(
     private val pointsRepository: PointsRepository,
-    private val purchasedItemsDao: PurchasedItemsDao,
+    private val purchasedRepository: PurchaseRepository,
+//    private val purchasedItemsDao: PurchasedItemsDao,
+//    private val purchasedItemsDao: PurchasedItemsDao,
     private val themePreferences: ThemePreferences,
 ) : ViewModel() {
 
@@ -49,11 +52,11 @@ class StoreViewModel @Inject constructor(
     val userPoints: StateFlow<Int>
         field = MutableStateFlow(0)
 
-    val purchasedItems: StateFlow<List<PurchasedItem>>
-        field = MutableStateFlow<List<PurchasedItem>>(emptyList())
+    val purchasedItemsEntity: StateFlow<List<PurchasedItemEntity>>
+        field = MutableStateFlow<List<PurchasedItemEntity>>(emptyList())
 
-    val purchasedThemes: StateFlow<List<PurchasedTheme>>
-        field = MutableStateFlow<List<PurchasedTheme>>(emptyList())
+    val purchasedThemesEntity: StateFlow<List<PurchasedThemeEntity>>
+        field = MutableStateFlow<List<PurchasedThemeEntity>>(emptyList())
 
     val unlockedThemes: StateFlow<Set<String>>
         field = MutableStateFlow(setOf<String>())
@@ -82,20 +85,20 @@ class StoreViewModel @Inject constructor(
     fun loadPurchasedItems(userId: String) {
         viewModelScope.launch {
             // ✅ Verifica si existen temas en la base de datos
-            val count = purchasedItemsDao.countUserPurchasedThemes(userId)
+            val count = purchasedRepository.countUserPurchasedThemes(userId)
             Timber.tag("StoreViewModel").d("🔍 Temas comprados en la BD: $count") // ✅ Debug
 
-            purchasedItemsDao.getUserPurchasedThemes(userId).collectLatest { themes ->
+            purchasedRepository.getUserPurchasedThemes(userId).collectLatest { themes ->
                 Timber.tag("StoreViewModel").d("📌 Temas cargados desde la BD: $themes") // ✅ Debug
-                purchasedThemes.value = themes
-                unlockedThemes.value = themes.map { it.themeName }.toSet()
+                purchasedThemesEntity.update { themes }
+                unlockedThemes.update { themes.map { it.themeName }.toSet() }
             }
         }
     }
 
     fun loadPurchasedThemes() {
         viewModelScope.launch {
-            purchasedItemsDao.getUserPurchasedThemes(Firebase.auth.currentUser?.uid ?: "").collectLatest { themes ->
+            purchasedRepository.getUserPurchasedThemes(Firebase.auth.currentUser?.uid ?: "").collectLatest { themes ->
                 val updatedThemes = themes.map { it.themeName }.toSet()
                 unlockedThemes.value = updatedThemes + "Tema Claro" // ✅ Siempre incluir el tema "Claro"
                 Timber.tag("StoreViewModel").d("🔓 Temas desbloqueados: $updatedThemes")
@@ -107,13 +110,13 @@ class StoreViewModel @Inject constructor(
         if (userPoints.value >= item.price) {
             viewModelScope.launch {
                 pointsRepository.spendPoints(userId, item.price)
-                val purchasedItem = PurchasedItem(
+                val purchasedItemEntity = PurchasedItemEntity(
                     userId = userId,
                     itemName = item.name,
                     itemDescription = item.description,
                     price = item.price,
                 )
-                purchasedItemsDao.insertPurchasedItem(purchasedItem)
+                purchasedRepository.insert(purchasedItemEntity)
                 userPoints.value -= item.price
                 loadPurchasedItems(userId)
             }
@@ -126,13 +129,13 @@ class StoreViewModel @Inject constructor(
         if (userPoints.value >= item.price) {
             viewModelScope.launch {
                 pointsRepository.spendPoints(userId, item.price)
-                val purchasedTheme = PurchasedTheme(
+                val purchasedThemeEntity = PurchasedThemeEntity(
                     userId = userId,
                     themeName = item.name,
                     price = item.price,
                     themeDescription = item.description,
                 )
-                purchasedItemsDao.insertPurchasedTheme(purchasedTheme)
+                purchasedRepository.insertPurchasedTheme(purchasedThemeEntity)
 
                 userPoints.value -= item.price
 

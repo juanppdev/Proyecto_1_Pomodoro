@@ -3,8 +3,8 @@ package com.mundocode.pomodoro.ui.screens.homeScreen
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.mundocode.pomodoro.data.sessionDb.SessionDao
-import com.mundocode.pomodoro.data.sessionDb.SessionEntity
+import com.mundocode.pomodoro.core.room.dao.SessionDao
+import com.mundocode.pomodoro.model.room.SessionEntity
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
