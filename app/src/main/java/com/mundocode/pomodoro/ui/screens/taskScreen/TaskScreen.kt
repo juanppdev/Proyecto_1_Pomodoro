@@ -1,6 +1,7 @@
 package com.mundocode.pomodoro.ui.screens.taskScreen
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -10,9 +11,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.AlertDialog
@@ -23,6 +24,7 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
@@ -51,15 +53,55 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
+import com.mundocode.pomodoro.core.navigation.Destinations
 import com.mundocode.pomodoro.model.room.TaskEntity
+import com.mundocode.pomodoro.ui.components.CustomTopAppBar
+import com.mundocode.pomodoro.ui.screens.points.PointsViewModel
+import com.mundocode.pomodoro.ui.screens.points.PointsViewModelFactoryProvider
+import kotlinx.serialization.ExperimentalSerializationApi
+import com.kiwi.navigationcompose.typed.navigate as kiwiNavigation
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalSerializationApi::class)
 @Composable
-fun TaskScreen(navController: NavController, viewModel: TaskViewModel = hiltViewModel()) {
+fun TaskScreen(
+    navController: NavController,
+    viewModel: TaskViewModel = hiltViewModel(),
+    factoryProvider: PointsViewModelFactoryProvider = hiltViewModel(),
+) {
     val tasks by viewModel.tasks.collectAsState()
     var showDialog by remember { mutableStateOf(false) }
+    val user = Firebase.auth.currentUser
+    val userId = Firebase.auth.currentUser?.uid ?: ""
+
+    // Crear el ViewModel usando la factory del provider
+    val pointsViewModel: PointsViewModel = viewModel(
+        factory = PointsViewModel.provideFactory(
+            assistedFactory = factoryProvider.pointsViewModelFactory,
+            userId = userId,
+        ),
+    )
+
+    val userPoints by pointsViewModel.userPoints.collectAsState()
 
     Scaffold(
+        topBar = {
+            CustomTopAppBar(
+                navController = navController,
+                title = "Tareas",
+                image = user?.photoUrl.toString(),
+                navigationIcon = {
+                    IconButton(onClick = { navController.popBackStack() }) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                    }
+                },
+                texto = "Puntos: $userPoints",
+                onNavPoints = {
+                    navController.kiwiNavigation(Destinations.StoreScreen)
+                },
+            )
+        },
         floatingActionButton = {
             FloatingActionButton(
                 onClick = { showDialog = true },
@@ -139,12 +181,20 @@ fun TaskItem(task: TaskEntity, onTaskChecked: (TaskEntity) -> Unit, onDelete: (T
                     checked = task.completed,
                     onCheckedChange = { onTaskChecked(task) },
                 )
-                Spacer(modifier = Modifier.width(8.dp))
                 Text(
                     text = task.title,
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Medium,
                     textDecoration = if (task.completed) TextDecoration.LineThrough else TextDecoration.None,
+                    modifier = Modifier.weight(1f),
+                )
+                Text(
+                    text = task.category,
+                    fontSize = 10.sp,
+                    fontWeight = FontWeight.Normal,
+                    modifier = Modifier
+                        .border(2.dp, Color.Black, MaterialTheme.shapes.medium)
+                        .padding(5.dp),
                 )
             }
         },

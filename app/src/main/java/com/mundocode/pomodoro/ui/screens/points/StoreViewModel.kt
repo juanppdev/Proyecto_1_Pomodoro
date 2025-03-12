@@ -26,8 +26,6 @@ import javax.inject.Inject
 class StoreViewModel @Inject constructor(
     private val pointsRepository: PointsRepository,
     private val purchasedRepository: PurchaseRepository,
-//    private val purchasedItemsDao: PurchasedItemsDao,
-//    private val purchasedItemsDao: PurchasedItemsDao,
     private val themePreferences: ThemePreferences,
 ) : ViewModel() {
 
