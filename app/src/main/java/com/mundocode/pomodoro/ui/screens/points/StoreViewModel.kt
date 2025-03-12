@@ -15,8 +15,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -47,9 +45,6 @@ class StoreViewModel @Inject constructor(
             ),
         )
 
-    val userPoints: StateFlow<Int>
-        field = MutableStateFlow(0)
-
     val purchasedItemsEntity: StateFlow<List<PurchasedItemEntity>>
         field = MutableStateFlow<List<PurchasedItemEntity>>(emptyList())
 
@@ -70,15 +65,15 @@ class StoreViewModel @Inject constructor(
         }
     }
 
-    fun loadUserPoints(userId: String) {
-        viewModelScope.launch {
-            pointsRepository.getUserPoints(userId).map { it.points }.stateIn(
-                scope = viewModelScope,
-                started = kotlinx.coroutines.flow.SharingStarted.WhileSubscribed(5_000),
-                initialValue = 0,
-            )
-        }
-    }
+//    fun loadUserPoints(userId: String) {
+//        viewModelScope.launch {
+//            pointsRepository.getUserPoints(userId).map { it.points }.stateIn(
+//                scope = viewModelScope,
+//                started = kotlinx.coroutines.flow.SharingStarted.WhileSubscribed(5_000),
+//                initialValue = 0,
+//            )
+//        }
+//    }
 
     fun loadPurchasedItems(userId: String) {
         viewModelScope.launch {
@@ -104,8 +99,8 @@ class StoreViewModel @Inject constructor(
         }
     }
 
-    fun purchaseItem(userId: String, item: StoreItem): Boolean {
-        if (userPoints.value >= item.price) {
+    fun purchaseItem(userId: String, item: StoreItem, userPoints: Int): Boolean {
+        if (userPoints >= item.price) {
             viewModelScope.launch {
                 pointsRepository.spendPoints(userId, item.price)
                 val purchasedItemEntity = PurchasedItemEntity(
@@ -115,7 +110,6 @@ class StoreViewModel @Inject constructor(
                     price = item.price,
                 )
                 purchasedRepository.insert(purchasedItemEntity)
-                userPoints.value -= item.price
                 loadPurchasedItems(userId)
             }
             return true
@@ -123,8 +117,8 @@ class StoreViewModel @Inject constructor(
         return false
     }
 
-    fun purchaseTheme(userId: String, item: StoreTheme): Boolean {
-        if (userPoints.value >= item.price) {
+    fun purchaseTheme(userId: String, item: StoreTheme, userPoints: Int): Boolean {
+        if (userPoints >= item.price) {
             viewModelScope.launch {
                 pointsRepository.spendPoints(userId, item.price)
                 val purchasedThemeEntity = PurchasedThemeEntity(
@@ -134,8 +128,6 @@ class StoreViewModel @Inject constructor(
                     themeDescription = item.description,
                 )
                 purchasedRepository.insertPurchasedTheme(purchasedThemeEntity)
-
-                userPoints.value -= item.price
 
                 // ✅ Actualizar `unlockedThemes` inmediatamente en la UI antes de cargar de Room
                 unlockedThemes.value = unlockedThemes.value + item.name

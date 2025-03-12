@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
@@ -61,7 +62,7 @@ fun StoreScreen(
     val context = LocalContext.current
 
     LaunchedEffect(Unit) {
-        storeViewModel.loadUserPoints(userId)
+//        storeViewModel.loadUserPoints(userId)
         storeViewModel.loadPurchasedItems(userId)
     }
 
@@ -86,8 +87,7 @@ fun StoreScreen(
                 .padding(paddingValues),
         ) {
             LazyColumn {
-                items(storeItems.size) { item ->
-                    val item = storeItems[item]
+                items(storeItems) { item ->
                     Card(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -117,7 +117,7 @@ fun StoreScreen(
                             if (!isPurchased) {
                                 Button(
                                     onClick = {
-                                        val success = storeViewModel.purchaseItem(userId, item)
+                                        val success = storeViewModel.purchaseItem(userId, item, userPoints)
                                         Toast.makeText(
                                             context,
                                             if (success) "Compra exitosa" else "Puntos insuficientes",
@@ -169,7 +169,7 @@ fun StoreScreen(
                             if (!isPurchasedTheme) {
                                 Button(
                                     onClick = {
-                                        val success = storeViewModel.purchaseTheme(userId, item)
+                                        val success = storeViewModel.purchaseTheme(userId, item, userPoints)
                                         Toast.makeText(
                                             context,
                                             if (success) "Compra exitosa" else "Puntos insuficientes",
