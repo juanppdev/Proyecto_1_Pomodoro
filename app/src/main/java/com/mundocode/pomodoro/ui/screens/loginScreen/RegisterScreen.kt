@@ -55,7 +55,7 @@ fun RegisterScreen(viewModel: LoginViewModel = hiltViewModel(), navController: N
 
     LaunchedEffect(loginSuccess) {
         if (loginSuccess) {
-            navController.kiwiNavigation(Destinations.HomeScreen)
+            navController.kiwiNavigation(Destinations.Home)
         }
     }
     Box(

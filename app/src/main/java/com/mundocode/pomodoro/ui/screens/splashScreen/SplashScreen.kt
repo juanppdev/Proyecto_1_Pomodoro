@@ -45,7 +45,7 @@ fun SplashScreen(navController: NavController, viewModel: LoginViewModel = hiltV
     LaunchedEffect(loginSuccess) {
         delay(1000) // Retraso opcional para una mejor transición
         if (loginSuccess) {
-            navController.kiwiNavigation(Destinations.HomeScreen) {
+            navController.kiwiNavigation(Destinations.Home) {
                 popUpTo("splash") { inclusive = true }
             }
         } else {

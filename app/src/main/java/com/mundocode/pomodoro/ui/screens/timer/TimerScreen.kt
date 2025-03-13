@@ -48,7 +48,7 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.mundocode.pomodoro.R
 import com.mundocode.pomodoro.core.navigation.Destinations
-import com.mundocode.pomodoro.model.local.Timer
+import com.mundocode.pomodoro.model.local.Timers
 import com.mundocode.pomodoro.ui.components.CustomTopAppBar
 import com.mundocode.pomodoro.ui.screens.points.PointsViewModel
 import com.mundocode.pomodoro.ui.screens.points.PointsViewModelFactoryProvider
@@ -77,9 +77,9 @@ fun TimerScreen(
     val savedStateHandle = navController.previousBackStackEntry?.savedStateHandle
     val timerJson = savedStateHandle?.get<String>("timer") ?: ""
     val timer = if (timerJson.isNotEmpty()) {
-        Timer.fromJson(timerJson)
+        Timers.fromJson(timerJson)
     } else {
-        Timer(
+        Timers(
             sessionName = "Session",
             mode = "Work",
             timer = "25",
@@ -124,7 +124,7 @@ fun TimerScreen(
                 Button(
                     onClick = {
                         viewModel.onPopupDismissed()
-                        navController.kiwiNavigate(Destinations.HomeScreen)
+                        navController.kiwiNavigate(Destinations.Home)
                     },
                 ) {
                     Text("Aceptar")

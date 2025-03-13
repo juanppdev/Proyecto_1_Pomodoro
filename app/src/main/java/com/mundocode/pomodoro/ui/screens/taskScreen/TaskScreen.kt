@@ -98,7 +98,7 @@ fun TaskScreen(
                 },
                 texto = "Puntos: $userPoints",
                 onNavPoints = {
-                    navController.kiwiNavigation(Destinations.StoreScreen)
+                    navController.kiwiNavigation(Destinations.Store)
                 },
             )
         },

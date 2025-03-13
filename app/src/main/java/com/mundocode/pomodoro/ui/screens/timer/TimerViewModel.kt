@@ -15,7 +15,7 @@ import com.mundocode.pomodoro.R
 import com.mundocode.pomodoro.domain.repositories.PointsRepository
 import com.mundocode.pomodoro.core.room.dao.SessionDao
 import com.mundocode.pomodoro.model.room.SessionEntity
-import com.mundocode.pomodoro.model.local.Timer
+import com.mundocode.pomodoro.model.local.Timers
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -149,7 +149,7 @@ class TimerViewModel @Inject constructor(
         }
     }
 
-    fun setupTimer(timer: Timer) {
+    fun setupTimer(timer: Timers) {
         timerState.update {
             it.copy(
                 sessionName = timer.sessionName,

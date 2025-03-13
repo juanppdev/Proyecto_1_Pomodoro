@@ -21,7 +21,7 @@ fun OptionsSection(navController: NavController) {
             textButton = "Empezar\nPomodoro",
             icon = R.drawable.timer_icon,
             descriptionIcon = "botón de Empezar Pomodoro",
-            onClick = { navController.kiwiNavigation(Destinations.SetupSessionScreen) },
+            onClick = { navController.kiwiNavigation(Destinations.SetupSession) },
         )
 
         OptionButtons(
@@ -29,7 +29,7 @@ fun OptionsSection(navController: NavController) {
             textButton = "Ver\nHábitos",
             icon = R.drawable.habit_icon,
             descriptionIcon = "botón Ver Hábitos",
-            onClick = { navController.kiwiNavigation(Destinations.HabitsScreen) },
+            onClick = { navController.kiwiNavigation(Destinations.Habits) },
         )
 
         OptionButtons(
@@ -37,7 +37,7 @@ fun OptionsSection(navController: NavController) {
             textButton = "Ver\nTareas",
             icon = R.drawable.checklist_icon,
             descriptionIcon = "botón Ver Tareas",
-            onClick = { navController.kiwiNavigation(Destinations.TaskScreen) },
+            onClick = { navController.kiwiNavigation(Destinations.Task) },
         )
     }
 }

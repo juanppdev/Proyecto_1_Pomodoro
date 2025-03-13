@@ -1,11 +1,9 @@
 package com.mundocode.pomodoro.core.navigation
 
 import com.kiwi.navigationcompose.typed.Destination
-import com.mundocode.pomodoro.model.local.Timer
+import com.mundocode.pomodoro.model.local.Timers
 import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
-
-// FIXME: Rename Destinations to get rid of "Screen" at the end
 
 sealed interface Destinations : Destination {
 
@@ -19,20 +17,20 @@ sealed interface Destinations : Destination {
     data object Register : Destinations
 
     @Serializable
-    data object HomeScreen : Destinations
+    data object Home : Destinations
 
     @Serializable
-    data object SetupSessionScreen : Destinations
+    data object SetupSession : Destinations
 
     @Serializable
-    data class TimerScreen(@Contextual val timer: Timer) : Destinations
+    data class Timer(@Contextual val timer: Timers) : Destinations
 
     @Serializable
-    data object TaskScreen : Destinations
+    data object Task : Destinations
 
     @Serializable
-    data object HabitsScreen : Destinations
+    data object Habits : Destinations
 
     @Serializable
-    data object StoreScreen : Destinations
+    data object Store : Destinations
 }

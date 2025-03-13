@@ -64,7 +64,7 @@ fun HomeScreen(
                 navigationIcon = {},
                 texto = "Puntos: $userPoints",
                 onNavPoints = {
-                    navController.kiwiNavigation(Destinations.StoreScreen)
+                    navController.kiwiNavigation(Destinations.Store)
                 },
             )
         },

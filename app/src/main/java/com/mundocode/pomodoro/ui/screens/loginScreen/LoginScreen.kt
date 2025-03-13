@@ -62,7 +62,7 @@ fun LoginScreen(navController: NavController, viewModel: LoginViewModel = hiltVi
 
     LaunchedEffect(loginSuccess) {
         if (loginSuccess) {
-            navController.kiwiNavigation(Destinations.HomeScreen)
+            navController.kiwiNavigation(Destinations.Home)
         }
     }
 

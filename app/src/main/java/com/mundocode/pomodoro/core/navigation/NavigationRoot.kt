@@ -15,7 +15,7 @@ import com.mundocode.pomodoro.ui.screens.splashScreen.SplashScreen
 import com.mundocode.pomodoro.ui.screens.taskScreen.TaskScreen
 import com.mundocode.pomodoro.ui.screens.timer.TimerScreen
 import kotlinx.serialization.ExperimentalSerializationApi
-import com.mundocode.pomodoro.core.navigation.Destinations.TaskScreen as TaskScreenDestination
+import com.mundocode.pomodoro.core.navigation.Destinations.Task
 
 @OptIn(ExperimentalSerializationApi::class)
 @Composable
@@ -42,26 +42,26 @@ fun NavigationRoot() {
                 navController = navController,
             )
         }
-        composable<Destinations.HomeScreen> {
+        composable<Destinations.Home> {
             HomeScreen(navController = navController)
         }
-        composable<Destinations.SetupSessionScreen> {
+        composable<Destinations.SetupSession> {
             SetupSessionScreen(
                 navController = navController,
             )
         }
-        composable<Destinations.HabitsScreen> {
+        composable<Destinations.Habits> {
             HabitsScreen(navController = navController)
         }
 
-        composable<TaskScreenDestination> {
+        composable<Task> {
             TaskScreen(navController = navController)
         }
 
-        composable<Destinations.TimerScreen> {
+        composable<Destinations.Timer> {
             TimerScreen(navController = navController)
         }
-        composable<Destinations.StoreScreen> {
+        composable<Destinations.Store> {
             StoreScreen(navController = navController)
         }
     }

@@ -28,7 +28,7 @@ class HabitsRepository @Inject constructor(
     }
 
     suspend fun addHabit(habit: Habits) {
-        val existingHabit = habitsDao.getHabitById(habit.id) // ✅ Método correcto en DAO
+        val existingHabit = habitsDao.getHabitById(habit.id) // ✅ Metodo correcto en DAO
         if (existingHabit == null) { // ✅ Solo insertar si el hábito no existe
             habitsDao.insert(habit.toEntity())
             syncHabitWithFirestore(habit)
