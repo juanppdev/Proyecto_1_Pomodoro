@@ -39,9 +39,12 @@ import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
+import com.kiwi.navigationcompose.typed.createRoutePattern
+import com.mundocode.pomodoro.core.navigation.Destinations
 import com.mundocode.pomodoro.ui.screens.points.StoreViewModel
 import com.mundocode.pomodoro.ui.theme.ThemeViewModel
 import kotlinx.serialization.ExperimentalSerializationApi
+import com.kiwi.navigationcompose.typed.navigate as kiwiNavigation
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalSerializationApi::class)
 @Composable
@@ -147,6 +150,18 @@ fun CustomTopAppBar(
                         onThemeSelected = { themeViewModel.changeTheme(it) },
                     )
                 }
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    "Cerrar Sesión",
+                    style = MaterialTheme.typography.bodyLarge,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.clickable {
+                        Firebase.auth.signOut()
+                        navController.kiwiNavigation(Destinations.Login) {
+                            popUpTo(createRoutePattern<Destinations.Home>()) { inclusive = true } // ✅ Usamos el patrón de ruta
+                        }
+                    },
+                )
             }
         }
     }
