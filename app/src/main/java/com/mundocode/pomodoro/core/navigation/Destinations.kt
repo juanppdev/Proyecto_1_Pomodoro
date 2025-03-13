@@ -35,7 +35,4 @@ sealed interface Destinations : Destination {
 
     @Serializable
     data object StoreScreen : Destinations
-
-    @Serializable
-    data object SettingsScreen : Destinations
 }
