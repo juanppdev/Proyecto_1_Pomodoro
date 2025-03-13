@@ -23,17 +23,19 @@ class StoreViewModel @Inject constructor(
     private val themePreferences: ThemePreferences,
 ) : ViewModel() {
 
-    val storeItems: StateFlow<List<StoreItem>>
-        field = MutableStateFlow(
-            listOf(
-                StoreItem(1, "Sonido Especial", 30, "Activa un sonido único al terminar un Pomodoro"),
-                StoreItem(2, "Fondo Personalizado", 70, "Elige un fondo exclusivo para la app"),
-                StoreItem(3, "Tema Oscuro", 50, "Tema oscuro para la app"),
-                StoreItem(4, "Tema Azul", 100, "Tema azul para la app"),
-                StoreItem(5, "Tema Rojo", 150, "Tema rojo para la app"),
-                StoreItem(6, "Tema Claro", 0, "Tema Claro para la app"),
-            ),
+    companion object {
+        val STORE_ITEMS = listOf(
+            StoreItem(1, "Sonido Especial", 30, "Activa un sonido único al terminar un Pomodoro"),
+            StoreItem(2, "Fondo Personalizado", 70, "Elige un fondo exclusivo para la app"),
+            StoreItem(3, "Tema Oscuro", 50, "Tema oscuro para la app"),
+            StoreItem(4, "Tema Azul", 100, "Tema azul para la app"),
+            StoreItem(5, "Tema Rojo", 150, "Tema rojo para la app"),
+            StoreItem(6, "Tema Claro", 0, "Tema Claro para la app"),
         )
+    }
+
+    val storeItems: StateFlow<List<StoreItem>>
+        field = MutableStateFlow(STORE_ITEMS)
 
     val purchasedDataEntity: StateFlow<List<PurchasedDataEntity>>
         field = MutableStateFlow<List<PurchasedDataEntity>>(emptyList())
