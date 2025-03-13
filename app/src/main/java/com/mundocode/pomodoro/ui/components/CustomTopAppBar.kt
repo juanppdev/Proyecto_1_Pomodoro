@@ -13,31 +13,29 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.Text
-import androidx.compose.material3.IconButton
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
-import androidx.navigation.NavController
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
@@ -60,7 +58,7 @@ fun CustomTopAppBar(
     val sheetState = rememberModalBottomSheetState()
     var showBottomSheet by remember { mutableStateOf(false) }
     val unlockedThemes by storeViewModel.unlockedThemes.collectAsState()
-    val currentTheme by themeViewModel.currentTheme.collectAsState()
+    val currentTheme by themeViewModel.selectedTheme.collectAsState()
     val userId = Firebase.auth.currentUser?.uid ?: ""
 
     LaunchedEffect(Unit) {
@@ -78,11 +76,13 @@ fun CustomTopAppBar(
         actions = {
             Text(
                 text = texto,
-                modifier = Modifier.padding(horizontal = 30.dp).clickable(
-                    onClick = {
-                        onNavPoints()
-                    },
-                ),
+                modifier = Modifier
+                    .padding(horizontal = 30.dp)
+                    .clickable(
+                        onClick = {
+                            onNavPoints()
+                        },
+                    ),
                 color = MaterialTheme.colorScheme.inverseSurface,
             )
 
@@ -109,7 +109,6 @@ fun CustomTopAppBar(
             sheetState = sheetState,
             shape = RoundedCornerShape(topStart = 32.dp, topEnd = 32.dp),
             containerColor = MaterialTheme.colorScheme.surface,
-            sheetMaxWidth = 350.dp,
             dragHandle = {
                 Box(
                     modifier = Modifier
@@ -122,7 +121,9 @@ fun CustomTopAppBar(
             },
         ) {
             Column(
-                modifier = Modifier.padding(16.dp).height(750.dp),
+                modifier = Modifier
+                    .padding(16.dp)
+                    .height(750.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 Text(
@@ -142,24 +143,11 @@ fun CustomTopAppBar(
                     Text("Tema")
                     ThemeSelector(
                         unlockedThemes = unlockedThemes,
-                        currentTheme = currentTheme,
-                        onThemeSelected = { theme ->
-                            themeViewModel.changeTheme(theme)
-                        },
+                        selectedTheme = currentTheme,
+                        onThemeSelected = { themeViewModel.changeTheme(it) },
                     )
                 }
             }
         }
     }
-}
-
-@Preview
-@Composable
-fun PreviewCustomTopAppBar() {
-    CustomTopAppBar(
-        navController = NavController(LocalContext.current),
-        title = "Custom Top App Bar",
-        image = "https://example.com/avatar.jpg",
-        texto = "Puntos: 50",
-    )
 }

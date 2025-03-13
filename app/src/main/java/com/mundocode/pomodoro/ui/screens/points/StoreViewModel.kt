@@ -9,9 +9,7 @@ import com.mundocode.pomodoro.model.room.PurchasedDataEntity
 import com.mundocode.pomodoro.ui.theme.ThemePreferences
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import kotlin.collections.toSet
@@ -34,34 +32,28 @@ class StoreViewModel @Inject constructor(
         )
     }
 
-    val storeItems: StateFlow<List<StoreItem>>
-        field = MutableStateFlow(STORE_ITEMS)
+    val storeItems = MutableStateFlow(STORE_ITEMS)
 
-    val purchasedDataEntity: StateFlow<List<PurchasedDataEntity>>
-        field = MutableStateFlow<List<PurchasedDataEntity>>(emptyList())
+    val purchasedDataEntity = MutableStateFlow<List<PurchasedDataEntity>>(emptyList())
 
-    val unlockedThemes: StateFlow<Set<String>>
-        field = MutableStateFlow(setOf<String>())
+    val unlockedThemes = MutableStateFlow(setOf<String>())
 
-    val selectedTheme: StateFlow<String>
-        field = MutableStateFlow("Tema Claro")
+    val selectedTheme = MutableStateFlow("Tema Claro")
 
     init {
         viewModelScope.launch {
             themePreferences.selectedTheme.collect { theme ->
-                selectedTheme.value = theme
+                selectedTheme.value = theme // ✅ Mantener siempre el tema actualizado
             }
         }
     }
 
     fun loadPurchasedData(userId: String) {
         viewModelScope.launch {
-            // 🔹 Obtener los ítems comprados y actualizar el estado
             purchasedRepository.get(userId).collectLatest { items ->
-                purchasedDataEntity.update { items }
-
-                val updateData = items.map { it.itemName }.toSet() // 🔹 Filtrar solo nombres válidos
-                unlockedThemes.update { updateData + "Tema Claro" } // ✅ Siempre incluir "Tema Claro"
+                purchasedDataEntity.value = items
+                val updateData = items.map { it.itemName }.toSet()
+                unlockedThemes.value = updateData + "Tema Claro"
             }
         }
     }
@@ -77,7 +69,6 @@ class StoreViewModel @Inject constructor(
                     price = item.price,
                 )
                 purchasedRepository.insert(purchasedDataEntity)
-                // ✅ Actualizar `unlockedThemes` inmediatamente en la UI antes de cargar de Room
                 unlockedThemes.value = unlockedThemes.value + item.name
                 loadPurchasedData(userId)
             }
