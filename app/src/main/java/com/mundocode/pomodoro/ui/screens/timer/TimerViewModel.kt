@@ -12,10 +12,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
 import com.mundocode.pomodoro.R
-import com.mundocode.pomodoro.data.pointsDB.PointsRepository
-import com.mundocode.pomodoro.data.sessionDb.SessionDao
-import com.mundocode.pomodoro.data.sessionDb.SessionEntity
-import com.mundocode.pomodoro.model.local.Timer
+import com.mundocode.pomodoro.domain.repositories.PointsRepository
+import com.mundocode.pomodoro.core.room.dao.SessionDao
+import com.mundocode.pomodoro.model.local.Timers
+import com.mundocode.pomodoro.model.room.SessionEntity
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -114,7 +114,7 @@ class TimerViewModel @Inject constructor(
             }
 
             Timber.tag("Points").e("⏳ Intentando agregar puntos para el usuario: $userId")
-            pointsRepository.addPoints(userId.toString(), 100)
+            pointsRepository.addPoints(userId.toString(), 25)
             Timber.tag("Points").e("✅ Puntos agregados correctamente")
 
             if (timerState.value.isWorking) {
@@ -149,7 +149,7 @@ class TimerViewModel @Inject constructor(
         }
     }
 
-    fun setupTimer(timer: Timer) {
+    fun setupTimer(timer: Timers) {
         timerState.update {
             it.copy(
                 sessionName = timer.sessionName,

@@ -80,33 +80,38 @@ dependencies {
     // Kiwi
     implementation(libs.core)
     // Icons
-    implementation("androidx.compose.material:material-icons-extended:1.7.6")
+    implementation(libs.androidx.material.icons.extended)
 
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3")
+    implementation(libs.kotlinx.serialization.json)
 
     // Room
     implementation(libs.androidx.room.runtime)
     ksp(libs.androidx.room.compiler)
     implementation(libs.androidx.room.ktx)
 
-    implementation("androidx.compose.ui:ui:1.7.8") // Asegúrate de usar la última versión de Compose
-    implementation("com.google.accompanist:accompanist-appcompat-theme:0.30.1")
+    implementation(libs.ui) // Asegúrate de usar la última versión de Compose
+    implementation(libs.accompanist.appcompat.theme)
 
     // coil
-    implementation("io.coil-kt:coil-compose:2.5.0")
+    implementation(libs.coil.compose)
 
-    implementation("com.github.PhilJay:MPAndroidChart:v3.1.0") // Librería para gráficos
+    implementation(libs.mpandroidchart) // Librería para gráficos
 
     // Timber
-    implementation("com.jakewharton.timber:timber:5.0.1")
+    implementation(libs.timber)
 
-    implementation("com.airbnb.android:lottie-compose:6.1.0")
+    implementation(libs.lottie.compose)
 
-    implementation("com.google.code.gson:gson:2.11.0")
+    implementation(libs.gson)
 
-    implementation("androidx.datastore:datastore-preferences:1.1.3")
-    implementation("androidx.datastore:datastore-core:1.1.3")
-    implementation("androidx.datastore:datastore:1.1.3")
+    implementation(libs.androidx.datastore.preferences)
+    implementation(libs.androidx.datastore.core)
+    implementation(libs.androidx.datastore)
+
+    implementation("io.github.boguszpawlowski.composecalendar:composecalendar:1.4.0")
+
+    // separate artifact with utilities for working with kotlinx-datetime
+    implementation("io.github.boguszpawlowski.composecalendar:kotlinx-datetime:1.4.0")
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.ui.test.junit4)

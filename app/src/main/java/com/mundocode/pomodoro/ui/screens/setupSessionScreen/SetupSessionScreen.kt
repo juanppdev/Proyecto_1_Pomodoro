@@ -102,7 +102,7 @@ fun SetupSessionScreen(
             startSession = {
                 val timerJson = state.timer.toJson() // Convertir a JSON
                 navController.currentBackStackEntry?.savedStateHandle?.set("timer", timerJson)
-                navController.kiwiNavigate(Destinations.TimerScreen(state.timer))
+                navController.kiwiNavigate(Destinations.Timer(state.timer))
             },
 
         )

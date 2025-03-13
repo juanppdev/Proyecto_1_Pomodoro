@@ -12,14 +12,12 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -50,7 +48,7 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.mundocode.pomodoro.R
 import com.mundocode.pomodoro.core.navigation.Destinations
-import com.mundocode.pomodoro.model.local.Timer
+import com.mundocode.pomodoro.model.local.Timers
 import com.mundocode.pomodoro.ui.components.CustomTopAppBar
 import com.mundocode.pomodoro.ui.screens.points.PointsViewModel
 import com.mundocode.pomodoro.ui.screens.points.PointsViewModelFactoryProvider
@@ -79,9 +77,9 @@ fun TimerScreen(
     val savedStateHandle = navController.previousBackStackEntry?.savedStateHandle
     val timerJson = savedStateHandle?.get<String>("timer") ?: ""
     val timer = if (timerJson.isNotEmpty()) {
-        Timer.fromJson(timerJson)
+        Timers.fromJson(timerJson)
     } else {
-        Timer(
+        Timers(
             sessionName = "Session",
             mode = "Work",
             timer = "25",
@@ -126,7 +124,7 @@ fun TimerScreen(
                 Button(
                     onClick = {
                         viewModel.onPopupDismissed()
-                        navController.kiwiNavigate(Destinations.HomeScreen)
+                        navController.kiwiNavigate(Destinations.Home)
                     },
                 ) {
                     Text("Aceptar")
@@ -141,15 +139,7 @@ fun TimerScreen(
                 navController = navController,
                 title = timer.sessionName,
                 image = user?.photoUrl.toString(),
-                navigationIcon = {
-                    IconButton(onClick = { navController.navigateUp() }) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            tint = MaterialTheme.colorScheme.onSurface,
-                            contentDescription = "Localized description",
-                        )
-                    }
-                },
+                navigationIcon = {},
                 texto = "puntos: $userPoints",
             )
         },

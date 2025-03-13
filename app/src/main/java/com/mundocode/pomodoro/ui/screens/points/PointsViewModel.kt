@@ -3,7 +3,7 @@ package com.mundocode.pomodoro.ui.screens.points
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.mundocode.pomodoro.data.pointsDB.PointsRepository
+import com.mundocode.pomodoro.domain.repositories.PointsRepository
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
@@ -12,7 +12,6 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class PointsViewModel @AssistedInject constructor(
@@ -25,20 +24,6 @@ class PointsViewModel @AssistedInject constructor(
         started = SharingStarted.WhileSubscribed(5_000),
         initialValue = 0,
     )
-
-    fun addPoints(userId: String, points: Int) {
-        viewModelScope.launch {
-            pointsRepository.addPoints(userId, points)
-        }
-    }
-
-    fun spendPoints(userId: String, points: Int): Boolean {
-        var success = false
-        viewModelScope.launch {
-            success = pointsRepository.spendPoints(userId, points)
-        }
-        return success
-    }
 
     @AssistedFactory
     interface PointsViewModelFactory {

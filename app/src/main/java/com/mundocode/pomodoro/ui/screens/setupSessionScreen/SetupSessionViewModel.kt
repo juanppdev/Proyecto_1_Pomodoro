@@ -1,7 +1,7 @@
 package com.mundocode.pomodoro.ui.screens.setupSessionScreen
 
 import androidx.lifecycle.ViewModel
-import com.mundocode.pomodoro.model.local.Timer
+import com.mundocode.pomodoro.model.local.Timers
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -55,9 +55,9 @@ class SetupSessionViewModel @Inject constructor() : ViewModel() {
     }
 }
 
-data class SessionState(val timer: Timer) {
+data class SessionState(val timer: Timers) {
     constructor() : this(
-        timer = Timer(
+        timer = Timers(
             sessionName = "",
             mode = "",
             timer = "30:00",

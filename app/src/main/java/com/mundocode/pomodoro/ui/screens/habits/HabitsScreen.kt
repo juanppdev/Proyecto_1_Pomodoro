@@ -51,10 +51,10 @@ import androidx.navigation.NavController
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.mundocode.pomodoro.R
+import com.mundocode.pomodoro.model.local.Habits
 import com.mundocode.pomodoro.ui.components.CustomTopAppBar
 import com.mundocode.pomodoro.ui.components.DialogPopUp
 import com.mundocode.pomodoro.ui.components.SwipeBox
-import com.mundocode.pomodoro.ui.screens.habits.model.HabitsModel
 import com.mundocode.pomodoro.ui.screens.points.PointsViewModel
 import com.mundocode.pomodoro.ui.screens.points.PointsViewModelFactoryProvider
 
@@ -207,7 +207,7 @@ fun HabitsContent(
 }
 
 @Composable
-fun TasksList(tasks: List<HabitsModel>) {
+fun TasksList(tasks: List<Habits>) {
     LazyColumn {
         items(tasks.size) { task ->
             MyCard(taskModel = tasks[task], habitsViewModel = viewModel())
@@ -216,7 +216,7 @@ fun TasksList(tasks: List<HabitsModel>) {
 }
 
 @Composable
-fun MyCard(taskModel: HabitsModel, habitsViewModel: HabitsViewModel) {
+fun MyCard(taskModel: Habits, habitsViewModel: HabitsViewModel) {
     SwipeBox(
         onDelete = {
             habitsViewModel.onItemRemove(taskModel)

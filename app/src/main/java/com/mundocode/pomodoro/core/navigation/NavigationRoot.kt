@@ -5,17 +5,17 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
 import com.kiwi.navigationcompose.typed.composable
 import com.kiwi.navigationcompose.typed.createRoutePattern
-import com.mundocode.pomodoro.ui.screens.splashScreen.SplashScreen
 import com.mundocode.pomodoro.ui.screens.habits.HabitsScreen
 import com.mundocode.pomodoro.ui.screens.homeScreen.HomeScreen
 import com.mundocode.pomodoro.ui.screens.loginScreen.LoginScreen
 import com.mundocode.pomodoro.ui.screens.loginScreen.RegisterScreen
-import com.mundocode.pomodoro.ui.screens.setupSessionScreen.SetupSessionScreen
-import com.mundocode.pomodoro.ui.screens.taskScreen.TaskScreen
 import com.mundocode.pomodoro.ui.screens.points.StoreScreen
-import com.mundocode.pomodoro.ui.screens.settings.SettingsScreen
+import com.mundocode.pomodoro.ui.screens.setupSessionScreen.SetupSessionScreen
+import com.mundocode.pomodoro.ui.screens.splashScreen.SplashScreen
+import com.mundocode.pomodoro.ui.screens.taskScreen.TaskScreen
 import com.mundocode.pomodoro.ui.screens.timer.TimerScreen
 import kotlinx.serialization.ExperimentalSerializationApi
+import com.mundocode.pomodoro.core.navigation.Destinations.Task
 
 @OptIn(ExperimentalSerializationApi::class)
 @Composable
@@ -42,30 +42,27 @@ fun NavigationRoot() {
                 navController = navController,
             )
         }
-        composable<Destinations.HomeScreen> {
+        composable<Destinations.Home> {
             HomeScreen(navController = navController)
         }
-        composable<Destinations.SetupSessionScreen> {
+        composable<Destinations.SetupSession> {
             SetupSessionScreen(
                 navController = navController,
             )
         }
-        composable<Destinations.HabitsScreen> {
+        composable<Destinations.Habits> {
             HabitsScreen(navController = navController)
         }
 
-        composable<Destinations.TaskScreen> {
+        composable<Task> {
             TaskScreen(navController = navController)
         }
 
-        composable<Destinations.TimerScreen> {
+        composable<Destinations.Timer> {
             TimerScreen(navController = navController)
         }
-        composable<Destinations.StoreScreen> {
+        composable<Destinations.Store> {
             StoreScreen(navController = navController)
-        }
-        composable<Destinations.SettingsScreen> {
-            SettingsScreen(navController = navController)
         }
     }
 }

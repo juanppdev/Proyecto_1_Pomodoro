@@ -16,9 +16,6 @@ class ThemeViewModel @Inject constructor(private val themePreferences: ThemePref
     private val _selectedTheme = MutableStateFlow("Tema Claro")
     val selectedTheme: StateFlow<String> = _selectedTheme.asStateFlow()
 
-    private val _currentTheme = MutableStateFlow("Tema Claro") // Valor por defecto
-    val currentTheme: StateFlow<String> = _currentTheme.asStateFlow()
-
     init {
         viewModelScope.launch {
             themePreferences.selectedTheme.collect { theme ->
@@ -31,7 +28,7 @@ class ThemeViewModel @Inject constructor(private val themePreferences: ThemePref
     fun changeTheme(themeName: String) {
         viewModelScope.launch {
             themePreferences.saveTheme(themeName)
-            _selectedTheme.value = themeName
+            _selectedTheme.value = themeName // ✅ Actualizar inmediatamente el estado
             Timber.tag("ThemeViewModel").d("🎨 Tema cambiado a: $themeName")
         }
     }
