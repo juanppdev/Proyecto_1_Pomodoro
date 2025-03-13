@@ -20,9 +20,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -35,7 +35,6 @@ import androidx.navigation.NavController
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.mundocode.pomodoro.ui.components.CustomTopAppBar
-import timber.log.Timber
 
 @Composable
 fun StoreScreen(
@@ -55,15 +54,12 @@ fun StoreScreen(
     )
 
     val storeItems by storeViewModel.storeItems.collectAsState()
-    val storeThemes by storeViewModel.storeThemes.collectAsState()
     val userPoints by pointsViewModel.userPoints.collectAsState()
-    val purchasedItems by storeViewModel.purchasedItemsEntity.collectAsState()
-    val unlockedThemes by storeViewModel.unlockedThemes.collectAsState()
+    val purchasedItems by storeViewModel.purchasedDataEntity.collectAsState()
     val context = LocalContext.current
 
     LaunchedEffect(Unit) {
-//        storeViewModel.loadUserPoints(userId)
-        storeViewModel.loadPurchasedItems(userId)
+        storeViewModel.loadPurchasedData(userId)
     }
 
     Scaffold(
@@ -73,7 +69,7 @@ fun StoreScreen(
                 title = "Tienda",
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Volver")
                     }
                 },
                 image = user?.photoUrl.toString(),
@@ -88,108 +84,66 @@ fun StoreScreen(
         ) {
             LazyColumn {
                 items(storeItems) { item ->
-                    Card(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 8.dp),
-                        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-                    ) {
-                        Column(modifier = Modifier.padding(16.dp)) {
-                            Text(
-                                text = item.name,
-                                fontSize = 20.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.onSurface,
-                            )
-                            Text(
-                                text = item.description,
-                                fontSize = 14.sp,
-                                color = MaterialTheme.colorScheme.onSurface,
-                            )
-                            Text(
-                                text = "Precio: ${item.price} puntos",
-                                fontSize = 16.sp,
-                                color = MaterialTheme.colorScheme.onSurface,
-                            )
-                            Spacer(modifier = Modifier.height(8.dp))
-                            val isPurchased = purchasedItems.any { it.itemName == item.name }
-
-                            if (!isPurchased) {
-                                Button(
-                                    onClick = {
-                                        val success = storeViewModel.purchaseItem(userId, item, userPoints)
-                                        Toast.makeText(
-                                            context,
-                                            if (success) "Compra exitosa" else "Puntos insuficientes",
-                                            Toast.LENGTH_SHORT,
-                                        ).show()
-                                    },
-                                ) {
-                                    Text("Comprar")
-                                }
-                            } else {
-                                Text(
-                                    text = "Comprado",
-                                    fontSize = 14.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = Color.Gray,
-                                )
-                            }
-                        }
-                    }
+                    StoreCard(
+                        name = item.name,
+                        description = item.description,
+                        price = item.price,
+                        isPurchased = purchasedItems.any { it.itemName == item.name },
+                        onPurchase = {
+                            val success = storeViewModel.purchaseData(userId, item, userPoints)
+                            Toast.makeText(
+                                context,
+                                if (success) "Compra exitosa" else "Puntos insuficientes",
+                                Toast.LENGTH_SHORT,
+                            ).show()
+                        },
+                    )
                 }
+            }
+        }
+    }
+}
 
-                items(storeThemes.size) { index ->
-                    val item = storeThemes[index]
-                    Card(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 8.dp),
-                        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-                    ) {
-                        Column(modifier = Modifier.padding(16.dp)) {
-                            Text(
-                                text = item.name,
-                                fontSize = 20.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.onSurface,
-                            )
-                            Text(
-                                text = "Precio: ${item.price} puntos",
-                                fontSize = 16.sp,
-                                color = MaterialTheme.colorScheme.onSurface,
-                            )
+/** 📌 Componente reutilizable para Ítems y Temas */
+@Composable
+fun StoreCard(name: String, description: String, price: Int, isPurchased: Boolean, onPurchase: () -> Unit) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text(
+                text = name,
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurface,
+            )
+            Text(
+                text = description,
+                fontSize = 14.sp,
+                color = MaterialTheme.colorScheme.onSurface,
+            )
+            Text(
+                text = "Precio: $price puntos",
+                fontSize = 16.sp,
+                color = MaterialTheme.colorScheme.onSurface,
+            )
 
-                            LaunchedEffect(unlockedThemes) {
-                                Timber.tag("StoreScreen").d("🎨 Temas desbloqueados: $unlockedThemes")
-                            }
+            Spacer(modifier = Modifier.height(8.dp))
 
-                            val isPurchasedTheme = unlockedThemes.contains(item.name)
-
-                            if (!isPurchasedTheme) {
-                                Button(
-                                    onClick = {
-                                        val success = storeViewModel.purchaseTheme(userId, item, userPoints)
-                                        Toast.makeText(
-                                            context,
-                                            if (success) "Compra exitosa" else "Puntos insuficientes",
-                                            Toast.LENGTH_SHORT,
-                                        ).show()
-                                    },
-                                ) {
-                                    Text("Comprar")
-                                }
-                            } else {
-                                Text(
-                                    text = "Comprado",
-                                    fontSize = 14.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = Color.Gray,
-                                )
-                            }
-                        }
-                    }
+            if (!isPurchased) {
+                Button(onClick = { onPurchase() }) {
+                    Text("Comprar")
                 }
+            } else {
+                Text(
+                    text = "Comprado",
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.Gray,
+                )
             }
         }
     }

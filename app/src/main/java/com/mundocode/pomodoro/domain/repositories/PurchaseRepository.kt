@@ -1,25 +1,13 @@
 package com.mundocode.pomodoro.domain.repositories
 
-import com.mundocode.pomodoro.core.room.dao.PurchasedItemsDao
-import com.mundocode.pomodoro.core.room.dao.PurchasedThemeDao
-import com.mundocode.pomodoro.model.room.PurchasedItemEntity
-import com.mundocode.pomodoro.model.room.PurchasedThemeEntity
+import com.mundocode.pomodoro.core.room.dao.PurchasedDataDao
+import com.mundocode.pomodoro.model.room.PurchasedDataEntity
 
-class PurchaseRepository(
-    private val purchasedItemsDao: PurchasedItemsDao,
-    private val purchasedThemeItemsDao: PurchasedThemeDao,
-) {
+class PurchaseRepository(private val purchasedDataDao: PurchasedDataDao) {
     // /////////////////////////////////////////////////////////////////////////
     // ITEM
     // /////////////////////////////////////////////////////////////////////////
-    suspend fun insert(entity: PurchasedItemEntity) = purchasedItemsDao.insert(entity)
-
-    // /////////////////////////////////////////////////////////////////////////
-    // THEME
-    // /////////////////////////////////////////////////////////////////////////
-    suspend fun countUserPurchasedThemes(userId: String) = purchasedThemeItemsDao.countUserPurchasedThemes(userId)
-
-    fun getUserPurchasedThemes(userId: String) = purchasedThemeItemsDao.getUserPurchasedThemes(userId)
-
-    suspend fun insertPurchasedTheme(entity: PurchasedThemeEntity) = purchasedThemeItemsDao.insert(entity)
+    suspend fun insert(entity: PurchasedDataEntity) = purchasedDataDao.insert(entity)
+    suspend fun countUserPurchasedThemes(userId: String) = purchasedDataDao.countUserPurchasedItem(userId)
+    fun get(userId: String) = purchasedDataDao.get(userId)
 }

@@ -57,11 +57,10 @@ fun SettingsScreen(
     // ✅ Asegurar que los temas desbloqueados se actualicen
     val unlockedThemes by storeViewModel.unlockedThemes.collectAsState()
     val currentTheme by themeViewModel.currentTheme.collectAsState()
-    var expanded by remember { mutableStateOf(false) }
-    var selectedOption by remember { mutableStateOf(currentTheme) }
+    val userId = Firebase.auth.currentUser?.uid ?: ""
 
     LaunchedEffect(Unit) {
-        storeViewModel.loadPurchasedThemes() // ✅ Recargar los temas desbloqueados
+        storeViewModel.loadPurchasedData(userId) // ✅ Recargar los temas desbloqueados
     }
 
     Scaffold(

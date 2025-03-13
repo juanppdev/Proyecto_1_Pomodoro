@@ -3,8 +3,7 @@ package com.mundocode.pomodoro.di
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.mundocode.pomodoro.core.room.dao.HabitsDao
-import com.mundocode.pomodoro.core.room.dao.PurchasedItemsDao
-import com.mundocode.pomodoro.core.room.dao.PurchasedThemeDao
+import com.mundocode.pomodoro.core.room.dao.PurchasedDataDao
 import com.mundocode.pomodoro.core.room.dao.TaskDao
 import com.mundocode.pomodoro.core.room.dao.UserPointsDao
 import com.mundocode.pomodoro.domain.repositories.HabitsRepository
@@ -31,9 +30,7 @@ class RepositoryModule {
     fun providePointsRepository(userPointsDao: UserPointsDao) = PointsRepository(userPointsDao)
 
     @Provides
-    fun purchaseRepository(purchasedItemsDao: PurchasedItemsDao, purchasedThemeItemsDao: PurchasedThemeDao) =
-        PurchaseRepository(
-            purchasedItemsDao,
-            purchasedThemeItemsDao,
-        )
+    fun purchaseRepository(purchasedDataDao: PurchasedDataDao) = PurchaseRepository(
+        purchasedDataDao,
+    )
 }

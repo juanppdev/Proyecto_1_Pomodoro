@@ -8,14 +8,12 @@ import androidx.room.TypeConverters
 import com.mundocode.pomodoro.core.room.converters.DateConverter
 import com.mundocode.pomodoro.core.room.converters.StringListConverter
 import com.mundocode.pomodoro.core.room.dao.HabitsDao
-import com.mundocode.pomodoro.core.room.dao.PurchasedItemsDao
-import com.mundocode.pomodoro.core.room.dao.PurchasedThemeDao
+import com.mundocode.pomodoro.core.room.dao.PurchasedDataDao
 import com.mundocode.pomodoro.core.room.dao.SessionDao
 import com.mundocode.pomodoro.core.room.dao.TaskDao
 import com.mundocode.pomodoro.core.room.dao.UserPointsDao
 import com.mundocode.pomodoro.model.room.HabitsEntity
-import com.mundocode.pomodoro.model.room.PurchasedItemEntity
-import com.mundocode.pomodoro.model.room.PurchasedThemeEntity
+import com.mundocode.pomodoro.model.room.PurchasedDataEntity
 import com.mundocode.pomodoro.model.room.SessionEntity
 import com.mundocode.pomodoro.model.room.TaskEntity
 import com.mundocode.pomodoro.model.room.UserPointsEntity
@@ -26,8 +24,7 @@ import com.mundocode.pomodoro.model.room.UserPointsEntity
         HabitsEntity::class,
         SessionEntity::class,
         UserPointsEntity::class,
-        PurchasedItemEntity::class,
-        PurchasedThemeEntity::class,
+        PurchasedDataEntity::class,
     ],
 
     version = 1,
@@ -43,8 +40,7 @@ abstract class PomodoroDatabase : RoomDatabase() {
     abstract fun habitsDao(): HabitsDao
     abstract fun sessionDao(): SessionDao
     abstract fun userPointsDao(): UserPointsDao
-    abstract fun purchasedItemsDao(): PurchasedItemsDao
-    abstract fun purchasedThemeDao(): PurchasedThemeDao
+    abstract fun purchasedDataDao(): PurchasedDataDao
 
     companion object {
 
@@ -53,8 +49,7 @@ abstract class PomodoroDatabase : RoomDatabase() {
         const val HABITS_TABLE_NAME = "habits"
         const val SESSION_TABLE_NAME = "session"
         const val USER_POINTS_TABLE_NAME = "user_points"
-        const val PURCHASED_ITEMS_TABLE_NAME = "purchased_items"
-        const val PURCHASED_THEME_TABLE_NAME = "purchased_theme"
+        const val PURCHASED_DATA_TABLE_NAME = "purchased_items"
 
         // For Singleton instantiation
         @Volatile

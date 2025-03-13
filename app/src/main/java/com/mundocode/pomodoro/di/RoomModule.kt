@@ -29,8 +29,5 @@ object RoomModule {
     fun provideUserPointsDao(database: PomodoroDatabase) = database.userPointsDao()
 
     @Provides
-    fun providePurchaseItemsDao(database: PomodoroDatabase) = database.purchasedItemsDao()
-
-    @Provides
-    fun providePurchaseThemeDao(database: PomodoroDatabase) = database.purchasedThemeDao()
+    fun providePurchaseItemsDao(database: PomodoroDatabase) = database.purchasedDataDao()
 }

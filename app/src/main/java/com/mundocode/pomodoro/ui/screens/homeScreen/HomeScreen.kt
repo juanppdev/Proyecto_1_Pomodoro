@@ -81,12 +81,8 @@ fun HomeScreen(
     viewModel: HomeViewModel = hiltViewModel(),
     navController: NavController,
     factoryProvider: PointsViewModelFactoryProvider = hiltViewModel(),
-//    sharedPointsViewModel: SharedPointsViewModel = hiltViewModel(),
-//    timerViewModel: TimerViewModel = hiltViewModel(),
     storeViewModel: StoreViewModel = hiltViewModel(),
 ) {
-//    val coroutineScope = rememberCoroutineScope()
-
     val user = Firebase.auth.currentUser
     val userId = Firebase.auth.currentUser?.uid ?: ""
 
@@ -105,13 +101,6 @@ fun HomeScreen(
 
     val userPoints by pointsViewModel.userPoints.collectAsState()
     val totalTime = viewModel.totalTimeData.collectAsState().value
-
-//    LaunchedEffect(Unit) {
-//        pointsViewModel.loadUserPoints(user?.displayName.toString())
-//        coroutineScope.launch {
-//            timerViewModel.loadPomodoroStats()
-//        }
-//    }
 
     Scaffold(
         topBar = {
@@ -132,7 +121,7 @@ fun HomeScreen(
         val userId = Firebase.auth.currentUser?.uid ?: ""
 
         LaunchedEffect(Unit) {
-            storeViewModel.loadPurchasedItems(userId) // ✅ Cargar temas desbloqueados
+            storeViewModel.loadPurchasedData(userId) // ✅ Cargar temas desbloqueados
         }
 
         LazyColumn {
@@ -288,9 +277,6 @@ fun StatsSection(
 
 @Composable
 fun DailyChart(sessionsData: Map<String, Float>, timeData: Map<String, Float>, xLabels: List<String>) {
-    Log.d("DailyChart", "📊 SessionsData: $sessionsData")
-    Log.d("DailyChart", "⏳ TotalTimeData: $timeData")
-
     if (sessionsData.isEmpty() || timeData.isEmpty()) {
         Text(
             text = "⚠️ No hay datos de hoy",
