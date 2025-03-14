@@ -26,68 +26,66 @@ import androidx.compose.ui.window.Dialog
 import com.mundocode.pomodoro.ui.theme.PomodoroTheme
 
 @Composable
-fun DialogPopUp(show: Boolean, onDismiss: () -> Unit = {}, onTaskAdded: (String, String) -> Unit = { _, _ -> }) {
+fun DialogPopUp(onDismiss: () -> Unit = {}, onTaskAdded: (String, String) -> Unit = { _, _ -> }) {
     var title by rememberSaveable { mutableStateOf("") }
     var description by rememberSaveable { mutableStateOf("") }
 
-    if (show) {
-        Dialog(onDismissRequest = { onDismiss() }) {
-            Surface(shape = RoundedCornerShape(8.dp), shadowElevation = 8.dp) {
-                Column(modifier = Modifier.padding(16.dp)) {
-                    Text(text = "Nuevo hábito")
+    Dialog(onDismissRequest = onDismiss) {
+        Surface(shape = RoundedCornerShape(8.dp), shadowElevation = 8.dp) {
+            Column(modifier = Modifier.padding(16.dp)) {
+                Text(text = "Nuevo hábito")
 
-                    TextField(
-                        value = title,
-                        onValueChange = { title = it },
-                        singleLine = true,
-                        maxLines = 1,
-                        label = { Text("Title", color = MaterialTheme.colorScheme.inverseSurface) },
-                    )
+                TextField(
+                    value = title,
+                    onValueChange = { title = it },
+                    singleLine = true,
+                    maxLines = 1,
+                    label = { Text("Title", color = MaterialTheme.colorScheme.inverseSurface) },
+                )
 
-                    Spacer(modifier = Modifier.height(4.dp))
+                Spacer(modifier = Modifier.height(4.dp))
 
-                    TextField(
-                        value = description,
-                        onValueChange = { description = it },
-                        maxLines = 20,
-                        label = { Text("Description", color = MaterialTheme.colorScheme.inverseSurface) },
-                    )
+                TextField(
+                    value = description,
+                    onValueChange = { description = it },
+                    maxLines = 20,
+                    label = { Text("Description", color = MaterialTheme.colorScheme.inverseSurface) },
+                )
 
-                    Spacer(modifier = Modifier.height(4.dp))
+                Spacer(modifier = Modifier.height(4.dp))
 
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.Center,
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Center,
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(8.dp),
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally,
                     ) {
-                        Column(
-                            modifier = Modifier
-                                .weight(1f)
-                                .padding(8.dp),
-                            verticalArrangement = Arrangement.Center,
-                            horizontalAlignment = Alignment.CenterHorizontally,
+                        Button(
+                            onClick = {
+                                onTaskAdded(title, description)
+                                title = ""
+                                description = ""
+                                onDismiss()
+                            },
+                            modifier = Modifier.padding(end = 8.dp),
                         ) {
-                            Button(
-                                onClick = {
-                                    onTaskAdded(title, description)
-                                    title = ""
-                                    description = ""
-                                    onDismiss()
-                                },
-                                modifier = Modifier.padding(end = 8.dp),
-                            ) {
-                                Text("Guardar")
-                            }
+                            Text("Guardar")
                         }
-                        Column(
-                            modifier = Modifier
-                                .weight(1f)
-                                .padding(8.dp),
-                            verticalArrangement = Arrangement.Center,
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                        ) {
-                            Button(onClick = { onDismiss() }) {
-                                Text("Cancelar")
-                            }
+                    }
+                    Column(
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(8.dp),
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                    ) {
+                        Button(onClick = onDismiss) {
+                            Text("Cancelar")
                         }
                     }
                 }
@@ -100,6 +98,6 @@ fun DialogPopUp(show: Boolean, onDismiss: () -> Unit = {}, onTaskAdded: (String,
 @Composable
 private fun DialogPopUpPreview() {
     PomodoroTheme {
-        DialogPopUp(show = true)
+        DialogPopUp()
     }
 }

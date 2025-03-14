@@ -25,14 +25,8 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -45,6 +39,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
@@ -78,9 +73,10 @@ fun HabitsScreen(
         ),
     )
 
-    val searchQuery by viewModel.searchQuery.collectAsState()
-    val showDialog by viewModel.showDialog.observeAsState(false)
-    val userPoints by pointsViewModel.userPoints.collectAsState()
+    val searchQuery by viewModel.searchQuery.collectAsStateWithLifecycle()
+    val filterList by viewModel.filterList.collectAsStateWithLifecycle()
+    val showDialog by viewModel.showDialog.collectAsStateWithLifecycle()
+    val userPoints by pointsViewModel.userPoints.collectAsStateWithLifecycle()
 
     val uiState by produceState<HabitsUIState>(
         initialValue = HabitsUIState.Loading,
@@ -125,12 +121,13 @@ fun HabitsScreen(
         ) { innerPadding ->
             HabitsContent(
                 uiState = uiState,
+                filterList = filterList,
                 showDialog = showDialog,
                 innerPadding = innerPadding,
                 searchQuery = searchQuery,
-                onSearchQueryChangedIT = viewModel::onSearchQueryChanged,
+//                onSearchQueryChangedIT = viewModel::onSearchQueryChanged,
                 onSearchQueryChanged = viewModel::onSearchQueryChanged,
-                onDialogClose = { viewModel.onDialogClose() },
+                onDialogClose = viewModel::onDialogClose,
                 onTaskCreated = viewModel::onTaskCreated,
             )
         }
@@ -140,10 +137,11 @@ fun HabitsScreen(
 @Composable
 fun HabitsContent(
     uiState: HabitsUIState,
+    filterList: List<Habits>,
     showDialog: Boolean,
     innerPadding: PaddingValues,
     searchQuery: String,
-    onSearchQueryChangedIT: (String) -> Unit = {},
+//    onSearchQueryChangedIT: (String) -> Unit = {},
     onSearchQueryChanged: (String) -> Unit = {},
     onDialogClose: () -> Unit = {},
     onTaskCreated: (String, String) -> Unit = { _, _ -> },
@@ -157,14 +155,10 @@ fun HabitsContent(
     ) {
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Buscador de hábitos
-        var localSearchQuery by remember { mutableStateOf(searchQuery) }
-
         TextField(
-            value = localSearchQuery,
+            value = searchQuery,
             onValueChange = {
-                localSearchQuery = it
-                onSearchQueryChangedIT(it)
+                onSearchQueryChanged(it)
             },
             label = { Text("Buscar", color = MaterialTheme.colorScheme.onSurface) },
             keyboardOptions = KeyboardOptions.Default.copy(
@@ -173,9 +167,9 @@ fun HabitsContent(
             modifier = Modifier.fillMaxWidth(),
         )
 
-        LaunchedEffect(localSearchQuery) {
-            onSearchQueryChanged(localSearchQuery)
-        }
+//        LaunchedEffect(localSearchQuery) {
+//            onSearchQueryChanged(localSearchQuery)
+//        }
 
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -189,13 +183,20 @@ fun HabitsContent(
             }
 
             is HabitsUIState.Success -> {
-                DialogPopUp(
-                    showDialog,
-                    onDismiss = { onDialogClose },
-                    onTaskAdded = { title, description -> onTaskCreated(title, description) },
-                )
+                if (showDialog) {
+                    DialogPopUp(
+                        onDismiss = onDialogClose,
+                        onTaskAdded = onTaskCreated,
+                    )
+                }
 
-                TasksList(uiState.tasks)
+                val list = if (filterList.isNotEmpty()) {
+                    filterList
+                } else {
+                    uiState.tasks
+                }
+
+                TasksList(list)
             }
         }
     }
@@ -259,6 +260,7 @@ fun MyCard(taskModel: Habits, habitsViewModel: HabitsViewModel) {
 fun HabitsContentPreview() {
     HabitsContent(
         uiState = HabitsUIState.Success(emptyList()),
+        filterList = emptyList(),
         showDialog = false,
         innerPadding = PaddingValues(0.dp),
         searchQuery = "",

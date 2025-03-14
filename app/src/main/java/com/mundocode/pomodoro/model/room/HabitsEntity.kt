@@ -6,7 +6,7 @@ import com.mundocode.pomodoro.core.room.PomodoroDatabase.Companion.HABITS_TABLE_
 
 @Entity(tableName = HABITS_TABLE_NAME)
 data class HabitsEntity(
-    @PrimaryKey(autoGenerate = true) val id: Int = 0, // ✅ Auto-generar IDs únicos en Room
+    @PrimaryKey(autoGenerate = true) val id: Long = 0, // ✅ Auto-generar IDs únicos en Room
     val title: String,
     val description: String,
 )

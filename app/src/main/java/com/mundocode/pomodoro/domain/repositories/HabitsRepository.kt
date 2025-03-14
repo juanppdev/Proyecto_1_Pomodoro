@@ -27,12 +27,15 @@ class HabitsRepository @Inject constructor(
         habitsEntityList.map { it.toDto() }
     }
 
-    suspend fun addHabit(habit: Habits) {
-        val existingHabit = habitsDao.getHabitById(habit.id) // ✅ Metodo correcto en DAO
-        if (existingHabit == null) { // ✅ Solo insertar si el hábito no existe
-            habitsDao.insert(habit.toEntity())
-            syncHabitWithFirestore(habit)
+    fun getHabitsByTitle(title: String): Flow<List<Habits>> =
+        habitsDao.getHabitsByTitle(title).map { habitsEntityList ->
+            habitsEntityList.map { it.toDto() }
         }
+
+    suspend fun addHabit(title: String, description: String) {
+        val habit = Habits(title = title, description = description)
+//        habitsDao.insert(habit.toEntity())
+        syncHabitWithFirestore(habit)
     }
 
     suspend fun updateHabit(habit: Habits) {

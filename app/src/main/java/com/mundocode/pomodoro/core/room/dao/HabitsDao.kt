@@ -16,6 +16,9 @@ interface HabitsDao {
     @Query("SELECT * FROM $HABITS_TABLE_NAME")
     fun getHabits(): Flow<List<HabitsEntity>> // ✅ Asegurar que devuelve un Flow
 
+    @Query("SELECT * FROM $HABITS_TABLE_NAME WHERE title LIKE :title")
+    fun getHabitsByTitle(title: String): Flow<List<HabitsEntity>>
+
     @Query("SELECT * FROM $HABITS_TABLE_NAME WHERE id = :id LIMIT 1")
     suspend fun getHabitById(id: Int): HabitsEntity?
 

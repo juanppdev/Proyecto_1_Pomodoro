@@ -1,7 +1,6 @@
 package com.mundocode.pomodoro.ui.screens.habits
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mundocode.pomodoro.domain.repositories.HabitsRepository
@@ -15,10 +14,11 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
 
 @OptIn(FlowPreview::class)
@@ -29,44 +29,53 @@ class HabitsViewModel @Inject constructor(private val habitsRepository: HabitsRe
         .catch { Error(it) }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), Loading)
 
-    init {
-        habitsRepository.syncFromFirestore(viewModelScope, "")
-    }
-
-    val showDialog: LiveData<Boolean>
-        field = MutableLiveData<Boolean>()
+    val showDialog: StateFlow<Boolean>
+        field = MutableStateFlow<Boolean>(false)
 
     val searchQuery: StateFlow<String>
         field = MutableStateFlow("")
 
+    val filterList: StateFlow<List<Habits>>
+        field = MutableStateFlow<List<Habits>>(emptyList())
+
     init {
         viewModelScope.launch {
             searchQuery
-                .debounce(500) // Espera 500ms después del último cambio antes de consultar Firestore
+//                .debounce(500) // Espera 500ms después del último cambio antes de consultar Firestore
                 .collectLatest { query ->
-                    habitsRepository.syncFromFirestore(viewModelScope, query)
+//                    Timber.tag("TEST").d("query: $query")
+                    Log.d("TEST", "query: $query")
+                    if (query.isEmpty()) {
+                        filterList.update { emptyList() }
+                    } else {
+                        habitsRepository.getHabitsByTitle(query).collectLatest {
+                            filterList.update { it }
+                        }
+                    }
                 }
         }
     }
 
     fun onSearchQueryChanged(query: String) {
-        searchQuery.value = query // Se actualiza el StateFlow, lo que dispara la búsqueda con debounce
+        searchQuery.update { query } // Se actualiza el StateFlow, lo que dispara la búsqueda con debounce
     }
 
     fun onDialogClose() {
-        showDialog.value = false
+        showDialog.update { false }
     }
 
     fun onTaskCreated(title: String, description: String) {
-        showDialog.value = false
+//        showDialog.update { false }
+
+        Timber.tag("TEST").d("title: $title, description: $description")
 
         viewModelScope.launch {
-            habitsRepository.addHabit(Habits(title = title, description = description))
+            habitsRepository.addHabit(title = title, description = description)
         }
     }
 
     fun onShowDialogSelected() {
-        showDialog.value = true
+        showDialog.update { true }
     }
 
     fun onItemRemove(taskModel: Habits) {
