@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
@@ -118,13 +119,38 @@ fun TaskScreen(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            items(tasks.size) { task ->
-                val task = tasks[task]
-                TaskItem(
-                    task = task,
-                    onTaskChecked = { viewModel.toggleTask(it) },
-                    onDelete = { viewModel.deleteTask(it) },
-                )
+            val completedTasks = tasks.filter { it.completed }
+            val pendingTasks = tasks.filter { !it.completed }
+
+            if (pendingTasks.isNotEmpty()) {
+                item {
+                    Text("Tareas por hacer", fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                    Spacer(modifier = Modifier.height(8.dp))
+                }
+
+                items(pendingTasks) { task ->
+                    TaskItem(
+                        task = task,
+                        onTaskChecked = { viewModel.toggleTask(it) },
+                        onDelete = { viewModel.deleteTask(it) },
+                    )
+                }
+            }
+
+            if (completedTasks.isNotEmpty()) {
+                item {
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Text("Tareas completadas", fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                    Spacer(modifier = Modifier.height(8.dp))
+                }
+
+                items(completedTasks) { task ->
+                    TaskItem(
+                        task = task,
+                        onTaskChecked = { viewModel.toggleTask(it) },
+                        onDelete = { viewModel.deleteTask(it) },
+                    )
+                }
             }
         }
     }
@@ -232,31 +258,37 @@ fun AddTaskDialog(onDismiss: () -> Unit, onTaskAdded: (String, String) -> Unit) 
                 OutlinedTextField(
                     value = newTask,
                     onValueChange = { newTask = it },
-                    label = { Text("Descripción de la tarea") },
+                    label = { Text("Descripción de la tarea", color = MaterialTheme.colorScheme.onSurface) },
                     singleLine = true,
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                var expanded by remember { mutableStateOf(false) }
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                ) {
+                    var expanded by remember { mutableStateOf(false) }
 
-                Text("Categoría:")
-                Box {
-                    OutlinedButton(onClick = { expanded = true }) {
-                        Text(selectedCategory)
-                    }
-                    DropdownMenu(
-                        expanded = expanded,
-                        onDismissRequest = { expanded = false },
-                    ) {
-                        categories.forEach { category ->
-                            DropdownMenuItem(
-                                text = { Text(category) },
-                                onClick = {
-                                    selectedCategory = category
-                                    expanded = false
-                                },
-                            )
+                    Text("Categoría:", color = MaterialTheme.colorScheme.onSurface)
+                    Box {
+                        OutlinedButton(onClick = { expanded = true }) {
+                            Text(selectedCategory)
+                        }
+                        DropdownMenu(
+                            expanded = expanded,
+                            onDismissRequest = { expanded = false },
+                        ) {
+                            categories.forEach { category ->
+                                DropdownMenuItem(
+                                    text = { Text(category) },
+                                    onClick = {
+                                        selectedCategory = category
+                                        expanded = false
+                                    },
+                                )
+                            }
                         }
                     }
                 }

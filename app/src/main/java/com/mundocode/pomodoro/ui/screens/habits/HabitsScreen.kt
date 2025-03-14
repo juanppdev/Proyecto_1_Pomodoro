@@ -64,7 +64,6 @@ fun HabitsScreen(
     viewModel: HabitsViewModel = hiltViewModel(),
     navController: NavController,
     factoryProvider: PointsViewModelFactoryProvider = hiltViewModel(),
-//    sharedPointsViewModel: SharedPointsViewModel = hiltViewModel(),
 ) {
     val lifecycle = LocalLifecycleOwner.current.lifecycle
 
@@ -92,10 +91,6 @@ fun HabitsScreen(
             viewModel.uiState.collect { value = it }
         }
     }
-
-//    LaunchedEffect(Unit) {
-//        pointsViewModel.loadUserPoints(user?.displayName.toString())
-//    }
 
     MaterialTheme {
         Scaffold(
