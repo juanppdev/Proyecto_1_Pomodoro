@@ -158,7 +158,8 @@ fun CustomTopAppBar(
                     modifier = Modifier.clickable {
                         Firebase.auth.signOut()
                         navController.kiwiNavigation(Destinations.Login) {
-                            popUpTo(createRoutePattern<Destinations.Home>()) { inclusive = true } // ✅ Usamos el patrón de ruta
+                            // ✅ Usamos el patrón de ruta
+                            popUpTo(createRoutePattern<Destinations.Home>()) { inclusive = true }
                         }
                     },
                 )

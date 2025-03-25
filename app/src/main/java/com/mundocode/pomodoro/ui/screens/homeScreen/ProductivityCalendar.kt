@@ -52,13 +52,9 @@ fun ProductivityCalendar(sessionsData: Map<String, Float>) {
     var showPopup by remember { mutableStateOf(false) }
 
     Column(modifier = Modifier.padding(16.dp)) {
-        // 📅 Cabecera con el nombre del mes y año
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.Center,
-        ) {
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
             Text(
-                text = monthYearFormat.format(today.time).replaceFirstChar { it.uppercase() }, // Capitalizar mes
+                text = monthYearFormat.format(today.time).replaceFirstChar { it.uppercase() },
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onBackground,
@@ -67,7 +63,6 @@ fun ProductivityCalendar(sessionsData: Map<String, Float>) {
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // 📅 Días de la semana
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceAround) {
             listOf("L", "M", "X", "J", "V", "S", "D").forEach {
                 Text(text = it, fontSize = 16.sp, fontWeight = FontWeight.Bold)
@@ -93,20 +88,19 @@ fun ProductivityCalendar(sessionsData: Map<String, Float>) {
                         .background(
                             when {
                                 day == null -> Color.Transparent
-                                // 🔹 Azul para el día que es actual
-                                day == today.get(Calendar.DAY_OF_MONTH) -> Color(0xFF03A9F4)
-                                sessionTime >= 60 -> Color.Green // 🟢 Alta productividad
-                                sessionTime in 30f..59f -> Color.Yellow // 🟡 Media productividad
+                                day == today.get(Calendar.DAY_OF_MONTH) -> Color(0xFF03A9F4) // Azul día actual
+                                sessionTime == 0f -> Color.Gray // Sin sesión
+                                sessionTime in 0f..1f -> Color.Magenta // 🔸 Sesión muy corta (menos de 1 min)
                                 sessionTime in 1f..29f -> Color.Red // 🔴 Baja productividad
+                                sessionTime in 30f..59f -> Color.Yellow // 🟡 Media productividad
+                                sessionTime >= 60f -> Color.Green // 🟢 Alta productividad
                                 else -> Color.Gray
                             },
                         )
-                        .clickable(enabled = day != null) {
-                            if (sessionTime > 0) {
-                                selectedDay = day
-                                selectedSessionTime = sessionTime
-                                showPopup = true
-                            }
+                        .clickable(enabled = day != null && sessionTime > 0) {
+                            selectedDay = day
+                            selectedSessionTime = sessionTime
+                            showPopup = true
                         },
                     contentAlignment = Alignment.Center,
                 ) {
@@ -128,14 +122,16 @@ fun ProductivityCalendar(sessionsData: Map<String, Float>) {
         }
     }
 
-    // 🎯 Mostrar popup cuando se selecciona un día con datos
     if (showPopup) {
         AlertDialog(
             onDismissRequest = { showPopup = false },
             title = { Text("Sesiones del día $selectedDay", color = MaterialTheme.colorScheme.onSurface) },
             text = {
+                val totalMinutes = selectedSessionTime!!.toInt()
+                val totalSeconds = ((selectedSessionTime!! - totalMinutes) * 60).toInt()
+
                 Text(
-                    "Tiempo total: ${selectedSessionTime!!.toInt()} minutos",
+                    "Tiempo total: $totalMinutes min $totalSeconds seg",
                     color = MaterialTheme.colorScheme.onSurface,
                 )
             },
